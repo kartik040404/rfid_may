@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'rfid_service.dart'; // Separate file for RFID handling
+import '../../services/rfid_service.dart'; // Separate file for RFID handling
 
 void main() {
   runApp(const RFIDApp());
