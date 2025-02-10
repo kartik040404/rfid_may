@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'homeScreen.dart';
 
 void main() {
-  runApp(const RFIDApp());
+  runApp(const MyApp());
 }
 
-class RFIDApp extends StatelessWidget {
-  const RFIDApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
