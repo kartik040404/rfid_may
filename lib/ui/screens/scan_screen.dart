@@ -101,6 +101,7 @@ class _HomePageState extends State<HomePage> {
                   onStopScan: stopScan,
                   focusNode: _searchFocusNode,
                   controller: _searchController,
+
                 ),
               ],
               const SizedBox(height: 20),
@@ -114,6 +115,7 @@ class _HomePageState extends State<HomePage> {
                     MaterialPageRoute(builder: (context) => const ResultsScreen()),
                   );
                 },
+                color: Color(0xFF1E1E1E),
               ),
             ],
           ),

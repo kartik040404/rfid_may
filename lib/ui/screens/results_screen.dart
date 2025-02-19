@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
             CustomButton(
               text: isScanning ? 'Stop Scan' : 'Start Scan',
               icon: isScanning ? Icons.stop : Icons.play_arrow,
-              color: isScanning ? Colors.red : Colors.indigo,
+              color: isScanning ? Colors.red : Color(0xFF1E1E1E),
               onPressed: isScanning ? stopScan : startScan,
             ),
             const SizedBox(height: 20),

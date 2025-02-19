@@ -22,7 +22,7 @@ class ScanButton extends StatelessWidget {
     return CustomButton(
       text: isScanning ? 'Stop Scan' : 'Start Scan',
       icon: isScanning ? Icons.stop : Icons.play_arrow,
-      color: isScanning ? Colors.red : Colors.indigo,
+      color: isScanning ? Colors.red : Color(0xFF1E1E1E),
       onPressed: () {
         focusNode.unfocus(); // Unfocus the search field
         if (controller.text.isEmpty) {

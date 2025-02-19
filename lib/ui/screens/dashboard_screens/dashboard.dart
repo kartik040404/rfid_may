@@ -23,9 +23,6 @@ class DashboardScreen extends StatelessWidget {
       ),
       drawer: Drawer(
         child: ListView(
-          children: const [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.black),
               child: Text(
                 "Menu",
                 style: TextStyle(
@@ -36,15 +33,11 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.dashboard),
-              title: Text(
                 "Dashboard",
                 style: TextStyle(fontFamily: 'Poppins'),
               ),
             ),
             ListTile(
-              leading: Icon(Icons.settings),
-              title: Text(
                 "Settings",
                 style: TextStyle(fontFamily: 'Poppins'),
               ),
