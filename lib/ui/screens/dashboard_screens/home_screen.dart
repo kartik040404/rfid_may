@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rfid_project/ui/screens/encoding_screen.dart';
-import 'scan_screen.dart'; // Correct import statement
+import '../scan_screen.dart'; // Correct import statement
 
 void main() {
   runApp(MyApp());

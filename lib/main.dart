@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'ui/screens/home_screen.dart';
+import 'ui/screens/onboarding_screens/welcome_screen.dart';
+import './routes/routes.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +18,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.indigo,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomeScreen(),
+      home: const WelcomeScreen(), // Start from WelcomeScreen
+      routes: AppRoutes.getRoutes(),
     );
   }
 }
