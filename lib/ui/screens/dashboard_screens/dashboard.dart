@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../register.dart';
+import '../results_screen.dart';
+import '../settings_page/SettingsPage.dart';
+
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({Key? key}) : super(key: key);
 
@@ -23,6 +27,9 @@ class DashboardScreen extends StatelessWidget {
       ),
       drawer: Drawer(
         child: ListView(
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(color: Color(0xFF1E1E1E)),
               child: Text(
                 "Menu",
                 style: TextStyle(
@@ -33,14 +40,56 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
             ListTile(
+              leading: const Icon(Icons.dashboard),
+              title: const Text(
                 "Dashboard",
                 style: TextStyle(fontFamily: 'Poppins'),
               ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => DashboardScreen()), // Navigate to SettingsPage
+                );
+              },
             ),
             ListTile(
+              leading: const Icon(Icons.document_scanner_sharp),
+              title: const Text(
+                "Scan Pattern",
+                style: TextStyle(fontFamily: 'Poppins'),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage()), // Navigate to SettingsPage
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.app_registration_outlined),
+              title: const Text(
+                "Register Pattern",
+                style: TextStyle(fontFamily: 'Poppins'),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RegisterPatternPage()), // Navigate to SettingsPage
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text(
                 "Settings",
                 style: TextStyle(fontFamily: 'Poppins'),
               ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsPage()), // Navigate to SettingsPage
+                );
+              },
             ),
           ],
         ),
