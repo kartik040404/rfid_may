@@ -271,10 +271,10 @@
 // }
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:rfid_project/ui/screens/settings_page/ProfilePage.dart';
+import 'package:flutter_svg/svg.dart';
 import '../register.dart';
 import '../results_screen.dart';
+import '../settings_page/ProfilePage.dart';
 import '../settings_page/SettingsPage.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -296,7 +296,7 @@ class DashboardScreen extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ProfilePage()),
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
               );
             },
             child: CircleAvatar(

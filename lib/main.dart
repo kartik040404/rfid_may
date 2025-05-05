@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:testing_aar_file/ui/screens/onboarding_screens/welcome_screen.dart';
 import 'RFIDPlugin.dart';
+import './routes/routes.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,6 +14,7 @@ class MyApp extends StatelessWidget {
       title: 'RFID UHF Demo',
       // home: RFIDHomePage(),
       home: WelcomeScreen(),
+      routes: AppRoutes.getRoutes(),
     );
   }
 }
