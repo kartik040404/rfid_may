@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../RFIDPlugin.dart';
+
 class RegisterPatternPage extends StatefulWidget {
   @override
   _RegisterPatternPageState createState() => _RegisterPatternPageState();
@@ -7,6 +9,43 @@ class RegisterPatternPage extends StatefulWidget {
 
 class _RegisterPatternPageState extends State<RegisterPatternPage> {
   int _currentStep = 0;
+  String status = 'Idle';
+
+  @override
+  void initState() {
+    super.initState();
+    initRFID();
+    print("initState");
+  }
+
+  Future<void> initRFID() async {
+    bool success = await RFIDPlugin.initRFID();
+    setState(() {
+      status = success ? 'RFID Initialized' : 'Init Failed';
+    });
+    print("initRFID");
+  }
+
+  Future<void> startInventory() async {
+    await RFIDPlugin.startInventory();
+    setState(() {
+      status = 'Inventory Started';
+    });
+  }
+
+  Future<void> stopInventory() async {
+    await RFIDPlugin.stopInventory();
+    setState(() {
+      status = 'Inventory Stopped';
+    });
+  }
+
+  Future<void> releaseRFID() async {
+    await RFIDPlugin.releaseRFID();
+    setState(() {
+      status = 'RFID Released';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +106,9 @@ class _RegisterPatternPageState extends State<RegisterPatternPage> {
                   backgroundColor: Color(0xFF1E1E1E), // Purple
                   foregroundColor: Colors.white,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  startInventory();
+                },
                 child: Text("Scan RFID Tag"),
               ),
               isActive: _currentStep >= 2,

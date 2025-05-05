@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../RFIDPlugin.dart';
 import '../../services/rfid_service.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
@@ -15,12 +16,65 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool isScanning = false;
   double distance = 0.0;
+  String status = 'Idle';
   final RFIDService _rfidService = RFIDService();
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+
+
+  @override
+  void initState() {
+    super.initState();
+    initRFID();
+    print("initState");
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+    releaseRFID();
+  }
+
+  Future<void> initRFID() async {
+    bool success = await RFIDPlugin.initRFID();
+    setState(() {
+      status = success ? 'RFID Initialized' : 'Init Failed';
+    });
+    print("initRFID");
+  }
+
+  Future<void> startInventory() async {
+    String epc = "";
+    await RFIDPlugin.startInventory();
+    setState(() {
+      status = 'Inventory Started';
+    });
+    if(epc.isNotEmpty){
+      stopInventory();
+    }
+  }
+
+  Future<void> stopInventory() async {
+    await RFIDPlugin.stopInventory();
+    setState(() {
+      status = 'Inventory Stopped';
+    });
+  }
+
+  Future<void> releaseRFID() async {
+    await RFIDPlugin.releaseRFID();
+    setState(() {
+      status = 'RFID Released';
+    });
+  }
 
   void startScan() {
-    setState(() {
+    setState(()  {
       isScanning = true;
+      startInventory();
+
     });
     _rfidService.startScanning((newDistance) {
       setState(() {
@@ -32,6 +86,7 @@ class _HomePageState extends State<HomePage> {
   void stopScan() {
     setState(() {
       isScanning = false;
+      stopInventory();
     });
     _rfidService.stopScanning();
   }

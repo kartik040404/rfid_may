@@ -7,7 +7,7 @@ import '../ui/screens/onboarding_screens/onboarding_screen.dart';
 import '../ui/screens/dashboard_screens/dashboard.dart';
 
 class AppRoutes {
-  static const String home = '/home';
+  // static const String home = '/home';
   static const String inventory = '/inventory';
   static const String login = '/login';
   static const String forgotPassword = '/forgotPassword';
@@ -16,7 +16,7 @@ class AppRoutes {
 
   static Map<String, WidgetBuilder> getRoutes() {
     return {
-      home: (context) => HomeScreen(),
+      // home: (context) => HomeScreen(),
       inventory: (context) => InventoryScreen(),
       login: (context) => LoginScreen(),
       forgotPassword: (context) => ForgotPasswordScreen(),

@@ -34,7 +34,7 @@ class WelcomeScreen extends StatelessWidget {
               const SizedBox(height: 30),
               CircleAvatar(
                 radius: 80,
-                backgroundImage: AssetImage("assets/worker.png"), // Replace with your image
+                backgroundImage: AssetImage("assets/worker.png"),
               ),
               const SizedBox(height: 40),
               BlackButton(

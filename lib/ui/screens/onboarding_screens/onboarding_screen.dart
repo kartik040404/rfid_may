@@ -19,7 +19,12 @@ class OnboardingScreen extends StatelessWidget {
           children: [
             const CircleAvatar(
               radius: 50,
-              backgroundColor: Colors.grey, // Placeholder for profile image
+              backgroundColor: Colors.grey, // Background color
+              child: Icon(
+                Icons.person, // Profile icon
+                size: 50, // Icon size
+                color: Colors.white, // Icon color
+              ),
             ),
             const SizedBox(height: 20),
             Text(
