@@ -106,6 +106,20 @@ public class MainActivity extends FlutterActivity {
                             boolean powerResult = rfid.setPower(power);
                             result.success(powerResult);
                             break;
+                        case "readSingleTag":
+                            if (rfid != null) {
+                                UHFTAGInfo tagInfo = rfid.inventorySingleTag();
+                                if (tagInfo != null) {
+                                    result.success(tagInfo.getEPC());
+                                    playSound(1);  // play beep on success
+                                } else {
+                                    result.success(null);  // no tag found
+                                }
+                            } else {
+                                result.success(null);  // rfid not initialized
+                            }
+                            break;
+
                         default:
                             result.notImplemented();
                             break;

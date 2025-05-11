@@ -21,6 +21,7 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final List<String> epcList = [];
+  bool isSingleTag = false;
 
   int selectedPower = 30;
   final List<int> powerLevels = List.generate(30, (index) => index + 1);
@@ -51,16 +52,7 @@ class _HomePageState extends State<HomePage> {
     print("initRFID");
   }
 
-  // Future<void> startInventory() async {
-  //   String epc = "";
-  //   await RFIDPlugin.startInventory();
-  //   setState(() {
-  //     status = 'Inventory Started';
-  //   });
-  //   if(epc.isNotEmpty){
-  //     stopInventory();
-  //   }
-  // }
+
   Future<void> startInventory() async {
     setState(() {
       isScanning = true;
@@ -90,12 +82,52 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void startScan() {
-    setState(()  {
+  // void startScan() {
+  //   setState(()  {
+  //     isScanning = true;
+  //     startInventory();
+  //
+  //   });
+  //   _rfidService.startScanning((newDistance) {
+  //     setState(() {
+  //       distance = newDistance;
+  //     });
+  //   });
+  // }
+  //
+  // void stopScan() {
+  //   setState(() {
+  //     isScanning = false;
+  //     stopInventory();
+  //   });
+  //   _rfidService.stopScanning();
+  // }
+  void startScan() async {
+    setState(() {
       isScanning = true;
-      startInventory();
-
+      epcList.clear();
+      status = 'Scanning...';
     });
+
+    if (isSingleTag) {
+      final epc = await RFIDPlugin.readSingleTag();
+      if (epc != null && !epcList.contains(epc)) {
+        setState(() {
+          epcList.add(epc);
+          status = 'Single Tag Scanned';
+        });
+      } else {
+        setState(() {
+          status = 'No Tag Found';
+        });
+      }
+      setState(() {
+        isScanning = false; // reset scan flag
+      });
+    } else {
+      await startInventory();
+    }
+
     _rfidService.startScanning((newDistance) {
       setState(() {
         distance = newDistance;
@@ -104,11 +136,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   void stopScan() {
+    if (!isSingleTag) stopInventory();
+
+    _rfidService.stopScanning();
     setState(() {
       isScanning = false;
-      stopInventory();
+      status = 'Scan Stopped';
     });
-    _rfidService.stopScanning();
   }
 
   @override
@@ -118,82 +152,101 @@ class _HomePageState extends State<HomePage> {
         title: const Text('RFID Scanner'),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            CustomTextField(
-              hintText: 'Search RFID tags...',
-              icon: Icons.search,
-              controller: _searchController,
-            ),
-            const SizedBox(height: 20),
-            InfoCard(
-              title: 'Distance to RFID',
-              value: '${distance.toStringAsFixed(2)} m',
-            ),
-            const SizedBox(height: 20),
-            Row(
+      body: SingleChildScrollView(
+        child: Container(
+          height: 800,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: DropdownButton<int>(
-                    value: selectedPower,
-                    isExpanded: true,
-                    items: powerLevels.map((level) {
-                      return DropdownMenuItem<int>(
-                        value: level,
-                        child: Text('Power $level'),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          selectedPower = value;
-                        });
-                      }
-                    },
-                  ),
+                CustomTextField(
+                  hintText: 'Search RFID tags...',
+                  icon: Icons.search,
+                  controller: _searchController,
+                ),
+                const SizedBox(height: 20),
+                InfoCard(
+                  title: 'Distance to RFID',
+                  value: '${distance.toStringAsFixed(2)} m',
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButton<int>(
+                        value: selectedPower,
+                        isExpanded: true,
+                        items: powerLevels.map((level) {
+                          return DropdownMenuItem<int>(
+                            value: level,
+                            child: Text('Power $level'),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              selectedPower = value;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+        
+                    const SizedBox(width: 10),
+        
+                    ElevatedButton(
+                      onPressed: () async {
+                        final bool success = await RFIDPlugin.setPower(selectedPower);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(success ? 'Power set successfully' : 'Failed to set power')),
+                        );
+                      },
+                      child: const Text('Set Power'),
+                    ),
+                  ],
                 ),
                 const SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () async {
-                    final bool success = await RFIDPlugin.setPower(selectedPower);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(success ? 'Power set successfully' : 'Failed to set power')),
+                CheckboxListTile(
+                  title: const Text('Use Single Tag Inventory'),
+                  value: isSingleTag,
+                  onChanged: (bool? value) {
+                    if (value != null) {
+                      setState(() {
+                        isSingleTag = value;
+                      });
+                    }
+                  },
+                ),
+        
+                const SizedBox(height: 30),
+                CustomButton(
+                  text: isScanning ? 'Stop Scan' : 'Start Scan',
+                  icon: isScanning ? Icons.stop : Icons.play_arrow,
+                  color: isScanning ? Colors.red : Color(0xFF1E1E1E),
+                  onPressed: isScanning ? stopScan : startScan,
+                ),
+                const SizedBox(height: 20),
+                CustomButton(
+                  text: 'View Results',
+                  icon: Icons.list,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ResultsScreen()),
                     );
                   },
-                  child: const Text('Set Power'),
+                ),
+                Text('Scanned EPCs:', style: TextStyle(fontWeight: FontWeight.bold)),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: epcList.length,
+                    itemBuilder: (_, index) => ListTile(title: Text(epcList[index])),
+                  ),
                 ),
               ],
             ),
-
-            const SizedBox(height: 30),
-            CustomButton(
-              text: isScanning ? 'Stop Scan' : 'Start Scan',
-              icon: isScanning ? Icons.stop : Icons.play_arrow,
-              color: isScanning ? Colors.red : Color(0xFF1E1E1E),
-              onPressed: isScanning ? stopScan : startScan,
-            ),
-            const SizedBox(height: 20),
-            CustomButton(
-              text: 'View Results',
-              icon: Icons.list,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ResultsScreen()),
-                );
-              },
-            ),
-            Text('Scanned EPCs:', style: TextStyle(fontWeight: FontWeight.bold)),
-            Expanded(
-              child: ListView.builder(
-                itemCount: epcList.length,
-                itemBuilder: (_, index) => ListTile(title: Text(epcList[index])),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
