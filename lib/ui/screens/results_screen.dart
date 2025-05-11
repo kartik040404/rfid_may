@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> startInventory() async {
     String epc = "";
-    await RFIDPlugin.startInventory();
+    // await RFIDPlugin.startInventory();
     setState(() {
       status = 'Inventory Started';
     });

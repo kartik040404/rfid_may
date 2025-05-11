@@ -10,6 +10,8 @@ class RegisterPatternPage extends StatefulWidget {
 class _RegisterPatternPageState extends State<RegisterPatternPage> {
   int _currentStep = 0;
   String status = 'Idle';
+  final List<String> epcList = [];
+  bool hasScannedFirst = false;
 
   @override
   void initState() {
@@ -27,9 +29,20 @@ class _RegisterPatternPageState extends State<RegisterPatternPage> {
   }
 
   Future<void> startInventory() async {
-    await RFIDPlugin.startInventory();
+    // await RFIDPlugin.startInventory();
     setState(() {
       status = 'Inventory Started';
+      hasScannedFirst = false;
+    });
+    await RFIDPlugin.startInventory((String epc) async {
+      if (!hasScannedFirst && !epcList.contains(epc)) {
+        hasScannedFirst = true;
+        setState(() {
+          epcList.add(epc);
+        });
+        await stopInventory();
+      }
+      print("Succesfully added $epcList");
     });
   }
 

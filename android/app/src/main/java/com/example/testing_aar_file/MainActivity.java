@@ -1,6 +1,7 @@
 package com.example.testing_aar_file;
 
-import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -12,32 +13,34 @@ import com.rscja.deviceapi.interfaces.IUHFInventoryCallback;
 
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
+import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
 
 public class MainActivity extends FlutterActivity {
-    private static final String CHANNEL = "rfid_plugin";
+    private static final String METHOD_CHANNEL = "rfid_plugin";
+    private static final String EVENT_CHANNEL = "rfid_epc_stream";
+
     private RFIDWithUHFUART rfid;
+    private EventChannel.EventSink epcSink;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         super.configureFlutterEngine(flutterEngine);
 
-        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL)
+        // MethodChannel for commands
+        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), METHOD_CHANNEL)
                 .setMethodCallHandler((call, result) -> {
                     switch (call.method) {
                         case "initRFID":
                             try {
-                                rfid = RFIDWithUHFUART.getInstance(); // can throw ConfigurationException
+                                rfid = RFIDWithUHFUART.getInstance();
                                 boolean isConnected = rfid.init(this);
-                                if (isConnected) {
-                                    showToast("RFID device connected successfully");
-                                } else {
-                                    showToast("Failed to connect to RFID device");
-                                }
+                                showToast(isConnected ? "RFID connected" : "RFID connection failed");
                                 result.success(isConnected);
                             } catch (ConfigurationException e) {
                                 e.printStackTrace();
-                                showToast("ConfigurationException: Failed to get RFID instance");
+                                showToast("ConfigurationException");
                                 result.success(false);
                             }
                             break;
@@ -48,16 +51,13 @@ public class MainActivity extends FlutterActivity {
                                     @Override
                                     public void callback(UHFTAGInfo tagInfo) {
                                         String epc = tagInfo.getEPC();
-                                        String rssi = tagInfo.getRssi();
-                                        System.out.println("EPC: " + epc + ", RSSI: " + rssi);
+                                        if (epcSink != null) {
+                                            mainHandler.post(() -> epcSink.success(epc));  // ✅ run on main thread
+                                        }
                                     }
                                 });
                                 boolean started = rfid.startInventoryTag();
-                                if (started) {
-                                    showToast("Started inventory scan");
-                                } else {
-                                    showToast("Failed to start inventory");
-                                }
+                                showToast(started ? "Inventory started" : "Start failed");
                                 result.success(started);
                             } else {
                                 showToast("RFID not initialized");
@@ -68,7 +68,7 @@ public class MainActivity extends FlutterActivity {
                         case "stopInventory":
                             if (rfid != null) {
                                 rfid.stopInventory();
-                                showToast("Stopped inventory");
+                                showToast("Inventory stopped");
                             }
                             result.success(null);
                             break;
@@ -77,7 +77,7 @@ public class MainActivity extends FlutterActivity {
                             if (rfid != null) {
                                 rfid.stopInventory();
                                 rfid.free();
-                                showToast("RFID device disconnected");
+                                showToast("RFID released");
                             }
                             result.success(null);
                             break;
@@ -85,6 +85,20 @@ public class MainActivity extends FlutterActivity {
                         default:
                             result.notImplemented();
                             break;
+                    }
+                });
+
+        // EventChannel for EPC streaming
+        new EventChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), EVENT_CHANNEL)
+                .setStreamHandler(new EventChannel.StreamHandler() {
+                    @Override
+                    public void onListen(Object arguments, EventChannel.EventSink events) {
+                        epcSink = events;
+                    }
+
+                    @Override
+                    public void onCancel(Object arguments) {
+                        epcSink = null;
                     }
                 });
     }

@@ -2,12 +2,19 @@ import 'package:flutter/services.dart';
 
 class RFIDPlugin {
   static const MethodChannel _channel = MethodChannel('rfid_plugin');
+  static const EventChannel _eventChannel = EventChannel('rfid_epc_stream');
 
   static Future<bool> initRFID() async {
     return await _channel.invokeMethod('initRFID');
   }
 
-  static Future<void> startInventory() async {
+  static Future<bool> startInventory(Function(String epc) onEpcRead) async {
+    _eventChannel.receiveBroadcastStream().listen((dynamic epc) {
+      if (epc is String) {
+        onEpcRead(epc);
+      }
+    });
+
     return await _channel.invokeMethod('startInventory');
   }
 

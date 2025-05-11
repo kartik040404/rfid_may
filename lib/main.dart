@@ -12,9 +12,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // home: RFIDHomePage(),
-      home: WelcomeScreen(),
-      // home : DashboardScreen(),
+      title: 'RFID UHF Demo',
+      home: RFIDHomePage(),
+      // home: WelcomeScreen(),
+      // home: DashboardScreen(),
       routes: AppRoutes.getRoutes(),
     );
   }
@@ -27,6 +28,8 @@ class RFIDHomePage extends StatefulWidget {
 
 class _RFIDHomePageState extends State<RFIDHomePage> {
   String status = 'Idle';
+  final List<String> epcList = [];
+  bool isScanning = false;
 
   Future<void> initRFID() async {
     bool success = await RFIDPlugin.initRFID();
@@ -36,15 +39,25 @@ class _RFIDHomePageState extends State<RFIDHomePage> {
   }
 
   Future<void> startInventory() async {
-    await RFIDPlugin.startInventory();
     setState(() {
-      status = 'Inventory Started';
+      isScanning = true;
+      status = 'Scanning...';
+      epcList.clear();
+    });
+
+    await RFIDPlugin.startInventory((String epc) {
+      if (!epcList.contains(epc)) {
+        setState(() {
+          epcList.add(epc);
+        });
+      }
     });
   }
 
   Future<void> stopInventory() async {
     await RFIDPlugin.stopInventory();
     setState(() {
+      isScanning = false;
       status = 'Inventory Stopped';
     });
   }
@@ -53,12 +66,13 @@ class _RFIDHomePageState extends State<RFIDHomePage> {
     await RFIDPlugin.releaseRFID();
     setState(() {
       status = 'RFID Released';
+      isScanning = false;
     });
   }
 
   @override
   void dispose() {
-    releaseRFID(); // Automatically release on app close
+    releaseRFID();
     super.dispose();
   }
 
@@ -71,24 +85,27 @@ class _RFIDHomePageState extends State<RFIDHomePage> {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Status: $status', style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
+            ElevatedButton(onPressed: initRFID, child: Text('Init RFID')),
             ElevatedButton(
-              onPressed: initRFID,
-              child: Text('Init RFID'),
-            ),
-            ElevatedButton(
-              onPressed: startInventory,
+              onPressed: isScanning ? null : startInventory,
               child: Text('Start Inventory'),
             ),
             ElevatedButton(
-              onPressed: stopInventory,
+              onPressed: isScanning ? stopInventory : null,
               child: Text('Stop Inventory'),
             ),
-            ElevatedButton(
-              onPressed: releaseRFID,
-              child: Text('Release RFID'),
+            ElevatedButton(onPressed: releaseRFID, child: Text('Release RFID')),
+            const SizedBox(height: 30),
+            Text('Scanned EPCs:', style: TextStyle(fontWeight: FontWeight.bold)),
+            Expanded(
+              child: ListView.builder(
+                itemCount: epcList.length,
+                itemBuilder: (_, index) => ListTile(title: Text(epcList[index])),
+              ),
             ),
           ],
         ),
