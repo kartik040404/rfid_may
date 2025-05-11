@@ -20,6 +20,10 @@ class _HomePageState extends State<HomePage> {
   final RFIDService _rfidService = RFIDService();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+  final List<String> epcList = [];
+
+  int selectedPower = 30;
+  final List<int> powerLevels = List.generate(30, (index) => index + 1);
 
 
   @override
@@ -37,6 +41,8 @@ class _HomePageState extends State<HomePage> {
     releaseRFID();
   }
 
+
+
   Future<void> initRFID() async {
     bool success = await RFIDPlugin.initRFID();
     setState(() {
@@ -45,17 +51,31 @@ class _HomePageState extends State<HomePage> {
     print("initRFID");
   }
 
+  // Future<void> startInventory() async {
+  //   String epc = "";
+  //   await RFIDPlugin.startInventory();
+  //   setState(() {
+  //     status = 'Inventory Started';
+  //   });
+  //   if(epc.isNotEmpty){
+  //     stopInventory();
+  //   }
+  // }
   Future<void> startInventory() async {
-    String epc = "";
-    // await RFIDPlugin.startInventory();
     setState(() {
-      status = 'Inventory Started';
+      isScanning = true;
+      status = 'Scanning...';
+      epcList.clear();
     });
-    if(epc.isNotEmpty){
-      stopInventory();
-    }
-  }
 
+    await RFIDPlugin.startInventory((String epc) {
+      if (!epcList.contains(epc)) {
+        setState(() {
+          epcList.add(epc);
+        });
+      }
+    });
+  }
   Future<void> stopInventory() async {
     await RFIDPlugin.stopInventory();
     setState(() {
@@ -113,6 +133,41 @@ class _HomePageState extends State<HomePage> {
               title: 'Distance to RFID',
               value: '${distance.toStringAsFixed(2)} m',
             ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButton<int>(
+                    value: selectedPower,
+                    isExpanded: true,
+                    items: powerLevels.map((level) {
+                      return DropdownMenuItem<int>(
+                        value: level,
+                        child: Text('Power $level'),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          selectedPower = value;
+                        });
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () async {
+                    final bool success = await RFIDPlugin.setPower(selectedPower);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(success ? 'Power set successfully' : 'Failed to set power')),
+                    );
+                  },
+                  child: const Text('Set Power'),
+                ),
+              ],
+            ),
+
             const SizedBox(height: 30),
             CustomButton(
               text: isScanning ? 'Stop Scan' : 'Start Scan',
@@ -130,6 +185,13 @@ class _HomePageState extends State<HomePage> {
                   MaterialPageRoute(builder: (context) => const ResultsScreen()),
                 );
               },
+            ),
+            Text('Scanned EPCs:', style: TextStyle(fontWeight: FontWeight.bold)),
+            Expanded(
+              child: ListView.builder(
+                itemCount: epcList.length,
+                itemBuilder: (_, index) => ListTile(title: Text(epcList[index])),
+              ),
             ),
           ],
         ),

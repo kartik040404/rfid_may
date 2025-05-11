@@ -4,6 +4,16 @@ class RFIDPlugin {
   static const MethodChannel _channel = MethodChannel('rfid_plugin');
   static const EventChannel _eventChannel = EventChannel('rfid_epc_stream');
 
+ static Future<bool> setPower(int power) async {
+    try {
+      final bool result = await _channel.invokeMethod('setPower', {'power': power});
+      return result;
+    } catch (e) {
+      print('Error setting power: $e');
+      return false;
+    }
+  }
+
   static Future<bool> initRFID() async {
     return await _channel.invokeMethod('initRFID');
   }

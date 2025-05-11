@@ -5,6 +5,16 @@ class RFIDService {
 
   Function(double)? _onDistanceUpdate;
 
+  Future<bool> setPower(int power) async {
+    try {
+      final bool result = await _channel.invokeMethod('setPower', {'power': power});
+      return result;
+    } catch (e) {
+      print('Error setting power: $e');
+      return false;
+    }
+  }
+
   /// Starts RFID scanning and listens for distance updates
   Future<void> startScanning(Function(double) onDistanceUpdate) async {
     _onDistanceUpdate = onDistanceUpdate;
