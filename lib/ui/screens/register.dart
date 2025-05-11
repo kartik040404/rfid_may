@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import '../../RFIDPlugin.dart';
 
@@ -10,14 +13,26 @@ class RegisterPatternPage extends StatefulWidget {
 class _RegisterPatternPageState extends State<RegisterPatternPage> {
   int _currentStep = 0;
   String status = 'Idle';
-  final List<String> epcList = [];
-  bool hasScannedFirst = false;
+  final TextEditingController _patternNameController = TextEditingController();
+  final TextEditingController _metadataController = TextEditingController();
+
+  final List<String> rfidTags = [];
+  String currentRfid = 'No RFID Found';
+  bool isScanning = false;
 
   @override
   void initState() {
     super.initState();
     initRFID();
     print("initState");
+  }
+
+  @override
+  void dispose() {
+    _patternNameController.dispose();
+    _metadataController.dispose();
+    releaseRFID();
+    super.dispose();
   }
 
   Future<void> initRFID() async {
@@ -29,28 +44,46 @@ class _RegisterPatternPageState extends State<RegisterPatternPage> {
   }
 
   Future<void> startInventory() async {
-    // await RFIDPlugin.startInventory();
+    if (rfidTags.length >= 3) {
+      setState(() {
+        status = 'Maximum 3 RFID tags allowed';
+      });
+      return;
+    }
+
     setState(() {
-      status = 'Inventory Started';
-      hasScannedFirst = false;
+      isScanning = true;
+      status = 'Scanning for RFID tag...';
     });
-    await RFIDPlugin.startInventory((String epc) async {
-      if (!hasScannedFirst && !epcList.contains(epc)) {
-        hasScannedFirst = true;
-        setState(() {
-          epcList.add(epc);
-        });
-        await stopInventory();
+
+    await RFIDPlugin.setPower(1);
+    final epc = await RFIDPlugin.readSingleTag();
+
+    setState(() {
+      isScanning = false;
+      if (epc != null) {
+        currentRfid = epc;
+        status = 'Tag Scanned';
+
+        if (!rfidTags.contains(epc)) {
+          rfidTags.add(epc);
+        } else {
+          status = 'This tag is already added';
+        }
+      } else {
+        status = 'No Tag Found';
       }
-      print("Succesfully added $epcList");
     });
   }
 
   Future<void> stopInventory() async {
-    await RFIDPlugin.stopInventory();
-    setState(() {
-      status = 'Inventory Stopped';
-    });
+    if (isScanning) {
+      await RFIDPlugin.stopInventory();
+      setState(() {
+        isScanning = false;
+        status = 'Scanning Stopped';
+      });
+    }
   }
 
   Future<void> releaseRFID() async {
@@ -60,123 +93,280 @@ class _RegisterPatternPageState extends State<RegisterPatternPage> {
     });
   }
 
+  void removeRfidTag(int index) {
+    setState(() {
+      rfidTags.removeAt(index);
+    });
+  }
+
+  Future<void> savePattern() async {
+    final patternName = _patternNameController.text;
+    final metadata = _metadataController.text;
+    // final shelfLife = double.tryParse(_shelfLifeController.text) ?? 0.0;
+
+    final payload = {
+      "pattern_name": patternName,
+      "metadata": metadata,
+      "rfids": rfidTags
+      // "shelf_life": shelfLife
+    };
+
+    final uri = Uri.parse("http://:3000/patterns");
+
+    final response = await http.post(
+      uri,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(payload),
+    );
+
+    if (response.statusCode == 201) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Pattern saved successfully!')),
+      );
+      print('Pattern Saved: $payload');
+
+      setState(() {
+        _patternNameController.clear();
+        _metadataController.clear();
+        // _shelfLifeController.clear();
+        rfidTags.clear();
+        _currentStep = 0;
+      });
+    } else {
+      print('Error saving pattern: ${response.body}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save pattern')),
+      );
+    }
+  }
+
+
+  bool canProceedToNextStep() {
+    switch (_currentStep) {
+      case 0:
+        return _patternNameController.text.isNotEmpty;
+      case 1:
+        return _metadataController.text.isNotEmpty;
+      case 2:
+        return rfidTags.isNotEmpty;
+      default:
+        return true;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Register New Pattern", style: TextStyle(color: Colors.white)),
-        backgroundColor: Color(0xFF1E1E1E), // Dark theme
-        iconTheme: IconThemeData(color: Colors.white), // Back arrow color
-      ),
-      body: Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: ColorScheme.light(
-            primary: Color(0xFF6A5ACD), // Purple theme
-            onPrimary: Colors.white,
-            secondary: Color(0xFFB0B0B0), // Gray for inactive steps
+    return WillPopScope(
+      onWillPop: () async {
+        await releaseRFID();
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Register New Pattern", style: TextStyle(color: Colors.white)),
+          backgroundColor: Color(0xFF1E1E1E),
+          iconTheme: IconThemeData(color: Colors.blue),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () async {
+              await releaseRFID();
+              Navigator.of(context).pop();
+            },
           ),
         ),
-        child: Stepper(
-          type: StepperType.vertical,
-          currentStep: _currentStep,
-          onStepContinue: () {
-            if (_currentStep < 3) {
-              setState(() => _currentStep += 1);
-            }
-          },
-          onStepCancel: () {
-            if (_currentStep > 0) {
-              setState(() => _currentStep -= 1);
-            }
-          },
-          steps: [
-            Step(
-              title: Text("Register New Pattern"),
-              content: TextField(
-                decoration: InputDecoration(
-                  labelText: "Pattern Name",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              isActive: _currentStep >= 0,
-              state: _currentStep > 0 ? StepState.complete : StepState.indexed,
+        body: Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Color(0xFF6A5ACD),
+              onPrimary: Colors.white,
+              secondary: Color(0xFFB0B0B0),
             ),
-            Step(
-              title: Text("Enter Pattern Metadata"),
-              content: TextField(
-                decoration: InputDecoration(
-                  labelText: "Metadata Details",
-                  border: OutlineInputBorder(),
+          ),
+          child: Stepper(
+            type: StepperType.vertical,
+            currentStep: _currentStep,
+            onStepContinue: () {
+              if (canProceedToNextStep()) {
+                if (_currentStep < 3) {
+                  setState(() => _currentStep += 1);
+                }
+              } else {
+                String message = '';
+                switch (_currentStep) {
+                  case 0:
+                    message = 'Please enter a pattern name';
+                    break;
+                  case 1:
+                    message = 'Please enter metadata details';
+                    break;
+                  case 2:
+                    message = 'Please scan at least one RFID tag';
+                    break;
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(message)),
+                );
+              }
+            },
+            onStepCancel: () {
+              if (_currentStep > 0) {
+                setState(() => _currentStep -= 1);
+              }
+            },
+            steps: [
+              Step(
+                title: Text("Register New Pattern"),
+                content: TextField(
+                  controller: _patternNameController,
+                  decoration: InputDecoration(
+                    labelText: "Pattern Name",
+                    border: OutlineInputBorder(),
+                  ),
                 ),
+                isActive: _currentStep >= 0,
+                state: _currentStep > 0 ? StepState.complete : StepState.indexed,
               ),
-              isActive: _currentStep >= 1,
-              state: _currentStep > 1 ? StepState.complete : StepState.indexed,
-            ),
-            Step(
-              title: Text("Attach RFID Tag"),
-              content: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF1E1E1E), // Purple
-                  foregroundColor: Colors.white,
+              Step(
+                title: Text("Enter Pattern Metadata"),
+                content: TextField(
+                  controller: _metadataController,
+                  decoration: InputDecoration(
+                    labelText: "Metadata Details",
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-                onPressed: () {
-                  startInventory();
-                },
-                child: Text("Scan RFID Tag"),
+                isActive: _currentStep >= 1,
+                state: _currentStep > 1 ? StepState.complete : StepState.indexed,
               ),
-              isActive: _currentStep >= 2,
-              state: _currentStep > 2 ? StepState.complete : StepState.indexed,
-            ),
-            Step(
-              title: Text("Save New Pattern"),
-              content: Column(
-                children: [
+              Step(
+                title: Text("Attach RFID Tags (1-3)"),
+                content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text("Status: $status"),
+                    SizedBox(height: 10),
+
+                    // Display currently scanned tags
+                    if (rfidTags.isNotEmpty) ...[
+                      Text("Scanned RFID Tags:",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      SizedBox(height: 5),
+                      ...rfidTags.asMap().entries.map((entry) {
+                        int idx = entry.key;
+                        String tag = entry.value;
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Row(
+                            children: [
+                              Expanded(child: Text("${idx+1}. $tag")),
+                              IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => removeRfidTag(idx),
+                              )
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      Divider(),
+                    ],
+
+                    // Show how many more tags can be added
+                    Text("${3 - rfidTags.length} more tag(s) can be added",
+                        style: TextStyle(fontStyle: FontStyle.italic)),
+                    SizedBox(height: 10),
+
+                    // Scan button
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF1E1E1E),
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: rfidTags.length < 3 ? startInventory : null,
+                      child: Text(isScanning ? "Scanning..." : "Scan RFID Tag"),
+                    ),
+
+                    if (isScanning)
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: stopInventory,
+                        child: Text("Stop Scanning"),
+                      ),
+                  ],
+                ),
+                isActive: _currentStep >= 2,
+                state: _currentStep > 2 ? StepState.complete : StepState.indexed,
+              ),
+              Step(
+                title: Text("Save New Pattern"),
+                content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Summary of data
+                    Text("Pattern Name: ${_patternNameController.text}",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    SizedBox(height: 5),
+                    Text("Metadata: ${_metadataController.text}"),
+                    SizedBox(height: 5),
+                    Text("RFID Tags (${rfidTags.length}):",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    SizedBox(height: 5),
+                    ...rfidTags.asMap().entries.map((entry) {
+                      int idx = entry.key;
+                      String tag = entry.value;
+                      return Text("${idx+1}. $tag");
+                    }).toList(),
+                    SizedBox(height: 20),
+
+                    // Save button
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF1E1E1E),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
+                      onPressed: savePattern,
+                      child: Text("Save Pattern"),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _currentStep = 0;
+                        });
+                      },
+                      child: Text("Cancel", style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
+                isActive: _currentStep >= 3,
+                state: _currentStep == 3 ? StepState.complete : StepState.indexed,
+              ),
+            ],
+            controlsBuilder: (BuildContext context, ControlsDetails details) {
+              if (_currentStep == 3) {
+                return SizedBox.shrink();
+              }
+              return Row(
+                children: <Widget>[
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF1E1E1E), // Dark button
+                      backgroundColor: Color(0xFF1E1E1E),
                       foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     ),
-                    onPressed: () {
-                      // Logic to save the pattern
-                    },
-                    child: Text("Save Pattern"),
+                    onPressed: details.onStepContinue,
+                    child: Text("Continue"),
                   ),
+                  SizedBox(width: 10),
                   TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _currentStep = 0; // Reset back to step 1
-                      });
-                    },
-                    child: Text("Cancel", style: TextStyle(color: Colors.red)),
+                    onPressed: details.onStepCancel,
+                    child: Text("Back", style: TextStyle(color: Colors.red)),
                   ),
                 ],
-              ),
-              isActive: _currentStep >= 3,
-              state: _currentStep == 3 ? StepState.complete : StepState.indexed,
-            ),
-          ],
-          controlsBuilder: (BuildContext context, ControlsDetails details) {
-            if (_currentStep == 3) {
-              return SizedBox.shrink(); // Hide default buttons at last step
-            }
-            return Row(
-              children: <Widget>[
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF1E1E1E),
-                    foregroundColor: Colors.white,
-                  ),
-                  onPressed: details.onStepContinue,
-                  child: Text("Continue"),
-                ),
-                TextButton(
-                  onPressed: details.onStepCancel,
-                  child: Text("Back", style: TextStyle(color: Colors.red)),
-                ),
-              ],
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

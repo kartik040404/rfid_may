@@ -15,8 +15,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'RFID UHF Demo',
       // home: RFIDHomePage(),
-      home: HomePage(),
-      // home: DashboardScreen(),
+      // home: HomePage(),
+      // home: WelcomeScreen(),
+      home: DashboardScreen(),
       routes: AppRoutes.getRoutes(),
     );
   }
