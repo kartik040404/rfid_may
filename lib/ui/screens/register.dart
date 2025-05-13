@@ -111,7 +111,7 @@ class _RegisterPatternPageState extends State<RegisterPatternPage> {
       // "shelf_life": shelfLife
     };
 
-    final uri = Uri.parse("http://:3000/patterns");
+    final uri = Uri.parse("http://192.168.0.120:3000/patterns");
 
     final response = await http.post(
       uri,

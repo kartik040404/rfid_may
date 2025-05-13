@@ -50,8 +50,17 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       status = success ? 'RFID Initialized' : 'Init Failed';
     });
-    print("initRFID");
+
+    if (success) {
+      int power = await RFIDPlugin.getPower();
+      if (power != -1) {
+        setState(() {
+          selectedPower = power;
+        });
+      }
+    }
   }
+
 
 
   Future<void> startInventory() async {

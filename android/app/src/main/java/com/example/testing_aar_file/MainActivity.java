@@ -108,6 +108,15 @@ public class MainActivity extends FlutterActivity {
                             boolean powerResult = rfid.setPower(power);
                             result.success(powerResult);
                             break;
+                        case "getPower":
+                            if (rfid != null) {
+                                int currentPower = rfid.getPower();
+                                result.success(currentPower);
+                            } else {
+                                result.success(-1); // return failure
+                            }
+                            break;
+
                         case "readSingleTag":
                             if (rfid != null) {
                                 UHFTAGInfo tagInfo = rfid.inventorySingleTag();
@@ -121,16 +130,21 @@ public class MainActivity extends FlutterActivity {
                                 result.success(null);  // rfid not initialized
                             }
                             break;
-                        case "startSearchForTag":
-                            String targetEPC = call.argument("epc");
-                            if (rfid != null && targetEPC != null) {
+                        case "startSearchForTags":
+                            List<String> epcs = call.argument("epcs");
+                            if (rfid != null && epcs != null && !epcs.isEmpty()) {
                                 rfid.setInventoryCallback(tagInfo -> {
                                     String scannedEpc = tagInfo.getEPC();
-                                    if (epcSink != null && scannedEpc.equalsIgnoreCase(targetEPC)) {
-                                        mainHandler.post(() -> {
-                                            epcSink.success(scannedEpc);
-                                            playSound(1);
-                                        });
+                                    if (epcSink != null && scannedEpc != null) {
+                                        for (String target : epcs) {
+                                            if (scannedEpc.equalsIgnoreCase(target)) {
+                                                mainHandler.post(() -> {
+                                                    epcSink.success(scannedEpc);
+                                                    playSound(1);
+                                                });
+                                                break;
+                                            }
+                                        }
                                     }
                                 });
                                 boolean started = rfid.startInventoryTag();
@@ -139,6 +153,7 @@ public class MainActivity extends FlutterActivity {
                                 result.success(false);
                             }
                             break;
+
 
                         case "stopSearchForTag":
                             if (rfid != null) {

@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:http/http.dart' as http;
 import '../../RFIDPlugin.dart';
 
 class SearchTagPage extends StatefulWidget {
@@ -9,30 +12,45 @@ class SearchTagPage extends StatefulWidget {
 }
 
 class _SearchTagPageState extends State<SearchTagPage> {
-  final TextEditingController _epcController = TextEditingController();
-  String status = 'Enter EPC to search';
+  final TextEditingController _patternController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+  String status = 'Search by pattern name';
   bool isSearching = false;
-
   double signalStrength = 0.0;
 
-  void startSearch() async {
-    final epc = _epcController.text.trim();
-    if (epc.isEmpty) {
-      setState(() {
-        status = 'EPC cannot be empty';
-      });
-      return;
+  Future<List<String>> fetchPatternSuggestions(String query) async {
+    final response = await http.get(Uri.parse('http://192.168.0.120:3000/patterns?query=$query'));
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.cast<String>();
+    } else {
+      return [];
     }
+  }
 
+  Future<List<String>> fetchRfidsForPattern(String patternName) async {
+    final response = await http.get(Uri.parse('http://192.168.0.120:3000/patterns/rfids?pattern_name=$patternName'));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return [data['rfid1'], data['rfid2'], data['rfid3']]
+          .where((rfid) => rfid != null && rfid.isNotEmpty)
+          .cast<String>()
+          .toList();
+    } else {
+      return [];
+    }
+  }
+
+  void startSearch(List<String> rfids) async {
     setState(() {
       isSearching = true;
-      status = 'Searching for $epc...';
+      status = 'Searching for ${rfids.length} tags...';
     });
 
-    final started = await RFIDPlugin.startSearchTag(epc, (matchedEpc) {
+    final started = await RFIDPlugin.startMultiSearchTags(rfids, (matchedEpc) {
       setState(() {
-        status = 'Tag Found: $matchedEpc';
-        signalStrength = 1.0;
+        status = 'Found: $matchedEpc';
+        signalStrength = 1.0; // You could simulate strength here
       });
     });
 
@@ -55,7 +73,8 @@ class _SearchTagPageState extends State<SearchTagPage> {
 
   @override
   void dispose() {
-    _epcController.dispose();
+    _patternController.dispose();
+    _focusNode.dispose();
     stopSearch();
     super.dispose();
   }
@@ -63,21 +82,55 @@ class _SearchTagPageState extends State<SearchTagPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Search RFID Tag")),
+      appBar: AppBar(title: const Text("Search RFID by Pattern")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(
-              controller: _epcController,
-              decoration: const InputDecoration(
-                labelText: "Enter EPC",
-                border: OutlineInputBorder(),
-              ),
+            TypeAheadField<String>(
+              controller: _patternController,
+              focusNode: _focusNode,
+              suggestionsCallback: fetchPatternSuggestions,
+              builder: (context, controller, focusNode) {
+                // This is called when building the text field
+                return TextField(
+                  controller: controller, // This is the internal controller
+                  focusNode: focusNode,
+                  decoration: const InputDecoration(
+                    labelText: 'Enter Pattern Name',
+                    border: OutlineInputBorder(),
+                  ),
+                );
+              },
+              itemBuilder: (context, suggestion) {
+                return ListTile(title: Text(suggestion));
+              },
+              onSelected: (suggestion) {
+                setState(() {
+                  // When a suggestion is selected, update our controller explicitly
+                  _patternController.text = suggestion;
+                });
+              },
+              hideOnSelect: true,
+              hideOnUnfocus: true,
+              hideOnEmpty: false,
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: isSearching ? stopSearch : startSearch,
+              onPressed: isSearching
+                  ? stopSearch
+                  : () async {
+                final pattern = _patternController.text.trim();
+                if (pattern.isEmpty) return;
+                final rfids = await fetchRfidsForPattern(pattern);
+                if (rfids.isNotEmpty) {
+                  startSearch(rfids);
+                } else {
+                  setState(() {
+                    status = 'No RFID tags found for pattern "$pattern"';
+                  });
+                }
+              },
               child: Text(isSearching ? "Stop Search" : "Start Search"),
             ),
             const SizedBox(height: 20),

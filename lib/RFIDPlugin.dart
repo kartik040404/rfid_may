@@ -23,6 +23,16 @@ class RFIDPlugin {
       return false;
     }
   }
+  static Future<int> getPower() async {
+    try {
+      final int power = await _channel.invokeMethod('getPower');
+      return power;
+    } catch (e) {
+      print('Error getting power: $e');
+      return -1;
+    }
+  }
+
 
   static Future<bool> initRFID() async {
     return await _channel.invokeMethod('initRFID');
@@ -45,18 +55,23 @@ class RFIDPlugin {
   static Future<void> releaseRFID() async {
     return await _channel.invokeMethod('releaseRFID');
   }
-  static Future<bool> startSearchTag(String epc, Function(String epc) onTagFound) async {
+
+  static Future<bool> startMultiSearchTags(
+      List<String> epcs, Function(String epc) onTagFound) async {
     _eventChannel.receiveBroadcastStream().listen((dynamic scannedEpc) {
-      if (scannedEpc is String && scannedEpc.toLowerCase() == epc.toLowerCase()) {
+      if (scannedEpc is String &&
+          epcs.any((epc) => epc.toLowerCase() == scannedEpc.toLowerCase())) {
         onTagFound(scannedEpc);
       }
     });
 
     try {
-      final bool started = await _channel.invokeMethod('startSearchForTag', {'epc': epc});
+      final bool started = await _channel.invokeMethod('startSearchForTags', {
+        'epcs': epcs,
+      });
       return started;
     } catch (e) {
-      print('Error starting search: $e');
+      print('Error starting multi-tag search: $e');
       return false;
     }
   }
