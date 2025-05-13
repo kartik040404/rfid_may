@@ -14,6 +14,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_svg: ^1.0.3
   http: ^1.4.0
+  flutter_typeahead: ^5.2.0
 
 dev_dependencies:
   flutter_test:
@@ -27,6 +28,7 @@ flutter:
 
   assets:
     - assets/worker.png
+    - assets/images/
     - assets/user.svg
     - assets/Z.jpg
   fonts:

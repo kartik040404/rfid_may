@@ -16,6 +16,8 @@ import com.rscja.deviceapi.exception.ConfigurationException;
 import com.rscja.deviceapi.interfaces.IUHFInventoryCallback;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
@@ -119,6 +121,32 @@ public class MainActivity extends FlutterActivity {
                                 result.success(null);  // rfid not initialized
                             }
                             break;
+                        case "startSearchForTag":
+                            String targetEPC = call.argument("epc");
+                            if (rfid != null && targetEPC != null) {
+                                rfid.setInventoryCallback(tagInfo -> {
+                                    String scannedEpc = tagInfo.getEPC();
+                                    if (epcSink != null && scannedEpc.equalsIgnoreCase(targetEPC)) {
+                                        mainHandler.post(() -> {
+                                            epcSink.success(scannedEpc);
+                                            playSound(1);
+                                        });
+                                    }
+                                });
+                                boolean started = rfid.startInventoryTag();
+                                result.success(started);
+                            } else {
+                                result.success(false);
+                            }
+                            break;
+
+                        case "stopSearchForTag":
+                            if (rfid != null) {
+                                rfid.stopInventory();
+                            }
+                            result.success(null);
+                            break;
+
 
                         default:
                             result.notImplemented();

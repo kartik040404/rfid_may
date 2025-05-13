@@ -45,4 +45,29 @@ class RFIDPlugin {
   static Future<void> releaseRFID() async {
     return await _channel.invokeMethod('releaseRFID');
   }
+  static Future<bool> startSearchTag(String epc, Function(String epc) onTagFound) async {
+    _eventChannel.receiveBroadcastStream().listen((dynamic scannedEpc) {
+      if (scannedEpc is String && scannedEpc.toLowerCase() == epc.toLowerCase()) {
+        onTagFound(scannedEpc);
+      }
+    });
+
+    try {
+      final bool started = await _channel.invokeMethod('startSearchForTag', {'epc': epc});
+      return started;
+    } catch (e) {
+      print('Error starting search: $e');
+      return false;
+    }
+  }
+
+  static Future<void> stopSearchTag() async {
+    try {
+      await _channel.invokeMethod('stopSearchForTag');
+    } catch (e) {
+      print('Error stopping search: $e');
+    }
+  }
+
+
 }

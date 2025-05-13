@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../RFIDPlugin.dart';
+import '../../SearchTagPage.dart';
 import '../../services/rfid_service.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
@@ -170,6 +171,18 @@ class _HomePageState extends State<HomePage> {
                   title: 'Distance to RFID',
                   value: '${distance.toStringAsFixed(2)} m',
                 ),
+                const SizedBox(height: 20),
+                CustomButton(
+                  text: 'Search RFID',
+                  icon: Icons.search,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SearchTagPage()),
+                    );
+                  },
+                ),
+
                 const SizedBox(height: 20),
                 Row(
                   children: [
