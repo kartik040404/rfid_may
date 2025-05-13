@@ -20,28 +20,29 @@ class _RegisterPatternPageState extends State<RegisterPatternPage> {
   String currentRfid = 'No RFID Found';
   bool isScanning = false;
 
-  @override
-  void initState() {
-    super.initState();
-    initRFID();
-    print("initState");
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   initRFID();
+  //   print("initState");
+  // }
 
   @override
   void dispose() {
     _patternNameController.dispose();
     _metadataController.dispose();
-    releaseRFID();
+    // releaseRFID();
+    print("===========================Dispose");
     super.dispose();
   }
 
-  Future<void> initRFID() async {
-    bool success = await RFIDPlugin.initRFID();
-    setState(() {
-      status = success ? 'RFID Initialized' : 'Init Failed';
-    });
-    print("initRFID");
-  }
+  // Future<void> initRFID() async {
+  //   bool success = await RFIDPlugin.initRFID();
+  //   setState(() {
+  //     status = success ? 'RFID Initialized' : 'Init Failed';
+  //   });
+  //   print("initRFID");
+  // }
 
   Future<void> startInventory() async {
     if (rfidTags.length >= 3) {
@@ -86,12 +87,12 @@ class _RegisterPatternPageState extends State<RegisterPatternPage> {
     }
   }
 
-  Future<void> releaseRFID() async {
-    await RFIDPlugin.releaseRFID();
-    setState(() {
-      status = 'RFID Released';
-    });
-  }
+  // Future<void> releaseRFID() async {
+  //   await RFIDPlugin.releaseRFID();
+  //   setState(() {
+  //     status = 'RFID Released';
+  //   });
+  // }
 
   void removeRfidTag(int index) {
     setState(() {
@@ -111,7 +112,7 @@ class _RegisterPatternPageState extends State<RegisterPatternPage> {
       // "shelf_life": shelfLife
     };
 
-    final uri = Uri.parse("http://192.168.0.120:3000/patterns");
+    final uri = Uri.parse("http://:3000/patterns"); //server IP address
 
     final response = await http.post(
       uri,
@@ -158,7 +159,7 @@ class _RegisterPatternPageState extends State<RegisterPatternPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        await releaseRFID();
+        // await releaseRFID();
         return true;
       },
       child: Scaffold(
@@ -169,7 +170,7 @@ class _RegisterPatternPageState extends State<RegisterPatternPage> {
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () async {
-              await releaseRFID();
+              // await releaseRFID();
               Navigator.of(context).pop();
             },
           ),

@@ -20,7 +20,7 @@ class AppRoutes {
       inventory: (context) => InventoryScreen(),
       login: (context) => LoginScreen(),
       forgotPassword: (context) => ForgotPasswordScreen(),
-      onboarding: (context) => OnboardingScreen(),
+      // onboarding: (context) => OnboardingScreen(),
       dashboard: (context) => DashboardScreen(),
     };
   }

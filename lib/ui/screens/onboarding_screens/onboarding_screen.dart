@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import '../../widgets/black_button.dart';
 
 class OnboardingScreen extends StatelessWidget {
-  final String username = "Alex Martinez"; // Replace with actual username
-  final String employeeId = "193045"; // Replace with actual employee ID
+   String username;
+   String employeeId;
 
-  const OnboardingScreen({Key? key}) : super(key: key);
+  OnboardingScreen(
+      this.username, this.employeeId);
+
+  // const OnboardingScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

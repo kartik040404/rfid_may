@@ -18,7 +18,7 @@ class _HomePageState extends State<HomePage> {
   bool isScanning = false;
   double distance = 0.0;
   String status = 'Idle';
-  final RFIDService _rfidService = RFIDService();
+  // final RFIDService _rfidService = RFIDService();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final List<String> epcList = [];
@@ -40,27 +40,26 @@ class _HomePageState extends State<HomePage> {
     _searchController.dispose();
     _searchFocusNode.dispose();
     super.dispose();
-    releaseRFID();
+    // releaseRFID();
   }
 
 
 
   Future<void> initRFID() async {
-    bool success = await RFIDPlugin.initRFID();
-    setState(() {
-      status = success ? 'RFID Initialized' : 'Init Failed';
-    });
+    // bool success = await RFIDPlugin.initRFID();
+    // setState(() {
+    //   status = success ? 'RFID Initialized' : 'Init Failed';
+    // });
 
-    if (success) {
+    // if (success) {
       int power = await RFIDPlugin.getPower();
       if (power != -1) {
         setState(() {
           selectedPower = power;
         });
       }
-    }
+    // }
   }
-
 
 
   Future<void> startInventory() async {
@@ -85,12 +84,12 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future<void> releaseRFID() async {
-    await RFIDPlugin.releaseRFID();
-    setState(() {
-      status = 'RFID Released';
-    });
-  }
+  // Future<void> releaseRFID() async {
+  //   await RFIDPlugin.releaseRFID();
+  //   setState(() {
+  //     status = 'RFID Released';
+  //   });
+  // }
 
   // void startScan() {
   //   setState(()  {
@@ -138,17 +137,17 @@ class _HomePageState extends State<HomePage> {
       await startInventory();
     }
 
-    _rfidService.startScanning((newDistance) {
-      setState(() {
-        distance = newDistance;
-      });
-    });
+    // _rfidService.startScanning((newDistance) {
+    //   setState(() {
+    //     distance = newDistance;
+    //   });
+    // });
   }
 
   void stopScan() {
     if (!isSingleTag) stopInventory();
 
-    _rfidService.stopScanning();
+    // _rfidService.stopScanning();
     setState(() {
       isScanning = false;
       status = 'Scan Stopped';
