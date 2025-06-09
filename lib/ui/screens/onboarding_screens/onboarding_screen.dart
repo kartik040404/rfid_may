@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../widgets/black_button.dart';
 
 class OnboardingScreen extends StatelessWidget {
    String username;

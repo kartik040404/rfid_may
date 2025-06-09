@@ -29,7 +29,6 @@ flutter:
 
   assets:
     - assets/worker.png
-    - assets/images/
     - assets/user.svg
     - assets/Z.jpg
   fonts:

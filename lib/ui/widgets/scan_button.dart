@@ -25,26 +25,7 @@ class ScanButton extends StatelessWidget {
       color: isScanning ? Colors.red : Color(0xFF1E1E1E),
       onPressed: () {
         focusNode.unfocus(); // Unfocus the search field
-        if (controller.text.isEmpty) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Error'),
-                content: const Text('Please enter a RFID tag to begin searching.'),
-                actions: <Widget>[
-                  TextButton(
-                    child: const Text('OK'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-          return;
-        }
+
         if (isScanning) {
           onStopScan();
         } else {

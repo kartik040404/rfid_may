@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:testing_aar_file/ui/screens/onboarding_screens/forgot_password_screen.dart';
 import 'package:testing_aar_file/ui/screens/onboarding_screens/onboarding_screen.dart';
 import '../../widgets/black_button.dart';
 import '../../widgets/error_message.dart';
@@ -158,7 +157,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 30),
-
                 // Error Message
                 if (_errorMessage != null)
                   ErrorMessage(message: _errorMessage!),
@@ -173,20 +171,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         : BlackButton(
                       text: "Log in",
                       onPressed: _login,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 15),
-
-                // Forgot Password Text
-                Center(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ForgotPasswordScreen(),));
-                    },
-                    child: const Text(
-                      "Forgot your password?",
-                      style: TextStyle(color: Colors.grey),
                     ),
                   ),
                 ),
