@@ -1,405 +1,7 @@
-//
-// import 'package:flutter/material.dart';
-// import 'package:flutter_svg/svg.dart';
-// import '../../../RFIDPlugin.dart';
-// import '../register.dart';
-// import '../scan_screen.dart';
-//
-// class DashboardScreen extends StatefulWidget {
-//   const DashboardScreen({Key? key}) : super(key: key);
-//
-//   @override
-//   State<DashboardScreen> createState() => _DashboardScreenState();
-// }
-//
-// class _DashboardScreenState extends State<DashboardScreen> {
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text(
-//           "PatternTrackRFID",
-//           style: TextStyle(
-//             fontFamily: 'Poppins',
-//             fontWeight: FontWeight.bold,
-//           ),
-//         ),
-//         actions: [
-//           GestureDetector(
-//             onTap: () {
-//               // Navigator.push(
-//               //   context,
-//               //   MaterialPageRoute(builder: (context) => const ProfilePage()),
-//               // );
-//             },
-//             child: CircleAvatar(
-//               backgroundColor: Colors.transparent,
-//               child: SvgPicture.asset(
-//                 "assets/user.svg",
-//                 width: 40,
-//                 height: 40,
-//               ),
-//             ),
-//           ),
-//           const SizedBox(width: 15),
-//         ],
-//       ),
-//       drawer: Drawer(
-//         child: ListView(
-//           children: [
-//             const DrawerHeader(
-//               decoration: BoxDecoration(color: Colors.black),
-//               child: Text(
-//                 "Menu",
-//                 style: TextStyle(
-//                   fontFamily: 'Poppins',
-//                   color: Colors.white,
-//                   fontSize: 24,
-//                 ),
-//               ),
-//             ),
-//             ListTile(
-//               leading: const Icon(Icons.dashboard),
-//               title: const Text("Dashboard", style: TextStyle(fontFamily: 'Poppins')),
-//               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DashboardScreen())),
-//             ),
-//             ListTile(
-//               leading: const Icon(Icons.document_scanner_sharp),
-//               title: const Text("Scan Pattern", style: TextStyle(fontFamily: 'Poppins')),
-//               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ScanScreen())),
-//             ),
-//             ListTile(
-//               leading: const Icon(Icons.app_registration_outlined),
-//               title: const Text("Register Pattern", style: TextStyle(fontFamily: 'Poppins')),
-//               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPatternPage())),
-//             ),
-//           ],
-//         ),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             const Center(
-//               child: Column(
-//                 children: [
-//                   Text(
-//                     "Dashboard",
-//                     style: TextStyle(
-//                       fontFamily: 'Poppins',
-//                       fontSize: 22,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                   SizedBox(height: 5),
-//                   Text(
-//                     "Quick overview of your inventory",
-//                     style: TextStyle(
-//                       fontFamily: 'Poppins',
-//                       fontSize: 16,
-//                       color: Colors.grey,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//             const SizedBox(height: 20),
-//             _DashboardCard(title: "Total Patterns", value: "1,250", isNavigable: true),
-//             const SizedBox(height: 20),
-//             const Text(
-//               "Recent Logs",
-//               style: TextStyle(
-//                 fontFamily: 'Poppins',
-//                 fontSize: 20,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//             const SizedBox(height: 10),
-//             Expanded(
-//               child: ListView(
-//                 children: const [
-//                   _RecentLogCard(title: "Pattern #12345 - Inward", time: "2 hours ago"),
-//                   _RecentLogCard(title: "Pattern #67890 - Outward", time: "4 hours ago"),
-//                   _RecentLogCard(title: "Pattern #11223 - Inward", time: "6 hours ago"),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-//
-//   @override
-//   void initState()  {
-//     super.initState();
-//
-//   _initializeRFID();
-//
-//   }
-//   Future<void> _initializeRFID() async {
-//      await RFIDPlugin.initRFID();
-//   }
-// }
-//
-// class _DashboardCard extends StatelessWidget {
-//   final String title;
-//   final String value;
-//   final bool isNavigable;
-//   final double width;
-//   final double height;
-//
-//   const _DashboardCard({
-//     required this.title,
-//     required this.value,
-//     this.isNavigable = false,
-//     this.width = 400,      // Default width
-//     this.height = 300,     // Default height
-//   });
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: () {
-//         if (isNavigable) {
-//           Navigator.push(
-//             context,
-//             MaterialPageRoute(
-//               builder: (context) => PatternsScreen(
-//                 patterns: [
-//                   {"id": "001", "name": "Pattern A", "date": "2024-03-28", "location": "Warehouse 1", "status": "Active", "shelfLife": 80},
-//                   {"id": "002", "name": "Pattern B", "date": "2024-03-27", "location": "Warehouse 2", "status": "Inactive", "shelfLife": 45},
-//                   {"id": "003", "name": "Pattern C", "date": "2024-03-26", "location": "Warehouse 3", "status": "Active", "shelfLife": null},
-//                 ],
-//               ),
-//             ),
-//           );
-//         }
-//       },
-//       child: SizedBox(
-//         width: 400,
-//         height: 200,
-//         child: Card(
-//           elevation: 2,
-//           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-//           child: Padding(
-//             padding: const EdgeInsets.all(16.0),
-//             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               crossAxisAlignment: CrossAxisAlignment.center,
-//               children: [
-//                 Text(
-//                   title,
-//                   style: const TextStyle(
-//                     fontFamily: 'Poppins',
-//                     fontSize: 30,
-//                     color: Colors.black54,
-//                   ),
-//                   textAlign: TextAlign.center,
-//                 ),
-//                 const SizedBox(height: 5),
-//                 Text(
-//                   value,
-//                   style: const TextStyle(
-//                     fontFamily: 'Poppins',
-//                     fontSize: 25,
-//                     fontWeight: FontWeight.bold,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-//
-// class _RecentLogCard extends StatelessWidget {
-//   final String title;
-//   final String time;
-//   const _RecentLogCard({required this.title, required this.time});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Card(
-//       elevation: 1,
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-//       child: ListTile(
-//         title: Text(
-//           title,
-//           style: const TextStyle(fontFamily: 'Poppins', fontSize: 16),
-//         ),
-//         trailing: Text(
-//           time,
-//           style: const TextStyle(fontFamily: 'Poppins', color: Colors.grey),
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-//
-//
-//
-// class PatternsScreen extends StatefulWidget {
-//   final List<Map<String, dynamic>> patterns;
-//
-//   const PatternsScreen({Key? key, required this.patterns}) : super(key: key);
-//
-//   @override
-//   _PatternsScreenState createState() => _PatternsScreenState();
-// }
-//
-// class _PatternsScreenState extends State<PatternsScreen> {
-//   String? expandedPatternId; // Track expanded card
-//
-//   void toggleCard(String id) {
-//     setState(() {
-//       expandedPatternId = (expandedPatternId == id) ? null : id;
-//     });
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text(
-//           "Patterns List",
-//           style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
-//         ),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: ListView.builder(
-//           itemCount: widget.patterns.length,
-//           itemBuilder: (context, index) {
-//             final pattern = widget.patterns[index];
-//             final isExpanded = expandedPatternId == pattern["id"];
-//
-//             // ✅ Fix: Ensure `shelfLife` is always a `double`
-//             final double shelfLife = (pattern["shelfLife"] ?? 0).toDouble();
-//
-//             // Color Indicator
-//             Color shelfLifeColor;
-//             if (shelfLife > 50) {
-//               shelfLifeColor = Colors.green;
-//             } else if (shelfLife > 20) {
-//               shelfLifeColor = Colors.orange;
-//             } else {
-//               shelfLifeColor = Colors.red;
-//             }
-//
-//             return Card(
-//               elevation: 3,
-//               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-//               child: Column(
-//                 children: [
-//                   ListTile(
-//                     title: Text(
-//                       pattern["name"]!,
-//                       style: const TextStyle(fontFamily: 'Poppins', fontSize: 16, fontWeight: FontWeight.bold),
-//                     ),
-//                     subtitle: Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                       children: [
-//                         Text(
-//                           "ID: ${pattern["id"]}",
-//                           style: const TextStyle(fontFamily: 'Poppins', color: Colors.grey),
-//                         ),
-//                         Row(
-//                           children: [
-//                             Text(
-//                               "Shelf Life: $shelfLife%", // Safe to use now
-//                               style: TextStyle(fontFamily: 'Poppins', fontSize: 14, color: shelfLifeColor),
-//                             ),
-//                             const SizedBox(width: 5),
-//                             Icon(Icons.circle, color: shelfLifeColor, size: 12), // Indicator Dot
-//                           ],
-//                         ),
-//                       ],
-//                     ),
-//                     trailing: Icon(
-//                       isExpanded ? Icons.expand_less : Icons.expand_more,
-//                     ),
-//                     onTap: () => toggleCard(pattern["id"]!), // Expand card
-//                   ),
-//
-//                   // Expanded Details
-//                   if (isExpanded)
-//                     Padding(
-//                       padding: const EdgeInsets.all(16.0),
-//                       child: Column(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         children: [
-//                           Text(
-//                             "📅 Date Added: ${pattern["date"]}",
-//                             style: const TextStyle(fontFamily: 'Poppins', fontSize: 14),
-//                           ),
-//                           const SizedBox(height: 5),
-//                           Text(
-//                             "📍 Location: ${pattern["location"]}",
-//                             style: const TextStyle(fontFamily: 'Poppins', fontSize: 14),
-//                           ),
-//                           const SizedBox(height: 5),
-//                           Row(
-//                             children: [
-//                               const Text(
-//                                 "🔍 Status: ",
-//                                 style: TextStyle(fontFamily: 'Poppins', fontSize: 14),
-//                               ),
-//                               Text(
-//                                 pattern["status"],
-//                                 style: TextStyle(
-//                                   fontFamily: 'Poppins',
-//                                   fontSize: 14,
-//                                   color: pattern["status"] == "Active" ? Colors.green : Colors.red,
-//                                   fontWeight: FontWeight.bold,
-//                                 ),
-//                               ),
-//                             ],
-//                           ),
-//                           const SizedBox(height: 5),
-//                           Row(
-//                             children: [
-//                               const Text(
-//                                 "🛠 Shelf Life: ",
-//                                 style: TextStyle(fontFamily: 'Poppins', fontSize: 14),
-//                               ),
-//                               Text(
-//                                 "$shelfLife%",
-//                                 style: TextStyle(
-//                                   fontFamily: 'Poppins',
-//                                   fontSize: 14,
-//                                   color: shelfLifeColor,
-//                                   fontWeight: FontWeight.bold,
-//                                 ),
-//                               ),
-//                             ],
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                 ],
-//               ),
-//             );
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import '../../../RFIDPlugin.dart';
 import '../../widgets/BottomNaviagtionBar.dart';
-import '../register.dart';
-import '../scan_screen.dart';
-import 'ProfileScreen.dart';
 
 // class MainScreen extends StatefulWidget {
 //   const MainScreen({Key? key}) : super(key: key);
@@ -409,22 +11,6 @@ import 'ProfileScreen.dart';
 // }
 //
 // class _MainScreenState extends State<MainScreen> {
-//   int _selectedIndex = 0;
-//
-//   // List of screens for each tab
-//   final List<Widget> _screens = [
-//      DashboardContent(),
-//      ScanScreen(),
-//      RegisterPatternPage(),
-//      const ProfileScreen(),
-//   ];
-//
-//   void _onItemTapped(int index) {
-//     setState(() {
-//       _selectedIndex = index;
-//     });
-//   }
-//
 //   @override
 //   void initState() {
 //     super.initState();
@@ -437,163 +23,12 @@ import 'ProfileScreen.dart';
 //
 //   @override
 //   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: IndexedStack(
-//         index: _selectedIndex,
-//         children: _screens,
-//       ),
-//       bottomNavigationBar: Container(
-//         decoration: BoxDecoration(
-//           color: Colors.white,
-//           boxShadow: [
-//             BoxShadow(
-//               color: Colors.grey.withOpacity(0.3),
-//               spreadRadius: 1,
-//               blurRadius: 5,
-//               offset: const Offset(0, -2),
-//             ),
-//           ],
-//         ),
-//         child: BottomNavigationBar(
-//           type: BottomNavigationBarType.fixed,
-//           backgroundColor: Colors.white,
-//           selectedItemColor: Colors.red,
-//           unselectedItemColor: Colors.grey[600],
-//           selectedLabelStyle: const TextStyle(
-//             fontFamily: 'Poppins',
-//             fontWeight: FontWeight.w600,
-//             fontSize: 12,
-//           ),
-//           unselectedLabelStyle: const TextStyle(
-//             fontFamily: 'Poppins',
-//             fontWeight: FontWeight.w400,
-//             fontSize: 12,
-//           ),
-//           currentIndex: _selectedIndex,
-//           onTap: _onItemTapped,
-//           elevation: 0,
-//           items: const [
-//             BottomNavigationBarItem(
-//               icon: Icon(Icons.dashboard),
-//               activeIcon: Icon(Icons.dashboard, size: 28),
-//               label: 'Dashboard',
-//             ),
-//             BottomNavigationBarItem(
-//               icon: Icon(Icons.document_scanner_sharp),
-//               activeIcon: Icon(Icons.document_scanner_sharp, size: 28),
-//               label: 'Scan Pattern',
-//             ),
-//             BottomNavigationBarItem(
-//               icon: Icon(Icons.app_registration_outlined),
-//               activeIcon: Icon(Icons.app_registration_outlined, size: 28),
-//               label: 'Register',
-//             ),
-//             BottomNavigationBarItem(
-//               icon: Icon(Icons.person_outline),
-//               activeIcon: Icon(Icons.person, size: 28),
-//               label: 'Profile',
-//             ),
-//           ],
-//         ),
-//       ),
+//     return const Scaffold(
+//       body: DashboardContent(), // Change to any other screen you want
 //     );
 //   }
 // }
 
-// Dashboard Content (extracted from original DashboardScreen)
-class DashboardContent extends StatelessWidget {
-  const DashboardContent({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "PatternTrackRFID",
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          GestureDetector(
-            onTap: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => const ProfilePage()),
-              // );
-            },
-            child: CircleAvatar(
-              backgroundColor: Colors.transparent,
-              child: SvgPicture.asset(
-                "assets/user.svg",
-                width: 40,
-                height: 40,
-              ),
-            ),
-          ),
-          const SizedBox(width: 15),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Center(
-              child: Column(
-                children: [
-                  Text(
-                    "Dashboard",
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    "Quick overview of your inventory",
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            _DashboardCard(title: "Total Patterns", value: "1,250", isNavigable: true),
-            const SizedBox(height: 20),
-            const Text(
-              "Recent Logs",
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView(
-                children: const [
-                  _RecentLogCard(title: "Pattern #12345 - Inward", time: "2 hours ago"),
-                  _RecentLogCard(title: "Pattern #67890 - Outward", time: "4 hours ago"),
-                  _RecentLogCard(title: "Pattern #11223 - Inward", time: "6 hours ago"),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Profile Screen (placeholder)
-
-// Keep the original DashboardScreen for backward compatibility
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({Key? key}) : super(key: key);
 
@@ -603,73 +38,162 @@ class DashboardScreen extends StatelessWidget {
   }
 }
 
+class DashboardContent extends StatelessWidget {
+  final String userName;
+
+  const DashboardContent({Key? key, this.userName = "User"}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 60, // Taller AppBar
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/ZanvarGroup.png',
+              height: 60, // Set desired size
+              width: 60,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 15),
+            const Text(
+              "Dashboard",
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: Colors.grey.shade200, // Divider color
+            height: 1.0,
+          ),
+        ),
+      ),
+
+
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Welcome, $userName!",
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Total and Available Patterns
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: const [
+                  _DashboardCard(title: "Total Patterns", value: "1250"),
+                  _DashboardCard(title: "Available Patterns", value: "1240"),
+                ],
+              ),
+
+              const SizedBox(height: 30),
+
+              // Recent Scans
+              const Text(
+                "Recent Scans",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Divider(),
+              const _RecentLogCard(title: "#12345", time: "2 hrs ago"),
+              const _RecentLogCard(title: "#67890", time: "4 hrs ago"),
+              const _RecentLogCard(title: "#12233", time: "8 hrs ago"),
+
+              const SizedBox(height: 20),
+
+              // Recent Registrations
+              const Text(
+                "Recent Registrations",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Divider(),
+              const _RecentLogCard(title: "#12900", time: "Today"),
+              const _RecentLogCard(title: "#12899", time: "1 day ago"),
+
+              const SizedBox(height: 20),
+
+              // RFID Status
+              const Text(
+                "RFID Status: Connected",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.green,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _DashboardCard extends StatelessWidget {
   final String title;
   final String value;
-  final bool isNavigable;
-  final double width;
-  final double height;
 
   const _DashboardCard({
     required this.title,
     required this.value,
-    this.isNavigable = false,
-    this.width = 400,
-    this.height = 300,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        if (isNavigable) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PatternsScreen(
-                patterns: [
-                  {"id": "001", "name": "Pattern A", "date": "2024-03-28", "location": "Warehouse 1", "status": "Active", "shelfLife": 80},
-                  {"id": "002", "name": "Pattern B", "date": "2024-03-27", "location": "Warehouse 2", "status": "Inactive", "shelfLife": 45},
-                  {"id": "003", "name": "Pattern C", "date": "2024-03-26", "location": "Warehouse 3", "status": "Active", "shelfLife": null},
-                ],
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        width: 160,
+        height: 100,
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14,
+                color: Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            // const SizedBox(height: 5),
+            Text(
+              value,
+              style: const TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
               ),
             ),
-          );
-        }
-      },
-      child: SizedBox(
-        width: 400,
-        height: 200,
-        child: Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 30,
-                    color: Colors.black54,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          ],
         ),
       ),
     );
@@ -700,145 +224,5 @@ class _RecentLogCard extends StatelessWidget {
   }
 }
 
-class PatternsScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> patterns;
 
-  const PatternsScreen({Key? key, required this.patterns}) : super(key: key);
 
-  @override
-  _PatternsScreenState createState() => _PatternsScreenState();
-}
-
-class _PatternsScreenState extends State<PatternsScreen> {
-  String? expandedPatternId;
-
-  void toggleCard(String id) {
-    setState(() {
-      expandedPatternId = (expandedPatternId == id) ? null : id;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Patterns List",
-          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: widget.patterns.length,
-          itemBuilder: (context, index) {
-            final pattern = widget.patterns[index];
-            final isExpanded = expandedPatternId == pattern["id"];
-            final double shelfLife = (pattern["shelfLife"] ?? 0).toDouble();
-
-            Color shelfLifeColor;
-            if (shelfLife > 50) {
-              shelfLifeColor = Colors.green;
-            } else if (shelfLife > 20) {
-              shelfLifeColor = Colors.orange;
-            } else {
-              shelfLifeColor = Colors.red;
-            }
-
-            return Card(
-              elevation: 3,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: Column(
-                children: [
-                  ListTile(
-                    title: Text(
-                      pattern["name"]!,
-                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "ID: ${pattern["id"]}",
-                          style: const TextStyle(fontFamily: 'Poppins', color: Colors.grey),
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              "Shelf Life: $shelfLife%",
-                              style: TextStyle(fontFamily: 'Poppins', fontSize: 14, color: shelfLifeColor),
-                            ),
-                            const SizedBox(width: 5),
-                            Icon(Icons.circle, color: shelfLifeColor, size: 12),
-                          ],
-                        ),
-                      ],
-                    ),
-                    trailing: Icon(
-                      isExpanded ? Icons.expand_less : Icons.expand_more,
-                    ),
-                    onTap: () => toggleCard(pattern["id"]!),
-                  ),
-                  if (isExpanded)
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "📅 Date Added: ${pattern["date"]}",
-                            style: const TextStyle(fontFamily: 'Poppins', fontSize: 14),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            "📍 Location: ${pattern["location"]}",
-                            style: const TextStyle(fontFamily: 'Poppins', fontSize: 14),
-                          ),
-                          const SizedBox(height: 5),
-                          Row(
-                            children: [
-                              const Text(
-                                "🔍 Status: ",
-                                style: TextStyle(fontFamily: 'Poppins', fontSize: 14),
-                              ),
-                              Text(
-                                pattern["status"],
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: 14,
-                                  color: pattern["status"] == "Active" ? Colors.green : Colors.red,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 5),
-                          Row(
-                            children: [
-                              const Text(
-                                "🛠 Shelf Life: ",
-                                style: TextStyle(fontFamily: 'Poppins', fontSize: 14),
-                              ),
-                              Text(
-                                "$shelfLife%",
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: 14,
-                                  color: shelfLifeColor,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-}

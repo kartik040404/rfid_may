@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://:3000/login'), // server IP address
+        Uri.parse('http://192.168.15.253:3000/login'), // server IP address
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'employee_id': _employeeId,

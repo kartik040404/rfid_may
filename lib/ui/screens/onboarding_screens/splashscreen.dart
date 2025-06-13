@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:testing_aar_file/ui/screens/dashboard_screens/dashboard.dart';
 import 'dart:async';
 
+import 'package:testing_aar_file/ui/screens/onboarding_screens/welcome_screen.dart';
+
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -15,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => DashboardScreen()), // Replace with your screen
+        MaterialPageRoute(builder: (context) => WelcomeScreen()), // Replace with your screen
       );
     });
   }
@@ -29,9 +31,9 @@ class _SplashScreenState extends State<SplashScreen> {
           Expanded(
             child: Center(
               child: Image.asset(
-                'assets/Z.jpg', // Replace with your image path
-                width: 400,
-                height: 200,
+                'assets/ZanvarGroup.png', // Replace with your image path
+                width: 600,
+                height: 300,
               ),
             ),
           ),
@@ -40,6 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
             child: Text(
               'Developed by DYPCET',
               style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Colors.grey[700],
