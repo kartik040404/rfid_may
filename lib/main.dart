@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:testing_aar_file/ui/screens/dashboard_screens/dashboard.dart';
 import 'package:testing_aar_file/ui/screens/onboarding_screens/splashscreen.dart';
 import 'RFIDPlugin.dart';
 import './routes/routes.dart';
@@ -37,9 +38,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
       title: 'RFID UHF Demo',
       debugShowCheckedModeBanner: false,
       // home: RFIDHomePage(),
+      home: DashboardScreen(),
       // home: HomePage(),
       // home: WelcomeScreen(),
-      home: SplashScreen(),
+      // home: SplashScreen(),
       routes: AppRoutes.getRoutes(),
     );
   }
