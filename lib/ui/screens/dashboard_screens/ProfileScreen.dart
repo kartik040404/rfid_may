@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/custom_app_bar.dart';
+import 'AboutScreen.dart';
+import 'SupportScreen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,349 +17,205 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String designation = 'Supervisor';
   String department = 'Production';
 
-  // Static work stats for demo
-  int patternsRegistered = 120;
-  int scansDone = 560;
-  String lastScan = '16 Jun 2025, 10:30 AM';
-
   bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.grey[100],
       appBar: const CustomAppBar(title: 'Profile'),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         child: Column(
           children: [
-            // Profile Header
+            // Modern profile card
             Container(
               width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.red[700]!,
-                    Colors.red[600]!,
-                  ],
-                ),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
-                ),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
                   ),
                 ],
               ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
-                  child: Column(
-                    children: [
-                      // Avatar with border
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 4,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 10,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: CircleAvatar(
-                          radius: 50,
-                          backgroundColor: Colors.white,
-                          child: Icon(
-                            Icons.person,
-                            size: 60,
-                            color: Colors.red.shade600,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        name,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          designation,
-                          style: const TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 14,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _infoItem(Icons.badge, 'ID: $employeeId'),
-                          const SizedBox(width: 16),
-                          _infoItem(Icons.business, department),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      _infoItem(Icons.email, email),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Stats Section
-            Padding(
-              padding: const EdgeInsets.all(20),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Work Statistics',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                  // Avatar with light border & shadow
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.grey[200]!,
+                        width: 3,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.white,
+                      child: Icon(Icons.person, size: 60, color: Colors.red),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      _enhancedStatsCard(
-                        'Patterns Registered',
-                        patternsRegistered.toString(),
-                        Icons.app_registration,
-                        Colors.blue[700]!,
-                      ),
-                      const SizedBox(width: 15),
-                      _enhancedStatsCard(
-                        'Scans Completed',
-                        scansDone.toString(),
-                        Icons.qr_code_scanner,
-                        Colors.green[700]!,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-                  _lastScanCard(lastScan),
-                ],
-              ),
-            ),
-
-            // Account Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Account',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 18,
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      fontFamily: 'Poppins',
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  _accountOptionTile(
-                    'Support',
-                    Icons.help_outline,
-                    Colors.blue,
-                        () {},
-                  ),
-                  const SizedBox(height: 12),
-                  _accountOptionTile(
-                    'About',
-                    Icons.info_outline,
-                    Colors.teal,
-                        () {},
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      designation,
+                      style: TextStyle(
+                        color: Colors.red.shade700,
+                        fontSize: 12,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 20),
-                  _logoutButton(context),
+                  Wrap(
+                    spacing: 20,
+                    runSpacing: 12,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      InfoItem(icon: Icons.badge, text: 'ID: $employeeId'),
+                      InfoItem(icon: Icons.business, text: department),
+                      InfoItem(icon: Icons.email, text: email),
+                    ],
+                  ),
                 ],
               ),
             ),
 
             const SizedBox(height: 30),
-            // App version info
-            const Text(
-              'v1.0.0 | Zanvar Group © 2025',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 12,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 20),
+
+            // Account options & logout
+            const ProfileAccountSection(),
+
+            const SizedBox(height: 30),
+
+            // Version info
+            const AppVersionInfo(),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _infoItem(IconData icon, String text) {
+// InfoItem Widget
+class InfoItem extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const InfoItem({super.key, required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          size: 16,
-          color: Colors.white70,
-        ),
+        Icon(icon, size: 18, color: Colors.grey[600]),
         const SizedBox(width: 6),
         Text(
           text,
           style: const TextStyle(
-            fontFamily: 'Poppins',
             fontSize: 14,
-            color: Colors.white,
+            fontFamily: 'Poppins',
           ),
         ),
       ],
     );
   }
+}
 
-  Widget _enhancedStatsCard(
-      String label, String value, IconData icon, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+// Account Section Widget
+class ProfileAccountSection extends StatelessWidget {
+  const ProfileAccountSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Account',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
+            color: Colors.black87,
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: color, size: 22),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              value,
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              label,
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 13,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
+        const SizedBox(height: 16),
+        AccountOptionTile(
+          title: 'Support',
+          icon: Icons.help_outline,
+          color: Colors.blue,
+          onTap: () {
+            Navigator.pushNamed(context, '/support');
+          },
         ),
-      ),
+        const SizedBox(height: 12),
+        AccountOptionTile(
+          title: 'About',
+          icon: Icons.info_outline,
+          color: Colors.teal,
+          onTap: () {
+            Navigator.pushNamed(context, '/about');
+          },
+        ),
+        const SizedBox(height: 20),
+        const LogoutButton(),
+      ],
     );
   }
+}
 
-  Widget _lastScanCard(String time) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.orange[100],
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(Icons.access_time, color: Colors.orange[700], size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Last Scan',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                Text(
-                  time,
-                  style: const TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+// Account Option Tile Widget
+class AccountOptionTile extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
 
-  Widget _accountOptionTile(
-      String title, IconData icon, Color color, VoidCallback onTap) {
+  const AccountOptionTile({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -384,9 +242,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text(
               title,
               style: const TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
+                fontFamily: 'Poppins',
               ),
             ),
             const Spacer(),
@@ -396,12 +254,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+}
 
-  Widget _logoutButton(BuildContext context) {
+// Logout Button Widget
+class LogoutButton extends StatelessWidget {
+  const LogoutButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        _showLogoutDialog(context);
-      },
+      onTap: () => _showLogoutDialog(context),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -428,11 +290,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text(
               'Log Out',
               style: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
-                letterSpacing: 0.5,
+                fontFamily: 'Poppins',
               ),
             ),
           ],
@@ -445,9 +306,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text(
           'Confirm Logout',
           style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
@@ -459,13 +318,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(
-              'Cancel',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                color: Colors.grey[700],
-              ),
-            ),
+            child: Text('Cancel', style: TextStyle(color: Colors.grey[700])),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -478,17 +331,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             onPressed: () {
               Navigator.of(ctx).pop();
-              // Navigate to login screen
-              // Navigator.of(context).pushReplacement(
-              //   MaterialPageRoute(builder: (_) => const LoginScreen()),
-              // );
+              // TODO: Implement actual logout logic
             },
             child: const Text(
               'Logout',
-              style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600),
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// App Version Info Widget
+class AppVersionInfo extends StatelessWidget {
+  const AppVersionInfo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Text(
+      'v1.0.0 | Zanvar Group © 2025',
+      style: TextStyle(
+        fontSize: 12,
+        color: Colors.grey,
+        fontFamily: 'Poppins',
       ),
     );
   }

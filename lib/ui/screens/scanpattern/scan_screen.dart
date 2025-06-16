@@ -157,11 +157,19 @@ class _ScanScreenState extends State<ScanScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            SwitchListTile(
-              title: const Text("Single Tag Inventory", style: TextStyle(fontFamily: 'Poppins')),
-              value: isSingleTag,
-              activeColor: Colors.red,
-              onChanged: (val) => setState(() => isSingleTag = val),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Single Tag Inventory",
+                  style: TextStyle(fontFamily: 'Poppins'),
+                ),
+                Switch(
+                  value: isSingleTag,
+                  activeColor: Colors.red,
+                  onChanged: (val) => setState(() => isSingleTag = val),
+                ),
+              ],
             ),
             const SizedBox(height: 10),
             ElevatedButton.icon(
