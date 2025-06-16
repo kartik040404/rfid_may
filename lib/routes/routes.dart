@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../ui/screens/onboarding_screens/login_screen.dart';
-import '../ui/screens/onboarding_screens/onboarding_screen.dart';
 import '../ui/screens/dashboard_screens/dashboard.dart';
 
 class AppRoutes {
@@ -13,10 +12,7 @@ class AppRoutes {
 
   static Map<String, WidgetBuilder> getRoutes() {
     return {
-      // home: (context) => HomeScreen(),
       login: (context) => LoginScreen(),
-      // forgotPassword: (context) => ForgotPasswordScreen(),
-      // onboarding: (context) => OnboardingScreen(),
       dashboard: (context) => DashboardContent(),
     };
   }

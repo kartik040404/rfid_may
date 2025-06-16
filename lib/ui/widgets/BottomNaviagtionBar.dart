@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:testing_aar_file/newpatternregisterscreen.dart';
-
+import 'package:testing_aar_file/ui/screens/registerpattern/patternregister.dart';
 import '../screens/dashboard_screens/ProfileScreen.dart';
 import '../screens/dashboard_screens/dashboard.dart';
-import '../screens/register.dart';
-import '../screens/scan_screen.dart';
+import '../screens/scanpattern/scan_screen.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
