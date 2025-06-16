@@ -17,7 +17,7 @@ class AppRoutes {
       login: (context) => LoginScreen(),
       // forgotPassword: (context) => ForgotPasswordScreen(),
       // onboarding: (context) => OnboardingScreen(),
-      dashboard: (context) => DashboardScreen(),
+      dashboard: (context) => DashboardContent(),
     };
   }
 }

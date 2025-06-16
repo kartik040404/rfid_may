@@ -38,7 +38,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
       title: 'RFID UHF Demo',
       debugShowCheckedModeBanner: false,
       // home: RFIDHomePage(),
-      home: DashboardScreen(),
+      home: SplashScreen(),
       // home: HomePage(),
       // home: WelcomeScreen(),
       // home: SplashScreen(),

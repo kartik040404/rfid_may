@@ -334,6 +334,7 @@
 import 'package:flutter/material.dart';
 import '../../RFIDPlugin.dart';
 import '../../SearchTagPage.dart';
+import '../widgets/custom_app_bar.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
@@ -419,25 +420,7 @@ class _ScanScreenState extends State<ScanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.white,
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 2, // No shadow
-        title: const Text(
-          'RFID Scanner',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,fontSize: 20, fontFamily: 'Poppins',
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: Colors.grey.shade200, // Divider color
-            height: 1.0,
-          ),
-        ),
-      ),
-
+      appBar: const CustomAppBar(title: 'RFID Scanner'),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -451,8 +434,8 @@ class _ScanScreenState extends State<ScanScreen> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey.shade300),
                 ),
-                child: Row(
-                  children: const [
+                child: const Row(
+                  children: [
                     Icon(Icons.search, color: Colors.black),
                     SizedBox(width: 10),
                     Text("Search RFID Tags", style: TextStyle(fontSize: 16,fontFamily: 'Poppins',

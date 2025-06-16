@@ -4,7 +4,7 @@ import '../../../RFIDPlugin.dart';
 import '../../widgets/BottomNaviagtionBar.dart';
 
 // class MainScreen extends StatefulWidget {
-//   const MainScreen({Key? key}) : super(key: key);
+//    MainScreen({Key? key}) : super(key: key);
 //
 //   @override
 //   State<MainScreen> createState() => _MainScreenState();
@@ -23,20 +23,11 @@ import '../../widgets/BottomNaviagtionBar.dart';
 //
 //   @override
 //   Widget build(BuildContext context) {
-//     return const Scaffold(
+//     return  Scaffold(
 //       body: DashboardContent(), // Change to any other screen you want
 //     );
 //   }
 // }
-
-class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const MainScreen();
-  }
-}
 
 class DashboardContent extends StatelessWidget {
   final String userName;
@@ -45,119 +36,74 @@ class DashboardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 60, // Taller AppBar
-        title: Row(
-          children: [
-            Image.asset(
-              'assets/ZanvarGroup.png',
-              height: 60, // Set desired size
-              width: 60,
-              fit: BoxFit.contain,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Welcome, $userName!",
+            style: const TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
             ),
-            const SizedBox(width: 15),
-            const Text(
-              "Dashboard",
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: Colors.grey.shade200, // Divider color
-            height: 1.0,
           ),
-        ),
-      ),
-
-
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text(
-                "Welcome, $userName!",
-                style: const TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Total and Available Patterns
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: const [
-                  _DashboardCard(title: "Total Patterns", value: "1250"),
-                  _DashboardCard(title: "Available Patterns", value: "1240"),
-                ],
-              ),
-
-              const SizedBox(height: 30),
-
-              // Recent Scans
-              const Text(
-                "Recent Scans",
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Divider(),
-              const _RecentLogCard(title: "#12345", time: "2 hrs ago"),
-              const _RecentLogCard(title: "#67890", time: "4 hrs ago"),
-              const _RecentLogCard(title: "#12233", time: "8 hrs ago"),
-
-              const SizedBox(height: 20),
-
-              // Recent Registrations
-              const Text(
-                "Recent Registrations",
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Divider(),
-              const _RecentLogCard(title: "#12900", time: "Today"),
-              const _RecentLogCard(title: "#12899", time: "1 day ago"),
-
-              const SizedBox(height: 20),
-
-              // RFID Status
-              const Text(
-                "RFID Status: Connected",
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.green,
-                ),
-              ),
+              _DashboardCard(title: "Total Patterns", value: "1250"),
+               _DashboardCard(title: "Available Patterns", value: "1240"),
             ],
           ),
-        ),
+          const SizedBox(height: 30),
+          const Text(
+            "Recent Scans",
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Divider(),
+          _RecentLogCard(title: "#12345", time: "2 hrs ago"),
+          _RecentLogCard(title: "#67890", time: "4 hrs ago"),
+          _RecentLogCard(title: "#12233", time: "8 hrs ago"),
+          const SizedBox(height: 20),
+          const Text(
+            "Recent Registrations",
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Divider(),
+          _RecentLogCard(title: "#12900", time: "Today"),
+          _RecentLogCard(title: "#12899", time: "1 day ago"),
+          const SizedBox(height: 20),
+          const Text(
+            "RFID Status: Connected",
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.green,
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
+
 class _DashboardCard extends StatelessWidget {
   final String title;
   final String value;
 
-  const _DashboardCard({
+   _DashboardCard({
     required this.title,
     required this.value,
   });
@@ -165,28 +111,28 @@ class _DashboardCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 3,
+      // elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
-        width: 160,
+        width: 150,
         height: 100,
-        padding: const EdgeInsets.all(16),
+        padding:  EdgeInsets.all(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               title,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 14,
                 color: Colors.black87,
               ),
               textAlign: TextAlign.center,
             ),
-            // const SizedBox(height: 5),
+            //  SizedBox(height: 5),
             Text(
               value,
-              style: const TextStyle(
+              style:  TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -203,21 +149,21 @@ class _DashboardCard extends StatelessWidget {
 class _RecentLogCard extends StatelessWidget {
   final String title;
   final String time;
-  const _RecentLogCard({required this.title, required this.time});
+   _RecentLogCard({required this.title, required this.time});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 1,
+      // elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         title: Text(
           title,
-          style: const TextStyle(fontFamily: 'Poppins', fontSize: 16),
+          style:  TextStyle(fontFamily: 'Poppins', fontSize: 16),
         ),
         trailing: Text(
           time,
-          style: const TextStyle(fontFamily: 'Poppins', color: Colors.grey),
+          style:  TextStyle(fontFamily: 'Poppins', color: Colors.grey),
         ),
       ),
     );

@@ -387,6 +387,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:testing_aar_file/newpatternregisterscreen.dart';
 import '../../RFIDPlugin.dart';
+import '../widgets/custom_app_bar.dart';
 import '../widgets/custom_error_dialog.dart';
 
 class RegisterPatternPage extends StatefulWidget {
@@ -518,34 +519,15 @@ class _RegisterPatternPageState extends State<RegisterPatternPage> {
     return WillPopScope(
       onWillPop: () async => true,
       child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          backgroundColor: Colors.white,
-          elevation: 2,
-          title: const Text(
-            'Register New Pattern',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-              fontFamily: 'Poppins',
-            ),
-          ),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(1.0),
-            child: Container(
-              color: Colors.grey.shade200,
-              height: 1.0,
-            ),
-          ),
-        ),
+        appBar: const CustomAppBar(title: 'Register New Pattern'),
+
         body: Column(
           children: [
             Expanded(
               child: SingleChildScrollView(
                 child: Theme(
                   data: Theme.of(context).copyWith(
-                    colorScheme: ColorScheme.light(
+                    colorScheme: const ColorScheme.light(
                       primary: Color(0xFF6A5ACD),
                       onPrimary: Colors.white,
                       secondary: Color(0xFFB0B0B0),

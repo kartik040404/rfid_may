@@ -213,6 +213,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../../widgets/custom_app_bar.dart';
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -228,24 +230,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 2, // No shadow
-        title: const Text(
-          'Profile',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,fontSize: 20,fontFamily: 'Poppins',),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: Colors.grey.shade200, // Divider color
-            height: 1.0,
-          ),
-        ),
-      ),
-
+      appBar: const CustomAppBar(title: 'Profile'),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(

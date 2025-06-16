@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:testing_aar_file/newpatternregisterscreen.dart';
 
 import '../screens/dashboard_screens/ProfileScreen.dart';
 import '../screens/dashboard_screens/dashboard.dart';
@@ -92,10 +93,10 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
-    DashboardContent(),
-    ScanScreen(),
-    RegisterPatternPage(),
-    ProfileScreen(),
+    const DashboardContent(),
+    const ScanScreen(),
+    NewRegisterPatternScreen(),
+    const ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -107,6 +108,43 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: _selectedIndex == 0
+          ? AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0, // <- No shadow even on scroll
+        scrolledUnderElevation: 0, // <- Important: disables elevation on scroll
+        surfaceTintColor: Colors.transparent, // <- Prevents tinting effect on scroll
+        toolbarHeight: 60,
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/ZanvarGroup.png',
+              height: 50,
+              width: 50,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              "Dashboard",
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: Colors.grey.shade300,
+            height: 1.0,
+          ),
+        ),
+      )
+          : null,
+
       body: IndexedStack(
         index: _selectedIndex,
         children: _screens,
@@ -118,3 +156,4 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
+
