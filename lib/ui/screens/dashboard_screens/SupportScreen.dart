@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/custom_app_bar.dart';
+import '../../widgets/support/contact_option.dart'; // Adjusted import
+import '../../widgets/support/faq_item.dart'; // Adjusted import
 
 class SupportScreen extends StatelessWidget {
   const SupportScreen({super.key});
@@ -68,9 +70,6 @@ class SupportScreen extends StatelessWidget {
               title: 'Email Support',
               subtitle: 'support@zanvargroup.com',
               color: Colors.orange,
-              onTap: () {
-                // TODO: Implement email launch
-              },
             ),
 
             const SizedBox(height: 12),
@@ -80,9 +79,6 @@ class SupportScreen extends StatelessWidget {
               title: 'Call Support',
               subtitle: '+1 (555) 123-4567',
               color: Colors.green,
-              onTap: () {
-                // TODO: Implement phone call
-              },
             ),
 
             const SizedBox(height: 24),
@@ -118,147 +114,6 @@ class SupportScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class ContactOption extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Color color;
-  final VoidCallback onTap;
-
-  const ContactOption({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: color, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class FaqItem extends StatefulWidget {
-  final String question;
-  final String answer;
-
-  const FaqItem({
-    super.key,
-    required this.question,
-    required this.answer,
-  });
-
-  @override
-  State<FaqItem> createState() => _FaqItemState();
-}
-
-class _FaqItemState extends State<FaqItem> {
-  bool _expanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ExpansionTile(
-        title: Text(
-          widget.question,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-            fontFamily: 'Poppins',
-          ),
-        ),
-        trailing: Icon(
-          _expanded ? Icons.remove : Icons.add,
-          color: Colors.blue,
-        ),
-        onExpansionChanged: (expanded) {
-          setState(() {
-            _expanded = expanded;
-          });
-        },
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-            child: Text(
-              widget.answer,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[700],
-                fontFamily: 'Poppins',
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
