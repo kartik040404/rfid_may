@@ -1,24 +1,26 @@
+
 import 'package:flutter/material.dart';
 import '../../../RFIDPlugin.dart';
+import '../../widgets/BottomNaviagtionBar.dart';
 
 // class MainScreen extends StatefulWidget {
-//   MainScreen({Key? key}) : super(key: key);
-
+//    MainScreen({Key? key}) : super(key: key);
+//
 //   @override
 //   State<MainScreen> createState() => _MainScreenState();
 // }
-
+//
 // class _MainScreenState extends State<MainScreen> {
 //   @override
 //   void initState() {
 //     super.initState();
 //     _initializeRFID();
 //   }
-
+//
 //   Future<void> _initializeRFID() async {
 //     await RFIDPlugin.initRFID();
 //   }
-
+//
 //   @override
 //   Widget build(BuildContext context) {
 //     return  Scaffold(
@@ -27,6 +29,8 @@ import '../../../RFIDPlugin.dart';
 //   }
 // }
 
+
+// Enhanced theme data matching the actual design
 class DashboardTheme {
   static const Color primaryRed = Color(0xFFDC143C);
   static const Color darkRed = Color(0xFF8B0000);

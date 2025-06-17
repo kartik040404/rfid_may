@@ -11,6 +11,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      elevation: 0, // <- No shadow even on scroll
+      scrolledUnderElevation: 0, // <- Important: disables elevation on scroll
+      surfaceTintColor: Colors.transparent,
       centerTitle: true,
       backgroundColor: Colors.white,
       title: Text(
