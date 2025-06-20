@@ -1,6 +1,11 @@
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../RFIDPlugin.dart';
+import '../../../services/local_storage_service.dart';
+import '../../../utils/date_format.dart';
 import '../../widgets/BottomNaviagtionBar.dart';
 
 // class MainScreen extends StatefulWidget {
@@ -30,7 +35,6 @@ import '../../widgets/BottomNaviagtionBar.dart';
 // }
 
 
-// Enhanced theme data matching the actual design
 class DashboardTheme {
   static const Color primaryRed = Color(0xFFDC143C);
   static const Color darkRed = Color(0xFF8B0000);
@@ -69,10 +73,25 @@ class DashboardTheme {
   );
 }
 
-class DashboardContent extends StatelessWidget {
+
+
+class DashboardContent extends StatefulWidget {
   final String userName;
 
   const DashboardContent({Key? key, this.userName = "User"}) : super(key: key);
+
+  @override
+  State<DashboardContent> createState() => _DashboardContentState();
+}
+
+class _DashboardContentState extends State<DashboardContent> {
+  late Future<List<LogCard>> recentScansFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    recentScansFuture = _loadRecentScans();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +109,7 @@ class DashboardContent extends StatelessWidget {
             _buildRecentScansSection(),
             const SizedBox(height: 24),
             _buildRecentRegistrationsSection(),
-            const SizedBox(height: 100), // Bottom padding for navigation
+            const SizedBox(height: 100),
           ],
         ),
       ),
@@ -100,7 +119,7 @@ class DashboardContent extends StatelessWidget {
   Widget _buildHeaderSection() {
     return Container(
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -124,7 +143,7 @@ class DashboardContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Welcome, $userName",
+                  "Welcome, ${widget.userName}",
                   style: DashboardTheme.headerStyle,
                 ),
                 const SizedBox(height: 8),
@@ -140,6 +159,8 @@ class DashboardContent extends StatelessWidget {
       ),
     );
   }
+
+  //-----------------------------------------------------RFID Connection----------------------------------------------//
 
   Widget _buildConnectionStatus() {
     return Container(
@@ -158,7 +179,7 @@ class DashboardContent extends StatelessWidget {
             "RFID Connected",
             style: TextStyle(
               fontFamily: 'Poppins',
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: Colors.white,
             ),
@@ -174,12 +195,8 @@ class DashboardContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Pattern Statistics",
-            style: DashboardTheme.sectionTitleStyle,
-          ),
-          const SizedBox(height: 16),
-          // Fixed GridView with proper aspect ratio and layout
+          const Text("Pattern Statistics", style: DashboardTheme.sectionTitleStyle),
+          const SizedBox(height: 12),
           LayoutBuilder(
             builder: (context, constraints) {
               return GridView.count(
@@ -188,8 +205,7 @@ class DashboardContent extends StatelessWidget {
                 mainAxisSpacing: 16,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                // Increased aspect ratio to prevent overflow
-                childAspectRatio: 1.25, // Changed from 1.1 to 1.25
+                childAspectRatio: 1.25,
                 children: const [
                   StatsCard(
                     title: "Total Patterns",
@@ -229,66 +245,146 @@ class DashboardContent extends StatelessWidget {
   }
 
   Widget _buildRecentScansSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          _buildSectionHeader("Recent Scans", onViewAll: () {}),
-          const SizedBox(height: 12),
-          const Column(
+    return FutureBuilder<List<LogCard>>(
+      future: recentScansFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasError) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text("Failed to load scans"),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text("No recent scans found"),
+          );
+        }
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
             children: [
-              LogCard(
-                title: "Pattern #12345",
-                subtitle: "Manufacturing Line A",
-                time: "2 hrs ago",
-                icon: Icons.inventory_2_outlined,
-              ),
-              LogCard(
-                title: "Pattern #67890",
-                subtitle: "Quality Control",
-                time: "4 hrs ago",
-                icon: Icons.inventory_2_outlined,
-              ),
-              LogCard(
-                title: "Pattern #12233",
-                subtitle: "Assembly Line",
-                time: "8 hrs ago",
-                icon: Icons.inventory_2_outlined,
-              ),
+              _buildSectionHeader("Recent Scans", onViewAll: () {}),
+              const SizedBox(height: 12),
+              Column(children: snapshot.data!),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
+  Future<List<LogCard>> _loadRecentScans() async {
+    final prefs = await SharedPreferences.getInstance();
+    final fullList = prefs.getStringList('recent_scans') ?? [];
+
+    final scanList = fullList.reversed.take(3).toList(); // ✅ Only last 3
+
+    return scanList.map((scanJson) {
+      final data = jsonDecode(scanJson);
+      return LogCard(
+        title: data['title'] ?? 'Unknown',
+        subtitle: data['subtitle'] ?? '',
+        time: data['time'] ?? '',
+        icon: _getIconFromName(data['icon']),
+      );
+    }).toList();
+  }
+
+
+  IconData _getIconFromName(String? name) {
+    switch (name) {
+      case 'inventory_2_outlined':
+        return Icons.inventory_2_outlined;
+      case 'check_circle_outline':
+        return Icons.check_circle_outline;
+      case 'add_circle_outline':
+        return Icons.add_circle_outline;
+      case 'schedule_outlined':
+        return Icons.schedule_outlined;
+      default:
+        return Icons.device_unknown;
+    }
+  }
+
+  // Widget _buildRecentRegistrationsSection() {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 16),
+  //     child: Column(
+  //       children: [
+  //         _buildSectionHeader("Recent Registrations", onViewAll: () {}),
+  //         const SizedBox(height: 12),
+  //         const Column(
+  //           children: [
+  //             LogCard(
+  //               title: "Pattern #12900",
+  //               subtitle: "Registered by Admin",
+  //               time: "Today",
+  //               icon: Icons.add_circle_outline,
+  //             ),
+  //             LogCard(
+  //               title: "Pattern #12899",
+  //               subtitle: "Registered by Operator",
+  //               time: "1 day ago",
+  //               icon: Icons.add_circle_outline,
+  //             ),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  //-------------------------------------------------------Recent registration----------------------------------------------------//
   Widget _buildRecentRegistrationsSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          _buildSectionHeader("Recent Registrations", onViewAll: () {}),
-          const SizedBox(height: 12),
-          const Column(
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: LocalStorageService.getRecentRegistrations(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.all(16),
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text("No recent registrations."),
+          );
+        }
+
+        final registrations = snapshot.data!;
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              LogCard(
-                title: "Pattern #12900",
-                subtitle: "Registered by Admin",
-                time: "Today",
-                icon: Icons.add_circle_outline,
-              ),
-              LogCard(
-                title: "Pattern #12899",
-                subtitle: "Registered by Operator",
-                time: "1 day ago",
-                icon: Icons.add_circle_outline,
+              _buildSectionHeader("Recent Registrations", onViewAll: () {}),
+              const SizedBox(height: 12),
+              Column(
+                children: registrations.take(3).map((item) {
+                  return LogCard(
+                    title: "Pattern #${item['PatternCode']}",
+                    subtitle: item['PatternName'] ?? "Unknown",
+                    time: DateHelper.formatToDDMMYYYY(item['date']),
+                    icon: Icons.add_circle_outline,
+                  );
+                }).toList(),
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
+
 
   Widget _buildSectionHeader(String title, {VoidCallback? onViewAll}) {
     return Row(
@@ -317,6 +413,7 @@ class DashboardContent extends StatelessWidget {
     );
   }
 }
+
 
 class StatsCard extends StatelessWidget {
   final String title;
@@ -354,62 +451,55 @@ class StatsCard extends StatelessWidget {
           onTap: () {},
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.all(16), // Reduced from 20 to 16
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, // Added this
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10), // Reduced from 12 to 10
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: iconColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, color: iconColor, size: 22), // Reduced from 24 to 22
+                  child: Icon(icon, color: iconColor, size: 20),
                 ),
-                const SizedBox(height: 12), // Reduced from 16 to 12
-                Flexible( // Added Flexible widget
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 13, // Reduced from 14 to 13
-                          fontWeight: FontWeight.w500,
-                          color: DashboardTheme.textSecondary,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 6), // Reduced from 8 to 6
-                      Text(
-                        value,
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 24, // Reduced from 28 to 24
-                          fontWeight: FontWeight.bold,
-                          color: DashboardTheme.textPrimary,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 3), // Reduced from 4 to 3
-                      Text(
-                        trend,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 11, // Reduced from 12 to 11
-                          color: Colors.grey[500],
-                          fontWeight: FontWeight.w400,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                const SizedBox(height: 8),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: DashboardTheme.textSecondary,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
+                const SizedBox(height: 6),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: DashboardTheme.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                // Uncomment if you want to show trend info
+                // const SizedBox(height: 4),
+                // Text(
+                //   trend,
+                //   style: TextStyle(
+                //     fontFamily: 'Poppins',
+                //     fontSize: 10,
+                //     color: Colors.grey[500],
+                //     fontWeight: FontWeight.w400,
+                //   ),
+                //   maxLines: 1,
+                //   overflow: TextOverflow.ellipsis,
+                // ),
               ],
             ),
           ),
@@ -418,6 +508,8 @@ class StatsCard extends StatelessWidget {
     );
   }
 }
+
+
 
 class LogCard extends StatelessWidget {
   final String title;
@@ -451,7 +543,9 @@ class LogCard extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {},
+          onTap: () {
+            // Optional: define tap action here
+          },
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(16),
