@@ -1,4 +1,489 @@
-import 'dart:convert';
+// import 'dart:convert';
+// import 'package:flutter/material.dart';
+// import 'package:http/http.dart' as http;
+// import 'package:testing_aar_file/ui/widgets/custom_app_bar.dart';
+// import '../../../../../RFIDPlugin.dart';
+// import '../../../services/local_storage_service.dart';
+// import '../../widgets/register_pattern/stepper_indicator_widget.dart';
+// import '../../widgets/register_pattern/pattern_selection_step_widget.dart';
+// import '../../widgets/register_pattern/rfid_attachment_step_widget.dart';
+// import '../../widgets/register_pattern/review_and_save_step_widget.dart';
+// import '../../widgets/register_pattern/step_navigation_controls_widget.dart';
+//
+// class NewRegisterPatternScreen extends StatefulWidget {
+//   @override
+//   _NewRegisterPatternScreenState createState() =>
+//       _NewRegisterPatternScreenState();
+// }
+//
+// class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
+//   int _currentStep = 0;
+//   final int _totalSteps = 3; // Define total steps
+//
+//   String status = 'Idle';
+//   final TextEditingController _searchController = TextEditingController();
+//
+//   List<Map<String, String>> allPatterns = [
+//     {"name": "Pattern Alpha", "code": "A001X"},
+//     {"name": "Pattern Bravo", "code": "B002Y"},
+//     {"name": "Pattern Charlie", "code": "C003Z"},
+//     {"name": "Pattern Delta", "code": "D004W"},
+//     {"name": "Pattern Echo", "code": "E005V"},
+//   ];
+//   List<Map<String, String>> filteredPatterns = [];
+//
+//   Map<String, String>? selectedPattern;
+//   final List<String> rfidTags = [];
+//   bool isScanning = false;
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     _searchController.addListener(_onSearchChanged);
+//     _onSearchChanged(); // Initial call to populate or clear based on controller's text
+//   }
+//
+//   void _onSearchChanged() {
+//     String query = _searchController.text.toLowerCase().trim();
+//     setState(() {
+//       if (query.isEmpty) {
+//         filteredPatterns = []; // Show nothing or a message if query is empty
+//       } else {
+//         filteredPatterns = allPatterns
+//             .where((pattern) =>
+//                 pattern['name']!.toLowerCase().contains(query) ||
+//                 pattern['code']!.toLowerCase().contains(query))
+//             .toList();
+//       }
+//     });
+//   }
+//
+//   @override
+//   void dispose() {
+//     _searchController.removeListener(_onSearchChanged);
+//     _searchController.dispose();
+//     super.dispose();
+//   }
+//
+//   Future<void> startInventory() async {
+//     if (rfidTags.length >= 3) {
+//       setState(() {
+//         status = 'Maximum 3 RFID tags allowed.';
+//       });
+//       return;
+//     }
+//
+//     setState(() {
+//       isScanning = true;
+//       status = 'Scanning for RFID tag...';
+//     });
+//
+//     try {
+//       await RFIDPlugin.setPower(1);
+//       final epc = await RFIDPlugin.readSingleTag();
+//
+//       if (!mounted) return; // Check if the widget is still in the tree
+//
+//       setState(() {
+//         isScanning = false;
+//         if (epc != null && epc.isNotEmpty) {
+//           if (!rfidTags.contains(epc)) {
+//             rfidTags.add(epc);
+//             status = 'Tag Scanned: $epc';
+//           } else {
+//             status = 'Tag already added: $epc';
+//           }
+//         } else {
+//           status = 'No Tag Found or empty EPC.';
+//         }
+//       });
+//     } catch (e) {
+//       if (!mounted) return;
+//       setState(() {
+//         isScanning = false;
+//         status = 'Error during scan: $e';
+//       });
+//     }
+//   }
+//
+//   Future<void> stopInventory() async {
+//     if (isScanning) {
+//       try {
+//         await RFIDPlugin.stopInventory();
+//       } catch (e) {
+//         print('Error stopping inventory: $e');
+//       }
+//       if (!mounted) return;
+//       setState(() {
+//         isScanning = false;
+//         status = 'Scanning Stopped.';
+//       });
+//     }
+//   }
+//
+//   void removeRfidTag(int index) {
+//     setState(() {
+//       rfidTags.removeAt(index);
+//       status = rfidTags.isEmpty ? 'No tags attached.' : 'Tag removed.';
+//     });
+//   }
+//
+//   // Future<void> savePattern() async {
+//   //   if (selectedPattern == null || rfidTags.isEmpty) {
+//   //     ScaffoldMessenger.of(context).showSnackBar(
+//   //       SnackBar(
+//   //         content: const Text('Pattern and RFID tags must be selected.'),
+//   //         backgroundColor: Colors.orange.shade700,
+//   //       ),
+//   //     );
+//   //     return;
+//   //   }
+//   //
+//   //   final payload = {
+//   //     "pattern_code": selectedPattern!['code'],
+//   //     "pattern_name": selectedPattern!['name'],
+//   //     "rfids": rfidTags,
+//   //   };
+//   //
+//   //   final uri = Uri.parse("http://your-api-endpoint.com/patterns");
+//   //
+//   //   setState(() {
+//   //     status = "Saving pattern..."; // Indicate saving process
+//   //   });
+//   //
+//   //   try {
+//   //     final response = await http.post(
+//   //       uri,
+//   //       headers: {"Content-Type": "application/json"},
+//   //       body: jsonEncode(payload),
+//   //     ).timeout(const Duration(seconds: 10)); // Add a timeout
+//   //
+//   //     if (!mounted) return;
+//   //
+//   //     if (response.statusCode == 201) {
+//   //       ScaffoldMessenger.of(context).showSnackBar(
+//   //         SnackBar(
+//   //           content: const Text('Pattern saved successfully!'),
+//   //           backgroundColor: Colors.green.shade700,
+//   //         ),
+//   //       );
+//   //       setState(() {
+//   //         selectedPattern = null;
+//   //         rfidTags.clear();
+//   //         _currentStep = 0;
+//   //         _searchController.clear(); // This will trigger _onSearchChanged
+//   //         status = 'Idle';
+//   //       });
+//   //     } else {
+//   //       String errorMessage = 'Failed to save pattern.';
+//   //       try {
+//   //         final responseBody = jsonDecode(response.body);
+//   //         if (responseBody['message'] != null) {
+//   //           errorMessage += ' Server: ${responseBody['message']}';
+//   //         }
+//   //       } catch (_) {
+//   //       }
+//   //       ScaffoldMessenger.of(context).showSnackBar(
+//   //         SnackBar(
+//   //           content: Text('$errorMessage (Code: ${response.statusCode})'),
+//   //           backgroundColor: Colors.red.shade700,
+//   //         ),
+//   //       );
+//   //       setState(() {
+//   //         status = "Save failed.";
+//   //       });
+//   //     }
+//   //   } catch (e) {
+//   //     if (!mounted) return;
+//   //     ScaffoldMessenger.of(context).showSnackBar(
+//   //       SnackBar(
+//   //         content: Text('Error saving pattern: $e'),
+//   //         backgroundColor: Colors.red.shade700,
+//   //       ),
+//   //     );
+//   //     setState(() {
+//   //       status = "Save error.";
+//   //     });
+//   //   }
+//   // }
+//
+//   Future<void> savePattern() async {
+//     if (selectedPattern == null || rfidTags.isEmpty) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(
+//           content: Text('Pattern and RFID tags must be selected.'),
+//           backgroundColor: Colors.orange.shade700,
+//         ),
+//       );
+//       return;
+//     }
+//
+//     final payload = {
+//       "PatternCode": selectedPattern!['PatternCode'],
+//       "PatternName": selectedPattern!['PatternName'],
+//       "rfids": rfidTags,
+//     };
+//
+//     final uri = Uri.parse("http://your-api-endpoint.com/patterns");
+//
+//     setState(() {
+//       status = "Saving pattern...";
+//     });
+//
+//     try {
+//       final response = await http.post(
+//         uri,
+//         headers: {"Content-Type": "application/json"},
+//         body: jsonEncode(payload),
+//       ).timeout(const Duration(seconds: 10));
+//
+//       if (!mounted) return;
+//
+//       if (response.statusCode == 201) {
+//         await LocalStorageService.addRecentRegistration({
+//           "PatternCode": selectedPattern!['PatternCode'],
+//           "PatternName": selectedPattern!['PatternName'],
+//           "date": DateTime.now().toIso8601String(),
+//         });
+//
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(
+//             content: Text('Pattern saved successfully!'),
+//             backgroundColor: Colors.green.shade700,
+//           ),
+//         );
+//
+//         setState(() {
+//           selectedPattern = null;
+//           rfidTags.clear();
+//           _currentStep = 0;
+//           _searchController.clear();
+//           status = 'Idle';
+//         });
+//       } else {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(
+//             content: Text('Failed to save pattern (Code: ${response.statusCode})'),
+//             backgroundColor: Colors.red.shade700,
+//           ),
+//         );
+//         setState(() {
+//           status = "Save failed.";
+//         });
+//       }
+//     } catch (e) {
+//       if (!mounted) return;
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(
+//           content: Text('Error saving pattern: $e'),
+//           backgroundColor: Colors.red.shade700,
+//         ),
+//       );
+//       setState(() {
+//         status = "Save error.";
+//       });
+//     }
+//   }
+//
+//
+//   Future<bool?> _confirmPatternDialog() async {
+//     return showDialog<bool>(
+//       context: context,
+//       builder: (dialogContext) => AlertDialog(
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.circular(16),
+//         ),
+//         title: Row(
+//           children: [
+//             Icon(Icons.check_circle_outline, color: Colors.red.shade700, size: 28),
+//             const SizedBox(width: 12),
+//             const Text(
+//               'Confirm Selection',
+//               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+//             ),
+//           ],
+//         ),
+//         content: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             const Divider(height: 20, thickness: 1),
+//             const Text('You have selected:',
+//                 style: TextStyle(fontSize: 16, color: Colors.black54)),
+//             const SizedBox(height: 10),
+//             Container(
+//               padding: const EdgeInsets.all(16),
+//               decoration: BoxDecoration(
+//                 color: Colors.red.shade50,
+//                 borderRadius: BorderRadius.circular(12),
+//                 border: Border.all(color: Colors.red.shade200),
+//               ),
+//               child: Text(
+//                 '${selectedPattern?['name']} (${selectedPattern?['code']})',
+//                 style: TextStyle(
+//                     fontSize: 17, // Slightly larger for emphasis
+//                     fontWeight: FontWeight.w600,
+//                     color: Colors.red.shade900),
+//               ),
+//             ),
+//             const SizedBox(height: 20),
+//             const Text(
+//               'Proceed to attach RFID tags?',
+//               style: TextStyle(fontSize: 16),
+//             ),
+//           ],
+//         ),
+//         actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+//         actions: [
+//           TextButton(
+//             onPressed: () => Navigator.of(dialogContext).pop(false),
+//             child: Text('Cancel', style: TextStyle(color: Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.bold)),
+//           ),
+//           ElevatedButton(
+//             onPressed: () => Navigator.of(dialogContext).pop(true),
+//             style: ElevatedButton.styleFrom(
+//               backgroundColor: Colors.red.shade700,
+//               foregroundColor: Colors.white,
+//               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+//               shape: RoundedRectangleBorder(
+//                   borderRadius: BorderRadius.circular(8)),
+//               textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+//             ),
+//             child: const Text('Continue'),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   bool _canProceedToNextStep() {
+//     switch (_currentStep) {
+//       case 0:
+//         return selectedPattern != null;
+//       case 1:
+//         return rfidTags.isNotEmpty;
+//       default:
+//         return true; // For review step, always allow if reached
+//     }
+//   }
+//
+//   void _onNextStep() {
+//     if (_currentStep < _totalSteps - 1) {
+//       setState(() {
+//         _currentStep++;
+//         if (_currentStep == 1) { // Moving to RFID step
+//              status = rfidTags.isEmpty ? 'Scan RFID tags.' : '${rfidTags.length} tag(s) attached.';
+//         } else if (_currentStep == 2) { // Moving to Review step
+//             status = "Review your pattern details.";
+//         }
+//       });
+//     }
+//   }
+//
+//   void _onPreviousStep() {
+//     if (_currentStep > 0) {
+//       setState(() {
+//         _currentStep--;
+//          if (_currentStep == 0) { // Moving back to Pattern Selection
+//             status = "Select a pattern.";
+//          } else if (_currentStep == 1) { // Moving back to RFID step
+//             status = rfidTags.isEmpty ? 'Scan RFID tags.' : '${rfidTags.length} tag(s) attached.';
+//          }
+//       });
+//     }
+//   }
+//
+//   List<Widget> _buildStepWidgets() {
+//     return [
+//       PatternSelectionStepWidget(
+//         searchController: _searchController,
+//         filteredPatterns: filteredPatterns,
+//         selectedPattern: selectedPattern,
+//         onPatternSelected: (pattern) {
+//           setState(() {
+//             selectedPattern = pattern;
+//           });
+//         },
+//       ),
+//       RfidAttachmentStepWidget(
+//         status: status,
+//         rfidTags: rfidTags,
+//         isScanning: isScanning,
+//         onStartInventory: startInventory,
+//         onStopInventory: stopInventory,
+//         onRemoveRfidTag: removeRfidTag,
+//       ),
+//       ReviewAndSaveStepWidget(
+//         selectedPattern: selectedPattern,
+//         rfidTags: rfidTags,
+//         onSavePattern: savePattern,
+//       ),
+//     ];
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final List<String> stepLabels = [
+//       'Select Pattern',
+//       'Attach Tags',
+//       'Review & Save',
+//     ];
+//
+//     return WillPopScope(
+//       onWillPop: () async {
+//         if (_currentStep > 0) {
+//           setState(() {
+//             _currentStep--;
+//           });
+//           return false; // Prevent default back navigation
+//         }
+//         return true; // Allow back navigation if on the first step
+//       },
+//       child: Scaffold(
+//         appBar: const CustomAppBar(title: 'Register New Pattern'),
+//         body: Padding(
+//           padding: const EdgeInsets.all(16.0),
+//           child: Column(
+//             children: [
+//               StepperIndicatorWidget(
+//                 currentStep: _currentStep,
+//                 stepLabels: stepLabels,
+//               ),
+//               const SizedBox(height: 16), // Spacing after stepper
+//               Expanded(
+//                 child: AnimatedSwitcher(
+//                   duration: const Duration(milliseconds: 300),
+//                   transitionBuilder: (Widget child, Animation<double> animation) {
+//                     return FadeTransition(opacity: animation, child: child);
+//                   },
+//                   child: Container( // Key added to ensure AnimatedSwitcher updates
+//                     key: ValueKey<int>(_currentStep),
+//                     child: _buildStepWidgets()[_currentStep],
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//         bottomNavigationBar: StepNavigationControlsWidget(
+//           currentStep: _currentStep,
+//           totalSteps: _totalSteps,
+//           onNext: _onNextStep,
+//           onBack: _onPreviousStep,
+//           canProceedToNextStep: _canProceedToNextStep,
+//           onConfirmNext: _currentStep == 0 ? _confirmPatternDialog : null,
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+
+
+
+
+
+import 'dart:convert'; 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:testing_aar_file/ui/widgets/custom_app_bar.dart';
@@ -12,24 +497,17 @@ import '../../widgets/register_pattern/step_navigation_controls_widget.dart';
 
 class NewRegisterPatternScreen extends StatefulWidget {
   @override
-  _NewRegisterPatternScreenState createState() =>
-      _NewRegisterPatternScreenState();
+  _NewRegisterPatternScreenState createState() => _NewRegisterPatternScreenState();
 }
 
 class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
   int _currentStep = 0;
-  final int _totalSteps = 3; // Define total steps
+  final int _totalSteps = 3;
 
   String status = 'Idle';
   final TextEditingController _searchController = TextEditingController();
 
-  List<Map<String, String>> allPatterns = [
-    {"name": "Pattern Alpha", "code": "A001X"},
-    {"name": "Pattern Bravo", "code": "B002Y"},
-    {"name": "Pattern Charlie", "code": "C003Z"},
-    {"name": "Pattern Delta", "code": "D004W"},
-    {"name": "Pattern Echo", "code": "E005V"},
-  ];
+  List<Map<String, String>> allPatterns = [];
   List<Map<String, String>> filteredPatterns = [];
 
   Map<String, String>? selectedPattern;
@@ -39,21 +517,50 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
   @override
   void initState() {
     super.initState();
+    _fetchPatterns();
     _searchController.addListener(_onSearchChanged);
-    _onSearchChanged(); // Initial call to populate or clear based on controller's text
+  }
+
+  Future<void> _fetchPatterns() async {
+    final uri = Uri.parse(
+        'http://10.10.1.7:8301/api/productionappservices/getpatterndetailslist'
+    );
+    try {
+      final resp = await http.get(uri).timeout(const Duration(seconds: 10));
+      if (resp.statusCode == 200) {
+        final data = jsonDecode(resp.body) as List;
+        setState(() {
+          allPatterns = data.map<Map<String, String>>((item) {
+            return {
+              'name': item['PatternName']?.toString() ?? '',
+              'code': item['PatternCode']?.toString() ?? '',
+              'rfdId': item['RfdId']?.toString() ?? '',
+            };
+          }).toList();
+          filteredPatterns = [];
+        });
+      } else {
+        setState(() {
+          status = 'Failed to load patterns (${resp.statusCode})';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        status = 'Error loading patterns: $e';
+      });
+    }
   }
 
   void _onSearchChanged() {
-    String query = _searchController.text.toLowerCase().trim();
+    final query = _searchController.text.toLowerCase().trim();
     setState(() {
       if (query.isEmpty) {
-        filteredPatterns = []; // Show nothing or a message if query is empty
+        filteredPatterns = [];
       } else {
-        filteredPatterns = allPatterns
-            .where((pattern) =>
-                pattern['name']!.toLowerCase().contains(query) ||
-                pattern['code']!.toLowerCase().contains(query))
-            .toList();
+        filteredPatterns = allPatterns.where((pattern) {
+          return pattern['name']!.toLowerCase().contains(query) ||
+              pattern['code']!.toLowerCase().contains(query);
+        }).toList();
       }
     });
   }
@@ -65,11 +572,37 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     super.dispose();
   }
 
+  Future<void> updateRfdId(String patternCode, String rfidId) async {
+    final uri = Uri.parse(
+        'http://10.10.1.7:8301/api/productionappservices/updatepatternrfd'
+    );
+    final body = jsonEncode({
+      'PatternCode': patternCode,
+      'RfdId': rfidId,
+    });
+
+    setState(() => status = 'Updating RFID on server...');
+
+    try {
+      final resp = await http
+          .post(uri, headers: {'Content-Type': 'application/json'}, body: body)
+          .timeout(const Duration(seconds: 10));
+
+      if (!mounted) return;
+      if (resp.statusCode == 200) {
+        setState(() => status = 'RFID updated successfully');
+      } else {
+        setState(() => status = 'Update failed (code: ${resp.statusCode})');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => status = 'Error updating RFID: $e');
+    }
+  }
+
   Future<void> startInventory() async {
-    if (rfidTags.length >= 3) {
-      setState(() {
-        status = 'Maximum 3 RFID tags allowed.';
-      });
+    if (rfidTags.isNotEmpty) {
+      setState(() => status = 'Only one RFID tag allowed');
       return;
     }
 
@@ -82,21 +615,17 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
       await RFIDPlugin.setPower(1);
       final epc = await RFIDPlugin.readSingleTag();
 
-      if (!mounted) return; // Check if the widget is still in the tree
+      if (!mounted) return;
+      setState(() => isScanning = false);
 
-      setState(() {
-        isScanning = false;
-        if (epc != null && epc.isNotEmpty) {
-          if (!rfidTags.contains(epc)) {
-            rfidTags.add(epc);
-            status = 'Tag Scanned: $epc';
-          } else {
-            status = 'Tag already added: $epc';
-          }
-        } else {
-          status = 'No Tag Found or empty EPC.';
-        }
-      });
+      if (epc != null && epc.isNotEmpty) {
+        rfidTags.add(epc);
+        status = 'Tag Scanned: $epc';
+        // send update immediately
+        await updateRfdId(selectedPattern!['code']!, epc);
+      } else {
+        setState(() => status = 'No Tag Found or empty EPC.');
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -116,7 +645,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
       if (!mounted) return;
       setState(() {
         isScanning = false;
-        status = 'Scanning Stopped.';
+        status = 'Scanning Stopped';
       });
     }
   }
@@ -124,88 +653,9 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
   void removeRfidTag(int index) {
     setState(() {
       rfidTags.removeAt(index);
-      status = rfidTags.isEmpty ? 'No tags attached.' : 'Tag removed.';
+      status = rfidTags.isEmpty ? 'No tags attached.' : 'Tag removed';
     });
   }
-
-  // Future<void> savePattern() async {
-  //   if (selectedPattern == null || rfidTags.isEmpty) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: const Text('Pattern and RFID tags must be selected.'),
-  //         backgroundColor: Colors.orange.shade700,
-  //       ),
-  //     );
-  //     return;
-  //   }
-  //
-  //   final payload = {
-  //     "pattern_code": selectedPattern!['code'],
-  //     "pattern_name": selectedPattern!['name'],
-  //     "rfids": rfidTags,
-  //   };
-  //
-  //   final uri = Uri.parse("http://your-api-endpoint.com/patterns");
-  //
-  //   setState(() {
-  //     status = "Saving pattern..."; // Indicate saving process
-  //   });
-  //
-  //   try {
-  //     final response = await http.post(
-  //       uri,
-  //       headers: {"Content-Type": "application/json"},
-  //       body: jsonEncode(payload),
-  //     ).timeout(const Duration(seconds: 10)); // Add a timeout
-  //
-  //     if (!mounted) return;
-  //
-  //     if (response.statusCode == 201) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: const Text('Pattern saved successfully!'),
-  //           backgroundColor: Colors.green.shade700,
-  //         ),
-  //       );
-  //       setState(() {
-  //         selectedPattern = null;
-  //         rfidTags.clear();
-  //         _currentStep = 0;
-  //         _searchController.clear(); // This will trigger _onSearchChanged
-  //         status = 'Idle';
-  //       });
-  //     } else {
-  //       String errorMessage = 'Failed to save pattern.';
-  //       try {
-  //         final responseBody = jsonDecode(response.body);
-  //         if (responseBody['message'] != null) {
-  //           errorMessage += ' Server: ${responseBody['message']}';
-  //         }
-  //       } catch (_) {
-  //       }
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text('$errorMessage (Code: ${response.statusCode})'),
-  //           backgroundColor: Colors.red.shade700,
-  //         ),
-  //       );
-  //       setState(() {
-  //         status = "Save failed.";
-  //       });
-  //     }
-  //   } catch (e) {
-  //     if (!mounted) return;
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text('Error saving pattern: $e'),
-  //         backgroundColor: Colors.red.shade700,
-  //       ),
-  //     );
-  //     setState(() {
-  //       status = "Save error.";
-  //     });
-  //   }
-  // }
 
   Future<void> savePattern() async {
     if (selectedPattern == null || rfidTags.isEmpty) {
@@ -219,32 +669,27 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     }
 
     final payload = {
-      "PatternCode": selectedPattern!['PatternCode'],
-      "PatternName": selectedPattern!['PatternName'],
-      "rfids": rfidTags,
+      'PatternCode': selectedPattern!['code'],
+      'PatternName': selectedPattern!['name'],
+      'rfids': rfidTags,
     };
+    final uri = Uri.parse('http://your-api-endpoint.com/patterns');
 
-    final uri = Uri.parse("http://your-api-endpoint.com/patterns");
-
-    setState(() {
-      status = "Saving pattern...";
-    });
+    setState(() => status = 'Saving pattern...');
 
     try {
-      final response = await http.post(
-        uri,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(payload),
-      ).timeout(const Duration(seconds: 10));
+      final resp = await http
+          .post(uri,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(payload))
+          .timeout(const Duration(seconds: 10));
 
       if (!mounted) return;
-
-      if (response.statusCode == 201) {
-        // ✅ Save to SharedPreferences
+      if (resp.statusCode == 201) {
         await LocalStorageService.addRecentRegistration({
-          "PatternCode": selectedPattern!['PatternCode'],
-          "PatternName": selectedPattern!['PatternName'],
-          "date": DateTime.now().toIso8601String(),
+          'PatternCode': selectedPattern!['code'],
+          'PatternName': selectedPattern!['name'],
+          'date': DateTime.now().toIso8601String(),
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -264,13 +709,11 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to save pattern (Code: ${response.statusCode})'),
+            content: Text('Failed to save pattern (Code: ${resp.statusCode})'),
             backgroundColor: Colors.red.shade700,
           ),
         );
-        setState(() {
-          status = "Save failed.";
-        });
+        setState(() => status = 'Save failed');
       }
     } catch (e) {
       if (!mounted) return;
@@ -280,82 +723,64 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
           backgroundColor: Colors.red.shade700,
         ),
       );
-      setState(() {
-        status = "Save error.";
-      });
+      setState(() => status = 'Save error');
     }
   }
 
-
-  Future<bool?> _confirmPatternDialog() async {
-    return showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Row(
-          children: [
-            Icon(Icons.check_circle_outline, color: Colors.red.shade700, size: 28),
-            const SizedBox(width: 12),
-            const Text(
-              'Confirm Selection',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Divider(height: 20, thickness: 1),
-            const Text('You have selected:',
-                style: TextStyle(fontSize: 16, color: Colors.black54)),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.red.shade200),
-              ),
-              child: Text(
-                '${selectedPattern?['name']} (${selectedPattern?['code']})',
-                style: TextStyle(
-                    fontSize: 17, // Slightly larger for emphasis
-                    fontWeight: FontWeight.w600,
-                    color: Colors.red.shade900),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Proceed to attach RFID tags?',
-              style: TextStyle(fontSize: 16),
-            ),
-          ],
-        ),
-        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text('Cancel', style: TextStyle(color: Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.bold)),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade700,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
-            ),
-            child: const Text('Continue'),
-          ),
+  Future<bool?> _confirmPatternDialog() => showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Row(
+        children: [
+          Icon(Icons.check_circle_outline, color: Colors.red.shade700, size: 28),
+          const SizedBox(width: 12),
+          const Text('Confirm Selection',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
         ],
       ),
-    );
-  }
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Divider(height: 20, thickness: 1),
+          const Text('You have selected:', style: TextStyle(fontSize: 16, color: Colors.black54)),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.red.shade200),
+            ),
+            child: Text(
+              '${selectedPattern?['name']} (${selectedPattern?['code']})',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.red.shade900),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text('Proceed to attach RFID tags?', style: TextStyle(fontSize: 16)),
+        ],
+      ),
+      actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(false),
+          child: Text('Cancel', style: TextStyle(color: Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.bold)),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.of(ctx).pop(true),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red.shade700,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          child: const Text('Continue'),
+        ),
+      ],
+    ),
+  );
 
   bool _canProceedToNextStep() {
     switch (_currentStep) {
@@ -364,7 +789,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
       case 1:
         return rfidTags.isNotEmpty;
       default:
-        return true; // For review step, always allow if reached
+        return true;
     }
   }
 
@@ -372,10 +797,10 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     if (_currentStep < _totalSteps - 1) {
       setState(() {
         _currentStep++;
-        if (_currentStep == 1) { // Moving to RFID step
-             status = rfidTags.isEmpty ? 'Scan RFID tags.' : '${rfidTags.length} tag(s) attached.';
-        } else if (_currentStep == 2) { // Moving to Review step
-            status = "Review your pattern details.";
+        if (_currentStep == 1) {
+          status = rfidTags.isEmpty ? 'Scan RFID tags.' : '${rfidTags.length} tag(s) attached.';
+        } else if (_currentStep == 2) {
+          status = 'Review your pattern details.';
         }
       });
     }
@@ -385,60 +810,48 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     if (_currentStep > 0) {
       setState(() {
         _currentStep--;
-         if (_currentStep == 0) { // Moving back to Pattern Selection
-            status = "Select a pattern.";
-         } else if (_currentStep == 1) { // Moving back to RFID step
-            status = rfidTags.isEmpty ? 'Scan RFID tags.' : '${rfidTags.length} tag(s) attached.';
-         }
+        if (_currentStep == 0) {
+          status = 'Select a pattern.';
+        } else if (_currentStep == 1) {
+          status = rfidTags.isEmpty ? 'Scan RFID tags.' : '${rfidTags.length} tag(s) attached.';
+        }
       });
     }
   }
-  
-  List<Widget> _buildStepWidgets() {
-    return [
-      PatternSelectionStepWidget(
-        searchController: _searchController,
-        filteredPatterns: filteredPatterns,
-        selectedPattern: selectedPattern,
-        onPatternSelected: (pattern) {
-          setState(() {
-            selectedPattern = pattern;
-          });
-        },
-      ),
-      RfidAttachmentStepWidget(
-        status: status,
-        rfidTags: rfidTags,
-        isScanning: isScanning,
-        onStartInventory: startInventory,
-        onStopInventory: stopInventory,
-        onRemoveRfidTag: removeRfidTag,
-      ),
-      ReviewAndSaveStepWidget(
-        selectedPattern: selectedPattern,
-        rfidTags: rfidTags,
-        onSavePattern: savePattern,
-      ),
-    ];
-  }
+
+  List<Widget> _buildStepWidgets() => [
+    PatternSelectionStepWidget(
+      searchController: _searchController,
+      filteredPatterns: filteredPatterns,
+      selectedPattern: selectedPattern,
+      onPatternSelected: (pattern) => setState(() => selectedPattern = pattern),
+    ),
+    RfidAttachmentStepWidget(
+      status: status,
+      rfidTags: rfidTags,
+      isScanning: isScanning,
+      onStartInventory: startInventory,
+      onStopInventory: stopInventory,
+      onRemoveRfidTag: removeRfidTag,
+    ),
+    ReviewAndSaveStepWidget(
+      selectedPattern: selectedPattern,
+      rfidTags: rfidTags,
+      onSavePattern: savePattern,
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final List<String> stepLabels = [
-      'Select Pattern',
-      'Attach Tags',
-      'Review & Save',
-    ];
+    final stepLabels = ['Select Pattern', 'Attach Tags', 'Review & Save'];
 
     return WillPopScope(
       onWillPop: () async {
         if (_currentStep > 0) {
-          setState(() {
-            _currentStep--;
-          });
-          return false; // Prevent default back navigation
+          setState(() => _currentStep--);
+          return false;
         }
-        return true; // Allow back navigation if on the first step
+        return true;
       },
       child: Scaffold(
         appBar: const CustomAppBar(title: 'Register New Pattern'),
@@ -446,27 +859,20 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              StepperIndicatorWidget(
-                currentStep: _currentStep,
-                stepLabels: stepLabels,
-              ),
-              const SizedBox(height: 16), // Spacing after stepper
+              StepperIndicatorWidget(currentStep: _currentStep, stepLabels: stepLabels),
+              const SizedBox(height: 16),
               Expanded(
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
-                  transitionBuilder: (Widget child, Animation<double> animation) {
-                    return FadeTransition(opacity: animation, child: child);
-                  },
-                  child: Container( // Key added to ensure AnimatedSwitcher updates
-                    key: ValueKey<int>(_currentStep),
-                    child: _buildStepWidgets()[_currentStep],
-                  ),
+                  transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
+                  child: Container(key: ValueKey(_currentStep), child: _buildStepWidgets()[_currentStep]),
                 ),
               ),
             ],
           ),
         ),
-        bottomNavigationBar: StepNavigationControlsWidget(
+        bottomNavigationBar:
+        StepNavigationControlsWidget(
           currentStep: _currentStep,
           totalSteps: _totalSteps,
           onNext: _onNextStep,
