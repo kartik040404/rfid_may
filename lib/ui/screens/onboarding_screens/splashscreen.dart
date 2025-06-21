@@ -5,6 +5,8 @@ import 'dart:async';
 
 import 'package:testing_aar_file/ui/widgets/BottomNaviagtionBar.dart';
 
+import '../../../RFIDPlugin.dart';
+
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,17 +16,26 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  bool _isInitializing = true;
+  bool _initSuccess = false;
   @override
   void initState() {
     super.initState();
     Timer(const Duration(seconds: 3), () {
+      _initializeRFID();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MainScreen()), // Replace with your screen
       );
     });
   }
-
+  Future<void> _initializeRFID() async {
+    bool success = await RFIDPlugin.initRFID();
+    setState(() {
+      _isInitializing = false;
+      _initSuccess = success;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

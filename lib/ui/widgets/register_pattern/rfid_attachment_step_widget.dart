@@ -34,6 +34,7 @@ class RfidAttachmentStepWidget extends StatelessWidget {
             Text(
               "Attach RFID Tags (1-3)",
               style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 16),
             Text(
@@ -43,16 +44,20 @@ class RfidAttachmentStepWidget extends StatelessWidget {
                 fontWeight: FontWeight.w500,
                 color: status.contains('Failed') || status.contains('Maximum') || status.contains('already added') ? Colors.red.shade700 : primaryColor,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 10),
             if (rfidTags.isNotEmpty) ...[
               Text(
                 "Scanned RFID Tags:",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.grey.shade700),
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 8),
               Expanded(
                 child: ListView.builder(
+                  shrinkWrap: true,
                   itemCount: rfidTags.length,
                   itemBuilder: (context, index) {
                     return Card(
@@ -67,7 +72,12 @@ class RfidAttachmentStepWidget extends StatelessWidget {
                             style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
                           ),
                         ),
-                        title: Text(rfidTags[index], style: const TextStyle(fontSize: 15)),
+                        title: Text(
+                          rfidTags[index],
+                          style: const TextStyle(fontSize: 15),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
                         trailing: IconButton(
                           icon: Icon(Icons.delete_outline, color: Colors.red.shade700),
                           onPressed: () => onRemoveRfidTag(index),
@@ -85,6 +95,7 @@ class RfidAttachmentStepWidget extends StatelessWidget {
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.qr_code_scanner_outlined, size: 80, color: Colors.grey.shade400),
                       const SizedBox(height: 16),
@@ -105,10 +116,17 @@ class RfidAttachmentStepWidget extends StatelessWidget {
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         CircularProgressIndicator(color: primaryColor),
                         const SizedBox(height: 20),
-                        Text(status, style: TextStyle(fontSize: 16, color: primaryColor)),
+                        Text(
+                          status,
+                          style: TextStyle(fontSize: 16, color: primaryColor),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          textAlign: TextAlign.center,
+                        ),
                       ],
                     )
                   )
@@ -118,6 +136,7 @@ class RfidAttachmentStepWidget extends StatelessWidget {
             Text(
               rfidTags.length < 3 ? "${3 - rfidTags.length} more tag(s) can be added." : "Maximum tags added.",
               style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey.shade600),
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
@@ -136,7 +155,10 @@ class RfidAttachmentStepWidget extends StatelessWidget {
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                     )
                   : const Icon(Icons.qr_code_scanner),
-              label: Text(isScanning ? "Scanning..." : "Scan RFID Tag"),
+              label: Text(
+                isScanning ? "Scanning..." : "Scan RFID Tag",
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             if (isScanning)
               Padding(

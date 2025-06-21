@@ -23,40 +23,49 @@ class ReviewAndSaveStepWidget extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              "Review & Save",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            _buildReviewInfo(
-              context,
-              icon: Icons.style_outlined,
-              title: "Selected Pattern",
-              content: selectedPattern != null
-                  ? "${selectedPattern!['name']} (${selectedPattern!['code']})"
-                  : "Not selected",
-              iconColor: primaryColor,
+            // Wrap scrollable content in Expanded
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      "Review & Save",
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 24),
+                    _buildReviewInfo(
+                      context,
+                      icon: Icons.style_outlined,
+                      title: "Selected Pattern",
+                      content: selectedPattern != null
+                          ? "${selectedPattern!['name']} (${selectedPattern!['code']})"
+                          : "Not selected",
+                      iconColor: primaryColor,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildReviewInfo(
+                      context,
+                      icon: Icons.qr_code_scanner_outlined,
+                      title: "RFID Tags (${rfidTags.length})",
+                      content: rfidTags.isNotEmpty
+                          ? rfidTags.map((t) => "• $t").join('\n')
+                          : "No tags attached",
+                      iconColor: primaryColor,
+                      isMultiline: true,
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 16),
-            _buildReviewInfo(
-              context,
-              icon: Icons.qr_code_scanner_outlined,
-              title: "RFID Tags (${rfidTags.length})",
-              content: rfidTags.isNotEmpty
-                  ? rfidTags.map((t) => "• $t").join('\n')
-                  : "No tags attached",
-              iconColor: primaryColor,
-            ),
-            const Spacer(),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: successColor,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               onPressed: () => onSavePattern(),
@@ -69,7 +78,14 @@ class ReviewAndSaveStepWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildReviewInfo(BuildContext context, {required IconData icon, required String title, required String content, Color? iconColor}) {
+  Widget _buildReviewInfo(
+      BuildContext context, {
+        required IconData icon,
+        required String title,
+        required String content,
+        Color? iconColor,
+        bool isMultiline = false,
+      }) {
     return Container(
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(

@@ -75,11 +75,15 @@ class PatternSelectionStepWidget extends StatelessWidget {
                           ),
                           color: isSelected ? Colors.red.shade50 : Colors.white,
                           child: ListTile(
-                            title: Text('${pat['name']} (${pat['code']})',
+                            title: Flexible(
+                              child: Text(
+                                '${pat['name']} (${pat['code']})',
                                 style: TextStyle(
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                   color: isSelected ? Colors.red.shade900 : Colors.black87,
                                 ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                             trailing: isSelected
                                 ? Icon(Icons.check_circle, color: Colors.red.shade700)
