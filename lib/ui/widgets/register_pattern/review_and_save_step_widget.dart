@@ -32,9 +32,9 @@ class ReviewAndSaveStepWidget extends StatelessWidget {
                   children: [
                     Text(
                       "Review & Save",
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold,fontSize: 20),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
                     _buildReviewInfo(
                       context,
                       icon: Icons.style_outlined,
@@ -44,7 +44,7 @@ class ReviewAndSaveStepWidget extends StatelessWidget {
                           : "Not selected",
                       iconColor: primaryColor,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
                     _buildReviewInfo(
                       context,
                       icon: Icons.qr_code_scanner_outlined,
@@ -59,19 +59,20 @@ class ReviewAndSaveStepWidget extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: successColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              onPressed: () => onSavePattern(),
-              icon: const Icon(Icons.save_alt_outlined),
-              label: const Text("Save Pattern"),
-            ),
+            // Remove the Save button from here
+            // const SizedBox(height: 16),
+            // ElevatedButton.icon(
+            //   style: ElevatedButton.styleFrom(
+            //     backgroundColor: successColor,
+            //     foregroundColor: Colors.white,
+            //     padding: const EdgeInsets.symmetric(vertical: 12),
+            //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            //     textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            //   ),
+            //   onPressed: () => onSavePattern(),
+            //   icon: const Icon(Icons.save_alt_outlined),
+            //   label: const Text("Save Pattern"),
+            // ),
           ],
         ),
       ),
@@ -110,10 +111,10 @@ class ReviewAndSaveStepWidget extends StatelessWidget {
                     color: Colors.grey.shade800,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
                   content,
-                  style: TextStyle(fontSize: 15, color: Colors.grey.shade700, height: 1.4),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700, height: 1.4),
                 ),
               ],
             ),

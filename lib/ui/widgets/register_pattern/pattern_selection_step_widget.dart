@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class PatternSelectionStepWidget extends StatelessWidget {
   final TextEditingController searchController;
-  final FocusNode searchFocusNode;
   final List<Map<String, String>> filteredPatterns;
   final Map<String, String>? selectedPattern;
   final Function(Map<String, String>) onPatternSelected;
@@ -10,10 +9,10 @@ class PatternSelectionStepWidget extends StatelessWidget {
   const PatternSelectionStepWidget({
     super.key,
     required this.searchController,
-    required this.searchFocusNode,
     required this.filteredPatterns,
     required this.selectedPattern,
     required this.onPatternSelected,
+    required FocusNode searchFocusNode,
   });
 
   @override
@@ -36,7 +35,6 @@ class PatternSelectionStepWidget extends StatelessWidget {
               height: 48, // set your desired height
               child: TextField(
                 controller: searchController,
-                focusNode: searchFocusNode,
                 decoration: InputDecoration(
                   hintText: "Enter pattern name or code",
                   hintStyle: TextStyle(fontSize: 14), // change hint text size here
@@ -65,41 +63,44 @@ class PatternSelectionStepWidget extends StatelessWidget {
               ),
             Expanded(
               child: searchController.text.isNotEmpty
-                  ? ListView.builder(
-                      itemCount: filteredPatterns.length,
-                      itemBuilder: (context, idx) {
-                        final pat = filteredPatterns[idx];
-                        final isSelected = selectedPattern != null &&
-                            selectedPattern!['code'] == pat['code'];
-                        return Card(
-                          elevation: 2,
-                          margin: const EdgeInsets.symmetric(vertical: 4.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: BorderSide(
-                              color: isSelected ? Colors.red.shade700 : Colors.transparent,
-                              width: 1.5,
-                            ),
-                          ),
-                          color: isSelected ? Colors.red.shade50 : Colors.white,
-                          child: ListTile(
-                            title: Flexible(
-                              child: Text(
-                                '${pat['name']} (${pat['code']})',
-                                style: TextStyle(
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                  color: isSelected ? Colors.red.shade900 : Colors.black87,
+                  ? Container(
+                      child: Scrollbar(
+                        thumbVisibility: true,
+                        child: ListView.builder(
+                          itemCount: filteredPatterns.length,
+                          itemBuilder: (context, idx) {
+                            final pat = filteredPatterns[idx];
+                            final isSelected = selectedPattern != null &&
+                                selectedPattern!['code'] == pat['code'];
+                            return Card(
+                              elevation: 2,
+                              margin: const EdgeInsets.symmetric(vertical: 4.0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: isSelected ? Colors.red.shade700 : Colors.transparent,
+                                  width: 1.5,
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                            trailing: isSelected
-                                ? Icon(Icons.check_circle, color: Colors.red.shade700)
-                                : null,
-                            onTap: () => onPatternSelected(pat),
-                          ),
-                        );
-                      },
+                              color: isSelected ? Colors.red.shade50 : Colors.white,
+                              child: ListTile(
+                                title: Text(
+                                  '${pat['name']} (${pat['code']})',
+                                  style: TextStyle(
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    color: isSelected ? Colors.red.shade900 : Colors.black87,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                trailing: isSelected
+                                    ? Icon(Icons.check_circle, color: Colors.red.shade700)
+                                    : null,
+                                onTap: () => onPatternSelected(pat),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     )
                   : Center(
                       child: Text(

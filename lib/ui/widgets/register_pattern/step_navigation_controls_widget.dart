@@ -35,10 +35,8 @@ class StepNavigationControlsWidget extends StatelessWidget {
               label: Text("Back", style: TextStyle(color: Colors.grey.shade700, fontSize: 14)),
               onPressed: () => onBack(),
               style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10)),
-            )
-          else
-            const SizedBox(), // To maintain space when back button is not shown
-
+            ),
+          if (currentStep == 0) const SizedBox.shrink(),
           if (currentStep < totalSteps - 1)
             ElevatedButton.icon(
               label: const Text("Continue"),

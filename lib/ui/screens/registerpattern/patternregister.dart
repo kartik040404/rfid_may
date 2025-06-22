@@ -8,7 +8,6 @@ import '../../widgets/register_pattern/stepper_indicator_widget.dart';
 import '../../widgets/register_pattern/pattern_selection_step_widget.dart';
 import '../../widgets/register_pattern/rfid_attachment_step_widget.dart';
 import '../../widgets/register_pattern/review_and_save_step_widget.dart';
-import '../../widgets/register_pattern/step_navigation_controls_widget.dart';
 
 class NewRegisterPatternScreen extends StatefulWidget {
   @override
@@ -67,33 +66,45 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
   }
 
   Future<void> _fetchPatterns() async {
-    final uri = Uri.parse(
-        'http://10.10.1.7:8301/api/productionappservices/getpatterndetailslist'
-    );
-    try {
-      final resp = await http.get(uri).timeout(const Duration(seconds: 10));
-      if (resp.statusCode == 200) {
-        final data = jsonDecode(resp.body) as List;
-        setState(() {
-          allPatterns = data.map<Map<String, String>>((item) {
-            return {
-              'name': item['PatternName']?.toString() ?? '',
-              'code': item['PatternCode']?.toString() ?? '',
-              'rfdId': item['RfdId']?.toString() ?? '',
-            };
-          }).toList();
-          filteredPatterns = [];
-        });
-      } else {
-        setState(() {
-          status = 'Failed to load patterns (${resp.statusCode})';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        status = 'Error loading patterns: $e';
-      });
-    }
+    // final uri = Uri.parse(
+    //     'http://10.10.1.7:8301/api/productionappservices/getpatterndetailslist'
+    // );
+    // try {
+    //   final resp = await http.get(uri).timeout(const Duration(seconds: 10));
+    //   if (resp.statusCode == 200) {
+    //     final data = jsonDecode(resp.body) as List;
+    //     setState(() {
+    //       allPatterns = data.map<Map<String, String>>((item) {
+    //         return {
+    //           'name': item['PatternName']?.toString() ?? '',
+    //           'code': item['PatternCode']?.toString() ?? '',
+    //           'rfdId': item['RfdId']?.toString() ?? '',
+    //         };
+    //       }).toList();
+    //       filteredPatterns = [];
+    //     });
+    //   } else {
+    //     setState(() {
+    //       status = 'Failed to load patterns (${resp.statusCode})';
+    //     });
+    //   }
+    // } catch (e) {
+    //   setState(() {
+    //     status = 'Error loading patterns: $e';
+    //   });
+    // }
+
+    await Future.delayed(const Duration(milliseconds: 500));
+    setState(() {
+      allPatterns = [
+        {'name': 'Pattern Alpha', 'code': 'A001', 'rfdId': 'RFD1001'},
+        {'name': 'Pattern Beta', 'code': 'B002', 'rfdId': 'RFD1002'},
+        {'name': 'Pattern Gamma', 'code': 'C003', 'rfdId': 'RFD1003'},
+        {'name': 'Pattern Delta', 'code': 'D004', 'rfdId': 'RFD1004'},
+      ];
+      filteredPatterns = [];
+      status = 'Loaded dummy patterns';
+    });
   }
 
   void _onSearchChanged() {
@@ -288,23 +299,23 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Divider(height: 20, thickness: 1),
-          const Text('You have selected:', style: TextStyle(fontSize: 16, color: Colors.black54)),
-          const SizedBox(height: 10),
+          const Divider(thickness: 1),
+          const Text('You have selected:', style: TextStyle(fontSize: 12, color: Colors.black54)),
+          const SizedBox(height: 6),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Colors.red.shade50,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(color: Colors.red.shade200),
             ),
             child: Text(
-              '${selectedPattern?['name']} (${selectedPattern?['code']})',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.red.shade900),
+              '	${selectedPattern?['name']} (${selectedPattern?['code']})',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.red.shade900),
             ),
           ),
-          const SizedBox(height: 20),
-          const Text('Proceed to attach RFID tags?', style: TextStyle(fontSize: 16)),
+          const SizedBox(height: 6),
+          const Text('Proceed to attach RFID tags?', style: TextStyle(fontSize: 12)),
         ],
       ),
       actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -390,6 +401,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
   @override
   Widget build(BuildContext context) {
     final stepLabels = ['Select Pattern', 'Attach Tags', 'Review & Save'];
+    final media = MediaQuery.of(context);
     return WillPopScope(
       onWillPop: () async {
         if (_currentStep > 0) {
@@ -400,35 +412,109 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
       },
       child: Scaffold(
         appBar: const CustomAppBar(title: 'Register New Pattern'),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            child: Column(
-              children: [
-                StepperIndicatorWidget(currentStep: _currentStep, stepLabels: stepLabels),
-                const SizedBox(height: 16),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.7,
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
-                    child: Container(key: ValueKey(_currentStep), child: _buildStepWidgets()[_currentStep]),
+        body: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  children: [
+                    StepperIndicatorWidget(currentStep: _currentStep, stepLabels: stepLabels),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: media.size.height * 0.62,
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
+                        child: Container(key: ValueKey(_currentStep), child: _buildStepWidgets()[_currentStep]),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Floating Back Button
+            if (_currentStep > 0)
+              Positioned(
+                left: 24,
+                bottom: 20,
+                child: SizedBox(
+                  width: 100, // Customize width
+                  height: 40, // Customize height
+                  child: FloatingActionButton.extended(
+                    heroTag: 'back_fab',
+                    backgroundColor: Colors.grey.shade200,
+                    foregroundColor: Colors.red.shade700,
+                    icon: const Icon(Icons.arrow_back_ios, size: 18), // Custom icon size
+                    label: const Text('Back', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)), // Custom label size
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), // Custom border radius
+                    onPressed: _onPreviousStep,
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-        bottomNavigationBar:
-        StepNavigationControlsWidget(
-          currentStep: _currentStep,
-          totalSteps: _totalSteps,
-          onNext: _onNextStep,
-          onBack: _onPreviousStep,
-          canProceedToNextStep: _canProceedToNextStep,
-          onConfirmNext: _currentStep == 0 ? _confirmPatternDialog : null,
-        ),
+              ),
+            // Floating Continue Button
+            if (_currentStep < _totalSteps - 1)
+              Positioned(
+                right: 24,
+                bottom: 20,
+                child: SizedBox(
+                  width: 120, // Customize width
+                  height: 40, // Customize height
+                  child: FloatingActionButton.extended(
+                    heroTag: 'continue_fab',
+                    backgroundColor: Colors.red.shade700,
+                    foregroundColor: Colors.white,
+                    icon: const Icon(Icons.arrow_forward_ios, size: 18), // Custom icon size
+                    label: const Text('Continue', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)), // Custom label size
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), // Custom border radius
+                    onPressed: () async {
+                      if (!_canProceedToNextStep()) {
+                        String message = _currentStep == 0
+                            ? 'Please select a pattern to continue.'
+                            : 'Please scan at least one RFID tag to continue.';
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(message),
+                            backgroundColor: Colors.orange.shade700,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                        return;
+                      }
+                      if (_currentStep == 0 && _confirmPatternDialog != null) {
+                        final proceed = await _confirmPatternDialog();
+                        if (proceed == true) {
+                          _onNextStep();
+                        }
+                      } else {
+                        _onNextStep();
+                      }
+                    },
+                  ),
+                ),
+              ),
+            // Floating Save Button for Review Step
+            if (_currentStep == 2)
+              Positioned(
+                right: 24,
+                bottom: 20,
+                child: SizedBox(
+                  width: 130,
+                  height: 40,
+                  child: FloatingActionButton.extended(
+                    heroTag: 'save_fab',
+                    backgroundColor: Colors.green.shade700,
+                    foregroundColor: Colors.white,
+                    icon: const Icon(Icons.save_alt_outlined, size: 18),
+                    label: const Text('Save Pattern', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    onPressed: savePattern,
+                  ),
+                ),
+              ),
+
+    ]),
       ),
     );
   }

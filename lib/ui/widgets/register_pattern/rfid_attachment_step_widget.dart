@@ -20,157 +20,105 @@ class RfidAttachmentStepWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    final isWide = media.size.width > 600;
     Color primaryColor = Colors.red.shade700;
     Color primaryColorLight = Colors.red.shade100;
 
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              "Attach RFID Tags (1-3)",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              "Status: $status",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: status.contains('Failed') || status.contains('Maximum') || status.contains('already added') ? Colors.red.shade700 : primaryColor,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 10),
-            if (rfidTags.isNotEmpty) ...[
-              Text(
-                "Scanned RFID Tags:",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.grey.shade700),
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: rfidTags.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      elevation: 1,
-                      margin: const EdgeInsets.symmetric(vertical: 4.0),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: primaryColorLight,
+    return Center(
+      child: SizedBox(
+        width: isWide ? 500 : double.infinity,
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: EdgeInsets.all(isWide ? 32.0 : 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  "Attach RFID Tag",
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  "Status: $status",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: status.contains('Failed') || status.contains('Maximum') || status.contains('already added') ? Colors.red.shade700 : primaryColor,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 10),
+                if (rfidTags.isNotEmpty) ...[
+                  Text(
+                    "Scanned RFID Tag:",
+                    style: TextStyle(fontWeight: FontWeight.w600, color: primaryColor),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: primaryColorLight,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
                           child: Text(
-                            '${index + 1}',
-                            style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
+                            rfidTags[0],
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                           ),
                         ),
-                        title: Text(
-                          rfidTags[index],
-                          style: const TextStyle(fontSize: 15),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(Icons.delete_outline, color: Colors.red.shade700),
-                          onPressed: () => onRemoveRfidTag(index),
-                          tooltip: 'Remove Tag',
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const Divider(height: 20),
-            ],
-            if (rfidTags.isEmpty && !isScanning)
-              Expanded(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.qr_code_scanner_outlined, size: 80, color: Colors.grey.shade400),
-                      const SizedBox(height: 16),
-                      Text(
-                        "No RFID tags scanned yet.",
-                        style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Click below to start scanning.",
-                        style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
-                      ),
-                    ],
-                  ),
-                ),
-              ) else if (rfidTags.isEmpty && isScanning)
-                 Expanded(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircularProgressIndicator(color: primaryColor),
-                        const SizedBox(height: 20),
-                        Text(
-                          status,
-                          style: TextStyle(fontSize: 16, color: primaryColor),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                          textAlign: TextAlign.center,
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red.shade700),
+                          onPressed: () => onRemoveRfidTag(0),
+                          tooltip: 'Remove',
                         ),
                       ],
-                    )
-                  )
-                 ),
-
-            const SizedBox(height: 10),
-            Text(
-              rfidTags.length < 3 ? "${3 - rfidTags.length} more tag(s) can be added." : "Maximum tags added.",
-              style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey.shade600),
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                disabledBackgroundColor: Colors.grey.shade300,
-              ),
-              onPressed: rfidTags.length < 3 && !isScanning ? () => onStartInventory() : null,
-              icon: isScanning
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Icon(Icons.qr_code_scanner),
-              label: Text(
-                isScanning ? "Scanning..." : "Scan RFID Tag",
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            if (isScanning)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: TextButton.icon(
-                  style: TextButton.styleFrom(foregroundColor: Colors.red.shade700),
-                  onPressed: () => onStopInventory(),
-                  icon: const Icon(Icons.stop_circle_outlined),
-                  label: const Text("Stop Scanning"),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                if (rfidTags.isEmpty) ...[
+                  ElevatedButton.icon(
+                    icon: isScanning
+                        ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        : Icon(Icons.nfc, color: Colors.white),
+                    label: Text(isScanning ? 'Scanning...' : 'Scan RFID Tag'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: isScanning ? null : () => onStartInventory(),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                if (isScanning && rfidTags.isEmpty) ...[
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.stop, color: Colors.red),
+                    label: const Text('Stop Scanning'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red.shade700,
+                      side: BorderSide(color: Colors.red.shade700),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: () => onStopInventory(),
+                  ),
+                ],
+SizedBox(height: 100,),
+                Text(
+                  "Only one RFID tag can be attached.",
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );
