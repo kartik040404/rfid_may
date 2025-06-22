@@ -21,6 +21,8 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
 
   String status = 'Idle';
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  final ScrollController _scrollController = ScrollController();
 
   List<Map<String, String>> allPatterns = [];
   List<Map<String, String>> filteredPatterns = [];
@@ -28,12 +30,40 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
   Map<String, String>? selectedPattern;
   final List<String> rfidTags = [];
   bool isScanning = false;
+  double? _previousScrollOffset;
 
   @override
   void initState() {
     super.initState();
     _fetchPatterns();
     _searchController.addListener(_onSearchChanged);
+    _searchFocusNode.addListener(() {
+      if (_searchFocusNode.hasFocus) {
+        // Store the current offset before scrolling to top
+        _previousScrollOffset = _scrollController.hasClients ? _scrollController.offset : null;
+        Future.delayed(Duration(milliseconds: 100), () {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              0,
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
+      } else {
+        // Restore previous offset when focus is lost
+        if (_previousScrollOffset != null && _scrollController.hasClients) {
+          Future.delayed(Duration(milliseconds: 100), () {
+            _scrollController.animateTo(
+              _previousScrollOffset!,
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+            _previousScrollOffset = null;
+          });
+        }
+      }
+    });
   }
 
   Future<void> _fetchPatterns() async {
@@ -84,6 +114,8 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _searchFocusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -246,10 +278,10 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
         children: [
-          Icon(Icons.check_circle_outline, color: Colors.red.shade700, size: 28),
-          const SizedBox(width: 12),
+          Icon(Icons.check_circle_outline, color: Colors.red.shade700, size: 24),
+          const SizedBox(width: 10),
           const Text('Confirm Selection',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         ],
       ),
       content: Column(
@@ -335,6 +367,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
   List<Widget> _buildStepWidgets() => [
     PatternSelectionStepWidget(
       searchController: _searchController,
+      searchFocusNode: _searchFocusNode,
       filteredPatterns: filteredPatterns,
       selectedPattern: selectedPattern,
       onPatternSelected: (pattern) => setState(() => selectedPattern = pattern),
@@ -357,7 +390,6 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
   @override
   Widget build(BuildContext context) {
     final stepLabels = ['Select Pattern', 'Attach Tags', 'Review & Save'];
-
     return WillPopScope(
       onWillPop: () async {
         if (_currentStep > 0) {
@@ -370,18 +402,22 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
         appBar: const CustomAppBar(title: 'Register New Pattern'),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              StepperIndicatorWidget(currentStep: _currentStep, stepLabels: stepLabels),
-              const SizedBox(height: 16),
-              Expanded(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
-                  child: Container(key: ValueKey(_currentStep), child: _buildStepWidgets()[_currentStep]),
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: Column(
+              children: [
+                StepperIndicatorWidget(currentStep: _currentStep, stepLabels: stepLabels),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.7,
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
+                    child: Container(key: ValueKey(_currentStep), child: _buildStepWidgets()[_currentStep]),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         bottomNavigationBar:

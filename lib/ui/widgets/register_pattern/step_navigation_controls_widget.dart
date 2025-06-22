@@ -31,8 +31,8 @@ class StepNavigationControlsWidget extends StatelessWidget {
         children: [
           if (currentStep > 0)
             TextButton.icon(
-              icon: Icon(Icons.arrow_back_ios, color: Colors.grey.shade700, size: 18),
-              label: Text("Back", style: TextStyle(color: Colors.grey.shade700, fontSize: 16)),
+              icon: Icon(Icons.arrow_back_ios, color: Colors.grey.shade700, size: 16),
+              label: Text("Back", style: TextStyle(color: Colors.grey.shade700, fontSize: 14)),
               onPressed: () => onBack(),
               style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10)),
             )
@@ -42,7 +42,7 @@ class StepNavigationControlsWidget extends StatelessWidget {
           if (currentStep < totalSteps - 1)
             ElevatedButton.icon(
               label: const Text("Continue"),
-              icon: const Icon(Icons.arrow_forward_ios, size: 18),
+              icon: const Icon(Icons.arrow_forward_ios, size: 16),
               onPressed: () async {
                 if (!canProceedToNextStep()) {
                   String message = currentStep == 0
@@ -69,9 +69,9 @@ class StepNavigationControlsWidget extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: buttonTextColor,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
               ),
             ),
         ],

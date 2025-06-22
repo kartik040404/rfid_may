@@ -13,7 +13,6 @@ class StepperIndicatorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: List.generate(stepLabels.length, (index) {
@@ -42,10 +41,10 @@ class StepperIndicatorWidget extends StatelessWidget {
     return Column(
       children: [
         CircleAvatar(
-          radius: 18,
+          radius: 16,
           backgroundColor: isActive ? activeColor : inactiveColor,
           child: isCompleted
-              ? const Icon(Icons.check, color: Colors.white, size: 20)
+              ? const Icon(Icons.check, color: Colors.white, size: 18)
               : Text(
                   '${index + 1}',
                   style: TextStyle(
@@ -59,7 +58,7 @@ class StepperIndicatorWidget extends StatelessWidget {
           label,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 10,
             color: isActive ? activeTextColor : inactiveTextColor,
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
           ),
