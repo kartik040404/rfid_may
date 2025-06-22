@@ -6,7 +6,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key, required this.title});
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 1);
+  Size get preferredSize => const Size.fromHeight(50);
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         style: const TextStyle(
           color: Colors.black,
           fontWeight: FontWeight.bold,
-          fontSize: 20,
+          fontSize: 22,
           fontFamily: 'Poppins',
         ),
       ),

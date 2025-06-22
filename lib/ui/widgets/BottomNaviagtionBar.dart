@@ -42,12 +42,12 @@ class CustomBottomNavigationBar extends StatelessWidget {
           selectedLabelStyle: const TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w600,
-            fontSize: 12,
+            fontSize: 10,
           ),
           unselectedLabelStyle: const TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w400,
-            fontSize: 12,
+            fontSize: 10,
           ),
           currentIndex: currentIndex,
           onTap: onTap,
@@ -55,22 +55,22 @@ class CustomBottomNavigationBar extends StatelessWidget {
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.dashboard),
-              activeIcon: Icon(Icons.dashboard, size: 28),
+              activeIcon: Icon(Icons.dashboard, size: 26),
               label: 'Dashboard',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.document_scanner_sharp),
-              activeIcon: Icon(Icons.document_scanner_sharp, size: 28),
+              activeIcon: Icon(Icons.document_scanner_sharp, size: 26),
               label: 'Scan Pattern',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.app_registration_outlined),
-              activeIcon: Icon(Icons.app_registration_outlined, size: 28),
+              activeIcon: Icon(Icons.app_registration_outlined, size: 26),
               label: 'Register',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person, size: 28),
+              activeIcon: Icon(Icons.person, size: 26),
               label: 'Profile',
             ),
           ],
@@ -112,16 +112,16 @@ class _MainScreenState extends State<MainScreen> {
         elevation: 0, // <- No shadow even on scroll
         scrolledUnderElevation: 0, // <- Important: disables elevation on scroll
         surfaceTintColor: Colors.transparent, // <- Prevents tinting effect on scroll
-        toolbarHeight: 60,
+        toolbarHeight: 50,
         title: Row(
           children: [
             Image.asset(
               'assets/ZanvarGroup.png',
-              height: 50,
-              width: 50,
+              height: 60,
+              width: 60,
               fit: BoxFit.contain,
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 15),
             const Text(
               "Dashboard",
               style: TextStyle(

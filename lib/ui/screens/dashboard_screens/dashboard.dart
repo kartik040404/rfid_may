@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -53,7 +52,7 @@ class DashboardTheme {
 
   static const TextStyle headerStyle = TextStyle(
     fontFamily: 'Poppins',
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: FontWeight.bold,
     color: Colors.white,
   );
@@ -67,7 +66,7 @@ class DashboardTheme {
 
   static const TextStyle sectionTitleStyle = TextStyle(
     fontFamily: 'Poppins',
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: FontWeight.bold,
     color: Color(0xFF8B0000),
   );
@@ -90,7 +89,6 @@ class _DashboardContentState extends State<DashboardContent> {
   @override
   void initState() {
     super.initState();
-    recentScansFuture = _loadRecentScans();
   }
 
   @override
@@ -103,11 +101,8 @@ class _DashboardContentState extends State<DashboardContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeaderSection(),
-            const SizedBox(height: 24),
             _buildStatisticsSection(),
             const SizedBox(height: 32),
-            _buildRecentScansSection(),
-            const SizedBox(height: 24),
             _buildRecentRegistrationsSection(),
             const SizedBox(height: 100),
           ],
@@ -118,20 +113,20 @@ class _DashboardContentState extends State<DashboardContent> {
 
   Widget _buildHeaderSection() {
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(22),
+      margin: const EdgeInsets.all(16), // Reduced margin
+      padding: const EdgeInsets.all(20), // Reduced padding
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [DashboardTheme.primaryRed, DashboardTheme.darkRed],
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12), // Smaller radius
         boxShadow: [
           BoxShadow(
-            color: DashboardTheme.primaryRed.withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            color: DashboardTheme.primaryRed.withOpacity(0.2), // Lighter shadow
+            blurRadius: 8, // Smaller blur
+            offset: const Offset(0, 4), // Smaller offset
           ),
         ],
       ),
@@ -144,9 +139,9 @@ class _DashboardContentState extends State<DashboardContent> {
               children: [
                 Text(
                   "Welcome, ${widget.userName}",
-                  style: DashboardTheme.headerStyle,
+                  style: DashboardTheme.headerStyle.copyWith(fontSize: 16), // Smaller font
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4), // Less spacing
                 const Text(
                   "Pattern Management System",
                   style: DashboardTheme.subHeaderStyle,
@@ -164,7 +159,7 @@ class _DashboardContentState extends State<DashboardContent> {
 
   Widget _buildConnectionStatus() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.2),
         borderRadius: BorderRadius.circular(25),
@@ -179,7 +174,7 @@ class _DashboardContentState extends State<DashboardContent> {
             "RFID Connected",
             style: TextStyle(
               fontFamily: 'Poppins',
-              fontSize: 14,
+              fontSize: 12,
               fontWeight: FontWeight.w600,
               color: Colors.white,
             ),
@@ -191,18 +186,18 @@ class _DashboardContentState extends State<DashboardContent> {
 
   Widget _buildStatisticsSection() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text("Pattern Statistics", style: DashboardTheme.sectionTitleStyle),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           LayoutBuilder(
             builder: (context, constraints) {
               return GridView.count(
                 crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+                crossAxisSpacing: 14,
+                mainAxisSpacing: 14,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 childAspectRatio: 1.25,
@@ -214,20 +209,20 @@ class _DashboardContentState extends State<DashboardContent> {
                     icon: Icons.donut_large_outlined,
                     iconColor: DashboardTheme.primaryRed,
                   ),
-                  StatsCard(
-                    title: "Available",
-                    value: "1,240",
-                    trend: "Ready to use",
-                    icon: Icons.check_circle_outline,
-                    iconColor: Color(0xFF27AE60),
-                  ),
-                  StatsCard(
-                    title: "Pending",
-                    value: "5",
-                    trend: "Needs approval",
-                    icon: Icons.schedule_outlined,
-                    iconColor: Color(0xFFFF6B35),
-                  ),
+                  // StatsCard(
+                  //   title: "Available",
+                  //   value: "1,240",
+                  //   trend: "Ready to use",
+                  //   icon: Icons.check_circle_outline,
+                  //   iconColor: Color(0xFF27AE60),
+                  // ),
+                  // StatsCard(
+                  //   title: "Pending",
+                  //   value: "5",
+                  //   trend: "Needs approval",
+                  //   icon: Icons.schedule_outlined,
+                  //   iconColor: Color(0xFFFF6B35),
+                  // ),
                   StatsCard(
                     title: "Tagged Items",
                     value: "832",
@@ -244,101 +239,6 @@ class _DashboardContentState extends State<DashboardContent> {
     );
   }
 
-  Widget _buildRecentScansSection() {
-    return FutureBuilder<List<LogCard>>(
-      future: recentScansFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Center(child: CircularProgressIndicator()),
-          );
-        } else if (snapshot.hasError) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text("Failed to load scans"),
-          );
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text("No recent scans found"),
-          );
-        }
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: [
-              _buildSectionHeader("Recent Scans", onViewAll: () {}),
-              const SizedBox(height: 12),
-              Column(children: snapshot.data!),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Future<List<LogCard>> _loadRecentScans() async {
-    final prefs = await SharedPreferences.getInstance();
-    final fullList = prefs.getStringList('recent_scans') ?? [];
-
-    final scanList = fullList.reversed.take(3).toList(); // ✅ Only last 3
-
-    return scanList.map((scanJson) {
-      final data = jsonDecode(scanJson);
-      return LogCard(
-        title: data['title'] ?? 'Unknown',
-        subtitle: data['subtitle'] ?? '',
-        time: data['time'] ?? '',
-        icon: _getIconFromName(data['icon']),
-      );
-    }).toList();
-  }
-
-
-  IconData _getIconFromName(String? name) {
-    switch (name) {
-      case 'inventory_2_outlined':
-        return Icons.inventory_2_outlined;
-      case 'check_circle_outline':
-        return Icons.check_circle_outline;
-      case 'add_circle_outline':
-        return Icons.add_circle_outline;
-      case 'schedule_outlined':
-        return Icons.schedule_outlined;
-      default:
-        return Icons.device_unknown;
-    }
-  }
-
-  // Widget _buildRecentRegistrationsSection() {
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(horizontal: 16),
-  //     child: Column(
-  //       children: [
-  //         _buildSectionHeader("Recent Registrations", onViewAll: () {}),
-  //         const SizedBox(height: 12),
-  //         const Column(
-  //           children: [
-  //             LogCard(
-  //               title: "Pattern #12900",
-  //               subtitle: "Registered by Admin",
-  //               time: "Today",
-  //               icon: Icons.add_circle_outline,
-  //             ),
-  //             LogCard(
-  //               title: "Pattern #12899",
-  //               subtitle: "Registered by Operator",
-  //               time: "1 day ago",
-  //               icon: Icons.add_circle_outline,
-  //             ),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   //-------------------------------------------------------Recent registration----------------------------------------------------//
   Widget _buildRecentRegistrationsSection() {
@@ -391,24 +291,6 @@ class _DashboardContentState extends State<DashboardContent> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title, style: DashboardTheme.sectionTitleStyle),
-        if (onViewAll != null)
-          TextButton(
-            onPressed: onViewAll,
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: const Text(
-              "View All",
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                color: DashboardTheme.primaryRed,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
-            ),
-          ),
       ],
     );
   }
@@ -456,7 +338,7 @@ class StatsCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
                     color: iconColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -531,7 +413,7 @@ class LogCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: DashboardTheme.cardBackground,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -546,7 +428,7 @@ class LogCard extends StatelessWidget {
           onTap: () {
             // Optional: define tap action here
           },
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(10),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -560,10 +442,10 @@ class LogCard extends StatelessWidget {
                   child: Icon(
                     icon,
                     color: DashboardTheme.primaryRed,
-                    size: 20,
+                    size: 16,
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -572,17 +454,16 @@ class LogCard extends StatelessWidget {
                         title,
                         style: const TextStyle(
                           fontFamily: 'Poppins',
-                          fontSize: 16,
+                          fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: DashboardTheme.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 4),
                       Text(
                         subtitle,
                         style: const TextStyle(
                           fontFamily: 'Poppins',
-                          fontSize: 14,
+                          fontSize: 11,
                           color: DashboardTheme.textSecondary,
                         ),
                       ),
@@ -593,7 +474,7 @@ class LogCard extends StatelessWidget {
                   time,
                   style: TextStyle(
                     fontFamily: 'Poppins',
-                    fontSize: 12,
+                    fontSize: 10,
                     fontWeight: FontWeight.w500,
                     color: Colors.grey[500],
                   ),
@@ -606,6 +487,3 @@ class LogCard extends StatelessWidget {
     );
   }
 }
-
-
-

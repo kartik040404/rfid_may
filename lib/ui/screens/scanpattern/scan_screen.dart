@@ -221,7 +221,7 @@ class _ScanScreenState extends State<ScanScreen> {
           ),
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.only(left: 16,right: 16,top: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -229,10 +229,10 @@ class _ScanScreenState extends State<ScanScreen> {
               GestureDetector(
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SearchTagPage())),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.red.withOpacity(0.2), width: 1.5),
                     boxShadow: [
                       BoxShadow(
@@ -269,14 +269,14 @@ class _ScanScreenState extends State<ScanScreen> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
 
               // Power Control Section
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: Colors.grey.withOpacity(0.2)),
                   boxShadow: [
                     BoxShadow(
@@ -303,7 +303,7 @@ class _ScanScreenState extends State<ScanScreen> {
                         Text(
                           "Power Control",
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Poppins',
                             color: Colors.black87,
@@ -311,12 +311,12 @@ class _ScanScreenState extends State<ScanScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 10),
                     Row(
                       children: [
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                             decoration: BoxDecoration(
                               color: Colors.grey[50],
                               borderRadius: BorderRadius.circular(12),
@@ -348,7 +348,7 @@ class _ScanScreenState extends State<ScanScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 20),
                         Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
@@ -378,7 +378,7 @@ class _ScanScreenState extends State<ScanScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
                               shadowColor: Colors.transparent,
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
                             child: Text(
@@ -397,14 +397,14 @@ class _ScanScreenState extends State<ScanScreen> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               // Single Tag Toggle
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: Colors.grey.withOpacity(0.2)),
                   boxShadow: [
                     BoxShadow(
@@ -428,7 +428,7 @@ class _ScanScreenState extends State<ScanScreen> {
                           child: Icon(
                             Icons.inventory,
                             color: isSingleTag ? Colors.red[700] : Colors.grey[600],
-                            size: 20,
+                            size: 18,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -439,7 +439,7 @@ class _ScanScreenState extends State<ScanScreen> {
                               "Single Tag Inventory",
                               style: TextStyle(
                                 fontFamily: 'Poppins',
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.black87,
                               ),
@@ -448,7 +448,7 @@ class _ScanScreenState extends State<ScanScreen> {
                               isSingleTag ? "Enabled" : "Disabled",
                               style: TextStyle(
                                 fontFamily: 'Poppins',
-                                fontSize: 12,
+                                fontSize: 10,
                                 color: Colors.grey[600],
                               ),
                             ),
@@ -471,20 +471,19 @@ class _ScanScreenState extends State<ScanScreen> {
                 ),
               ),
 
-              const SizedBox(height: 24),
-
+              const SizedBox(height: 10),
               // Scan Button
               Center(
                 child: Container(
-                  width: double.infinity,
-                  height: 60,
+                  width: 210,
+                  height: 55,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: isScanning
                           ? [Colors.red[700]!, Colors.red[800]!]
                           : [Colors.black87, Colors.black],
                     ),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       BoxShadow(
                         color: (isScanning ? Colors.red : Colors.black).withOpacity(0.3),
@@ -496,14 +495,10 @@ class _ScanScreenState extends State<ScanScreen> {
                   child: ElevatedButton.icon(
                     icon: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
                       child: Icon(
                         isScanning ? Icons.stop : Icons.play_arrow,
                         color: Colors.white,
-                        size: 24,
+                        size: 20,
                       ),
                     ),
                     label: Text(
@@ -511,7 +506,7 @@ class _ScanScreenState extends State<ScanScreen> {
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         color: Colors.white,
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -525,7 +520,7 @@ class _ScanScreenState extends State<ScanScreen> {
                 ),
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 20),
 
               // Scanned Tags Section
               Container(
@@ -568,7 +563,7 @@ class _ScanScreenState extends State<ScanScreen> {
                         Spacer(),
                         if (epcList.isNotEmpty)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.red[50],
                               borderRadius: BorderRadius.circular(20),
@@ -585,7 +580,7 @@ class _ScanScreenState extends State<ScanScreen> {
                           ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
                     epcList.isEmpty
                         ? Container(
                       padding: const EdgeInsets.all(40),
@@ -593,7 +588,7 @@ class _ScanScreenState extends State<ScanScreen> {
                         children: [
                           Icon(
                             Icons.nfc_outlined,
-                            size: 64,
+                            size: 60,
                             color: Colors.grey[400],
                           ),
                           const SizedBox(height: 16),
@@ -639,7 +634,7 @@ class _ScanScreenState extends State<ScanScreen> {
                               child: Icon(
                                 Icons.nfc,
                                 color: Colors.red[600],
-                                size: 20,
+                                size: 16,
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -653,7 +648,7 @@ class _ScanScreenState extends State<ScanScreen> {
                                       fontFamily: 'Poppins',
                                       fontWeight: FontWeight.w500,
                                       color: Colors.black87,
-                                      fontSize: 14,
+                                      fontSize: 12,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
@@ -662,24 +657,13 @@ class _ScanScreenState extends State<ScanScreen> {
                                     style: TextStyle(
                                       fontFamily: 'Poppins',
                                       color: Colors.grey[600],
-                                      fontSize: 12,
+                                      fontSize: 10,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.05),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.more_vert,
-                                color: Colors.grey[600],
-                                size: 16,
-                              ),
-                            ),
+
                           ],
                         ),
                       ),
@@ -687,8 +671,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   ],
                 ),
               ),
-
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
             ],
           ),
         ),

@@ -192,8 +192,8 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     try {
       final resp = await http
           .post(uri,
-            headers: {'Content-Type': 'application/json'},
-            body: body)
+          headers: {'Content-Type': 'application/json'},
+          body: body)
           .timeout(const Duration(seconds: 10));
 
       if (!mounted) return;

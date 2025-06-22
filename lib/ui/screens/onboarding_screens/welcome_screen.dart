@@ -114,56 +114,58 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  bool _isInitializing = true;
-  bool _initSuccess = false;
+  // bool _isInitializing = true;
+  // bool _initSuccess = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _initializeRFID();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // _initializeRFID();
+  // }
 
-  Future<void> _initializeRFID() async {
-    bool success = await RFIDPlugin.initRFID();
-    setState(() {
-      _isInitializing = false;
-      _initSuccess = success;
-    });
-  }
+  // Future<void> _initializeRFID() async {
+  //   bool success = await RFIDPlugin.initRFID();
+  //   setState(() {
+  //     _isInitializing = false;
+  //     _initSuccess = success;
+  //   });
+  // }
 
-  @override
+  // @override
+  // Widget build(BuildContext context) {
+  //   if (_isInitializing) {
+  //     return const Scaffold(
+  //       backgroundColor: Colors.white,
+  //       body: Center(
+  //         child: CircularProgressIndicator(),
+  //       ),
+  //     );
+  //   }
+
+    // if (!_initSuccess) {
+    //   return Scaffold(
+    //     backgroundColor: Colors.white,
+    //     body: Center(
+    //       child: Column(
+    //         mainAxisAlignment: MainAxisAlignment.center,
+    //         children: [
+    //           const Text(
+    //             "Failed to initialize RFID",
+    //             style: TextStyle(color: Colors.red, fontSize: 18),
+    //           ),
+    //           // const SizedBox(height: 20),
+    //           // ElevatedButton(
+    //           //   onPressed: _initializeRFID,
+    //           //   child: const Text("Retry"),
+    //           // ),
+    //         ],
+    //       ),
+    //     ),
+    //   );
+    // }
+
+@override
   Widget build(BuildContext context) {
-    if (_isInitializing) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    if (!_initSuccess) {
-      return Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                "Failed to initialize RFID",
-                style: TextStyle(color: Colors.red, fontSize: 18),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _initializeRFID,
-                child: const Text("Retry"),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(

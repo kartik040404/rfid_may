@@ -104,786 +104,425 @@ class _SearchTagPageState extends State<SearchTagPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,  // Add this line to resize when keyboard appears
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.white,
-        elevation: 2, // No shadow
-        title: const Text(
+        elevation: 0,
+        title: Text(
           'Search RFID by Pattern',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,fontSize: 20),
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            fontFamily: 'Poppins',
+          ),
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
           child: Container(
-            color: Colors.grey.shade200, // Divider color
+            color: Colors.grey.shade200,
             height: 1.0,
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TypeAheadField<String>(
-              controller: _patternController,
-              focusNode: _focusNode,
-              suggestionsCallback: fetchPatternSuggestions,
-              builder: (context, controller, focusNode) {
-                // This is called when building the text field
-                return TextField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  decoration: InputDecoration(
-                    labelText: 'Enter Pattern Name',
-                    labelStyle: const TextStyle(color: Colors.black54),
-                    filled: true,
-                    fillColor: Colors.grey[200], // Light grey background
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12), // Rounded corners
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.grey[50]!,
+              Colors.white,
+            ],
+          ),
+        ),
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              top: 16.0,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 16.0,
+            ),
+            child: Column(
+              children: [
+                // Search Pattern Field
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.red.withOpacity(0.2), width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TypeAheadField<String>(
+                    controller: _patternController,
+                    focusNode: _focusNode,
+                    suggestionsCallback: fetchPatternSuggestions,
+                    builder: (context, controller, focusNode) {
+                      return TextField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        decoration: InputDecoration(
+                          labelText: 'Enter Pattern Name',
+                          labelStyle: TextStyle(
+                            color: Colors.black54,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w500
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[50],
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(color: Colors.red.shade300),
+                          ),
+                          prefixIcon: Container(
+                            padding: EdgeInsets.all(12),
+                            child: Icon(Icons.search, color: Colors.red[700], size: 20),
+                          ),
+                        ),
+                      );
+                    },
+                    itemBuilder: (context, suggestion) {
+                      return Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: Text(
+                          suggestion,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
+                        )
+                      );
+                    },
+                    onSelected: (suggestion) {
+                      setState(() {
+                        _patternController.text = suggestion;
+                      });
+                    },
+                    hideOnSelect: true,
+                    hideOnUnfocus: true,
+                    hideOnEmpty: false,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Search Button
+                Center(
+                  child: Container(
+                    width: 210,
+                    height: 55,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: isSearching
+                            ? [Colors.red[700]!, Colors.red[800]!]
+                            : [Colors.black87, Colors.black],
+                      ),
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (isSearching ? Colors.red : Colors.black).withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: isSearching
+                          ? stopSearch
+                          : () async {
+                              final pattern = _patternController.text.trim();
+                              if (pattern.isEmpty) return;
+                              final rfids = await fetchRfidsForPattern(pattern);
+                              if (rfids.isNotEmpty) {
+                                startSearch(rfids);
+                              } else {
+                                setState(() {
+                                  status = 'No RFID tags found for pattern "$pattern"';
+                                });
+                              }
+                            },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isSearching ? Icons.stop : Icons.search,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            isSearching ? "Stop Search" : "Start Search",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                );
-              },
-              itemBuilder: (context, suggestion) {
-                return ListTile(title: Text(suggestion));
-              },
-              onSelected: (suggestion) {
-                setState(() {
-                  // When a suggestion is selected, update our controller explicitly
-                  _patternController.text = suggestion;
-                });
-              },
-              hideOnSelect: true,
-              hideOnUnfocus: true,
-              hideOnEmpty: false,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isSearching ? Colors.red : Colors.black,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
                 ),
-              ),
-              onPressed: isSearching
-                  ? stopSearch
-                  : () async {
-                final pattern = _patternController.text.trim();
-                if (pattern.isEmpty) return;
-                final rfids = await fetchRfidsForPattern(pattern);
-                if (rfids.isNotEmpty) {
-                  startSearch(rfids);
-                } else {
-                  setState(() {
-                    status = 'No RFID tags found for pattern "$pattern"';
-                  });
-                }
-              },
-              child: Text(
-                isSearching ? "Stop Search" : "Start Search",
-                style: const TextStyle(fontSize: 16, fontFamily: 'Poppins'),
-              ),
-            ),
 
-            const SizedBox(height: 20),
-            Text(status),
-            const SizedBox(height: 20),
-            LinearProgressIndicator(
-              value: signalStrength,
-              minHeight: 10,
-              backgroundColor: Colors.grey[300],
-              color: Colors.green,
-            ),
-            const SizedBox(height: 10),
-            const Text("Signal Strength Indicator"),
-            const SizedBox(height: 20),
-            if (selectedPatternData != null)
-              Card(
-                elevation: 4,
-                margin: EdgeInsets.only(top: 10),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                const SizedBox(height: 20),
+
+                // Status and Signal Strength
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        selectedPatternData!['PatternName'] ?? '',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(Icons.info_outline, color: Colors.red[700], size: 20),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            "Status",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Poppins',
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
                       ),
-                      Text("Code: ${selectedPatternData!['PatternCode'] ?? ''}"),
-                      Text("Supplier: ${selectedPatternData!['SupplierName'] ?? ''}"),
-                      SizedBox(height: 10),
-                      Text("Tool Life Start: ${selectedPatternData!['ToolLifeStartDate'] ?? ''}"),
-                      Text("Invoice No: ${selectedPatternData!['InvoiceNo'] ?? ''}"),
-                      Text("Invoice Date: ${selectedPatternData!['InvoiceDate'] ?? ''}"),
-                      Text("Number of Parts: ${selectedPatternData!['NumberOfParts'] ?? ''}"),
-                      Text("Parts Produced: ${selectedPatternData!['PartsProduced'] ?? ''}"),
-                      Text("Remaining: ${selectedPatternData!['RemainingBalance'] ?? ''}"),
-                      Text("Signal: ${selectedPatternData!['Signal'] ?? ''}"),
-                      Text("Last Produced: ${selectedPatternData!['LastPrdDate'] ?? ''}"),
-                      Text("Asset Name: ${selectedPatternData!['AssetName'] ?? ''}"),
+                      const SizedBox(height: 16),
+                      Text(
+                        status,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "Signal Strength",
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      LinearProgressIndicator(
+                        value: signalStrength,
+                        minHeight: 8,
+                        backgroundColor: Colors.grey[200],
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          signalStrength > 0 ? Colors.red[600]! : Colors.grey[400]!,
+                        ),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                     ],
                   ),
                 ),
-              )
 
-          ],
+                // Pattern Details Card
+                if (selectedPatternData != null)
+                  Container(
+                    margin: const EdgeInsets.only(top: 20),
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 12,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(Icons.description_outlined, color: Colors.red[700], size: 20),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              "Pattern Details",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Poppins',
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        // Primary Details (always visible)
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[50],
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.withOpacity(0.1)),
+                          ),
+                          child: Column(
+                            children: [
+                              _buildDetailItem("Pattern Name", selectedPatternData!['PatternName']),
+                              _buildDetailItem("Code", selectedPatternData!['PatternCode']),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Expandable Additional Details
+                        Theme(
+                          data: Theme.of(context).copyWith(
+                            dividerColor: Colors.transparent,
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[50],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.withOpacity(0.1)),
+                            ),
+                            child: ExpansionTile(
+                              tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              title: Text(
+                                "Additional Details",
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              leading: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(Icons.more_horiz, color: Colors.red[700], size: 20),
+                              ),
+                              iconColor: Colors.red[700],
+                              collapsedIconColor: Colors.grey[600],
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    children: [
+                                      _buildDetailItem("Supplier", selectedPatternData!['SupplierName']),
+                                      _buildDetailItem("Tool Life Start", selectedPatternData!['ToolLifeStartDate']),
+                                      _buildDetailItem("Invoice No", selectedPatternData!['InvoiceNo']),
+                                      _buildDetailItem("Invoice Date", selectedPatternData!['InvoiceDate']),
+                                      _buildDetailItem("Number of Parts", selectedPatternData!['NumberOfParts']),
+                                      _buildDetailItem("Parts Produced", selectedPatternData!['PartsProduced']),
+                                      _buildDetailItem("Remaining", selectedPatternData!['RemainingBalance']),
+                                      _buildDetailItem("Signal", selectedPatternData!['Signal']),
+                                      _buildDetailItem("Last Produced", selectedPatternData!['LastPrdDate']),
+                                      _buildDetailItem("Asset Name", selectedPatternData!['AssetName']),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
+
+  Widget _buildDetailItem(String label, dynamic value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 12,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value?.toString() ?? '-',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 12,
+                color: Colors.black87,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
-
-
-
-// import 'package:flutter/material.dart';
-// import 'package:flutter_typeahead/flutter_typeahead.dart';
-//
-// class SearchTagPage extends StatefulWidget {
-//   const SearchTagPage({super.key});
-//
-//   @override
-//   State<SearchTagPage> createState() => _SearchTagPageState();
-// }
-//
-// class _SearchTagPageState extends State<SearchTagPage> {
-//   final TextEditingController _patternController = TextEditingController();
-//   final FocusNode _focusNode = FocusNode();
-//   String status = 'Search by Pattern Code or Name';
-//   bool isSearching = false;
-//   double signalStrength = 0.0;
-//   Map<String, dynamic>? selectedPattern;
-//   List<Map<String, dynamic>> foundPatterns = [];
-//   List<bool> expanded = [];
-//
-//   final List<Map<String, dynamic>> dummyPatterns = [
-//     {
-//       'PatternName': 'Pattern Alpha',
-//       'PatternCode': 'PA001',
-//       'SupplierName': 'Supplier A',
-//       'ToolLifeStartDate': '2024-01-01',
-//       'InvoiceNo': 'INV1001',
-//       'InvoiceDate': '2024-01-15',
-//       'NumberOfParts': 100,
-//       'PartsProduced': 40,
-//       'RemainingBalance': 60,
-//       'Signal': 'high',
-//       'LastPrdDate': '2024-05-10',
-//       'AssetName': 'Asset-X',
-//       'rfids': ['TAG001', 'TAG002']
-//     },
-//     {
-//       'PatternName': 'Pattern Beta',
-//       'PatternCode': 'PB002',
-//       'SupplierName': 'Supplier B',
-//       'ToolLifeStartDate': '2024-03-01',
-//       'InvoiceNo': 'INV1022',
-//       'InvoiceDate': '2024-03-12',
-//       'NumberOfParts': 200,
-//       'PartsProduced': 150,
-//       'RemainingBalance': 50,
-//       'Signal': 'Low',
-//       'LastPrdDate': '2024-06-10',
-//       'AssetName': 'Asset-Y',
-//       'rfids': ['TAG003', 'TAG004']
-//     },
-//   ];
-//
-//   Future<List<Map<String, dynamic>>> fetchSuggestions(String query) async {
-//     return dummyPatterns
-//         .where((item) =>
-//     item['PatternName']!.toLowerCase().contains(query.toLowerCase()) ||
-//         item['PatternCode']!.toLowerCase().contains(query.toLowerCase()))
-//         .toList();
-//   }
-//
-//   void mockStartSearch() {
-//     setState(() {
-//       isSearching = true;
-//       status = 'Scanning for RFID signals...';
-//       signalStrength = 1.0;
-//
-//       if (selectedPattern != null && !foundPatterns.contains(selectedPattern)) {
-//         foundPatterns.add(selectedPattern!);
-//         expanded.add(false);
-//       }
-//     });
-//   }
-//
-//   void mockStopSearch() {
-//     setState(() {
-//       isSearching = false;
-//       status = 'Search completed';
-//       signalStrength = 0.0;
-//     });
-//   }
-//
-//   Color _getSignalColor(String signal) {
-//     switch (signal.toLowerCase()) {
-//       case 'high':
-//         return Colors.red.shade700;
-//       case 'medium':
-//         return Colors.red.shade500;
-//       case 'low':
-//         return Colors.red.shade300;
-//       default:
-//         return Colors.grey;
-//     }
-//   }
-//
-//   IconData _getSignalIcon(String signal) {
-//     switch (signal.toLowerCase()) {
-//       case 'high':
-//         return Icons.signal_cellular_4_bar;
-//       case 'medium':
-//         return Icons.signal_cellular_0_bar;
-//       case 'low':
-//         return Icons.signal_cellular_0_bar;
-//       default:
-//         return Icons.signal_cellular_null;
-//     }
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//         appBar: AppBar(
-//         centerTitle: true,
-//         backgroundColor: Colors.white,
-//         title: const Text(
-//           'Search RFID by Pattern',
-//           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,fontSize: 20),
-//         ),
-//         bottom: PreferredSize(
-//           preferredSize: const Size.fromHeight(1.0),
-//           child: Container(
-//             color: Colors.grey.shade200, // Divider color
-//             height: 1.0,
-//           ),
-//         ),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(20),
-//         child: Column(
-//           children: [
-//             // Search Input
-//             TypeAheadField<Map<String, dynamic>>(
-//               controller: _patternController,
-//               focusNode: _focusNode,
-//               suggestionsCallback: fetchSuggestions,
-//               itemBuilder: (context, suggestion) {
-//                 return Container(
-//                   decoration: BoxDecoration(
-//                     border: Border(
-//                       bottom: BorderSide(color: Colors.grey.shade300),
-//                     ),
-//                   ),
-//                   child: ListTile(
-//                     leading: Icon(Icons.developer_board, color: Colors.red),
-//                     title: Text(
-//                       suggestion['PatternName'] ?? '',
-//                       style: const TextStyle(fontWeight: FontWeight.w600),
-//                     ),
-//                     subtitle: Text(
-//                       "Code: ${suggestion['PatternCode'] ?? ''}",
-//                       style: TextStyle(color: Colors.grey.shade600),
-//                     ),
-//                   ),
-//                 );
-//               },
-//               onSelected: (suggestion) {
-//                 setState(() {
-//                   selectedPattern = suggestion;
-//                   _patternController.text = suggestion['PatternName'] ?? '';
-//                 });
-//               },
-//               builder: (context, controller, focusNode) {
-//                 return TextField(
-//                   controller: controller,
-//                   focusNode: focusNode,
-//                   style: const TextStyle(fontSize: 16),
-//                   decoration: InputDecoration(
-//                     labelText: 'Enter Pattern Name or Code',
-//                     labelStyle: const TextStyle(color: Colors.black54),
-//                     prefixIcon: const Icon(Icons.search, color: Colors.red),
-//                     border: OutlineInputBorder(
-//                       borderSide: const BorderSide(color: Colors.black),
-//                     ),
-//                     focusedBorder: OutlineInputBorder(
-//                       borderSide: const BorderSide(color: Colors.red, width: 2),
-//                     ),
-//                     enabledBorder: OutlineInputBorder(
-//                       borderSide: BorderSide(color: Colors.grey.shade400),
-//                     ),
-//                   ),
-//                 );
-//               },
-//             ),
-//
-//             const SizedBox(height: 30),
-//
-//             // Scan Button
-//             ElevatedButton(
-//               onPressed: isSearching ? mockStopSearch : mockStartSearch,
-//               style: ElevatedButton.styleFrom(
-//                 backgroundColor: isSearching ? Colors.black : Colors.red,
-//                 foregroundColor: Colors.white,
-//                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-//                 shape: RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(8),
-//                 ),
-//               ),
-//               child: Row(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: [
-//                   Icon(
-//                     isSearching ? Icons.stop : Icons.radar,
-//                     color: Colors.white,
-//                   ),
-//                   const SizedBox(width: 8),
-//                   Text(
-//                     isSearching ? 'Stop Scan' : 'Start Scan',
-//                     style: const TextStyle(
-//                       fontSize: 16,
-//                       fontWeight: FontWeight.w600,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//
-//             const SizedBox(height: 25),
-//
-//             // Signal Strength Indicator
-//             Container(
-//               width: double.infinity,
-//               padding: const EdgeInsets.all(20),
-//               decoration: BoxDecoration(
-//                 border: Border.all(color: Colors.grey.shade300),
-//                 borderRadius: BorderRadius.circular(8),
-//               ),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Row(
-//                     children: [
-//                       Icon(Icons.wifi, color: Colors.red),
-//                       const SizedBox(width: 8),
-//                       const Text(
-//                         'Signal Strength',
-//                         style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-//                       ),
-//                     ],
-//                   ),
-//                   const SizedBox(height: 15),
-//                   LinearProgressIndicator(
-//                     value: signalStrength,
-//                     backgroundColor: Colors.grey.shade300,
-//                     valueColor: AlwaysStoppedAnimation<Color>(
-//                       signalStrength > 0.7 ? Colors.red.shade700 :
-//                       signalStrength > 0.3 ? Colors.red.shade500 : Colors.red.shade300,
-//                     ),
-//                   ),
-//                   const SizedBox(height: 12),
-//                   Text(
-//                     status,
-//                     style: const TextStyle(
-//                       color: Colors.black87,
-//                       fontSize: 14,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//
-//             const SizedBox(height: 25),
-//
-//             // Results List
-//             if (foundPatterns.isNotEmpty)
-//               Expanded(
-//                 child: ListView.builder(
-//                   itemCount: foundPatterns.length,
-//                   itemBuilder: (context, index) {
-//                     final item = foundPatterns[index];
-//                     return Container(
-//                       margin: const EdgeInsets.only(bottom: 16),
-//                       decoration: BoxDecoration(
-//                         border: Border.all(color: Colors.grey.shade400),
-//                         borderRadius: BorderRadius.circular(8),
-//                       ),
-//                       child: GestureDetector(
-//                         onTap: () {
-//                           setState(() {
-//                             expanded[index] = !expanded[index];
-//                           });
-//                         },
-//                         child: Padding(
-//                           padding: const EdgeInsets.all(16),
-//                           child: Column(
-//                             crossAxisAlignment: CrossAxisAlignment.start,
-//                             children: [
-//                               Row(
-//                                 children: [
-//                                   Icon(
-//                                     Icons.developer_board,
-//                                     color: Colors.red,
-//                                     size: 24,
-//                                   ),
-//                                   const SizedBox(width: 12),
-//                                   Expanded(
-//                                     child: Column(
-//                                       crossAxisAlignment: CrossAxisAlignment.start,
-//                                       children: [
-//                                         Text(
-//                                           item['PatternName'] ?? '',
-//                                           style: const TextStyle(
-//                                             fontWeight: FontWeight.bold,
-//                                             fontSize: 18,
-//                                           ),
-//                                         ),
-//                                         Text(
-//                                           "Code: ${item['PatternCode'] ?? ''}",
-//                                           style: const TextStyle(
-//                                             color: Colors.black54,
-//                                             fontSize: 14,
-//                                           ),
-//                                         ),
-//                                         Text(
-//                                           "Supplier: ${item['SupplierName'] ?? ''}",
-//                                           style: const TextStyle(
-//                                             color: Colors.black54,
-//                                             fontSize: 14,
-//                                           ),
-//                                         ),
-//                                       ],
-//                                     ),
-//                                   ),
-//                                   Container(
-//                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-//                                     decoration: BoxDecoration(
-//                                       color: _getSignalColor(item['Signal'] ?? ''),
-//                                       borderRadius: BorderRadius.circular(4),
-//                                     ),
-//                                     child: Row(
-//                                       mainAxisSize: MainAxisSize.min,
-//                                       children: [
-//                                         Icon(
-//                                           _getSignalIcon(item['Signal'] ?? ''),
-//                                           size: 14,
-//                                           color: Colors.white,
-//                                         ),
-//                                         const SizedBox(width: 4),
-//                                         Text(
-//                                           item['Signal'] ?? '',
-//                                           style: const TextStyle(
-//                                             color: Colors.white,
-//                                             fontWeight: FontWeight.w600,
-//                                             fontSize: 12,
-//                                           ),
-//                                         ),
-//                                       ],
-//                                     ),
-//                                   ),
-//                                 ],
-//                               ),
-//
-//                               if (expanded[index]) ...[
-//                                 const SizedBox(height: 16),
-//                                 Container(
-//                                   height: 1,
-//                                   color: Colors.grey.shade300,
-//                                 ),
-//                                 const SizedBox(height: 16),
-//                                 _buildDetailRow("Tool Life Start", item['ToolLifeStartDate']),
-//                                 _buildDetailRow("Invoice No", item['InvoiceNo']),
-//                                 _buildDetailRow("Invoice Date", item['InvoiceDate']),
-//                                 _buildDetailRow("Total Parts", "${item['NumberOfParts']}"),
-//                                 _buildDetailRow("Parts Produced", "${item['PartsProduced']}"),
-//                                 _buildDetailRow("Remaining", "${item['RemainingBalance']}"),
-//                                 _buildDetailRow("Last Produced", item['LastPrdDate']),
-//                                 _buildDetailRow("Asset Name", item['AssetName']),
-//                               ],
-//                             ],
-//                           ),
-//                         ),
-//                       ),
-//                     );
-//                   },
-//                 ),
-//               ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-//
-//   Widget _buildDetailRow(String label, String value) {
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(vertical: 4),
-//       child: Row(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           SizedBox(
-//             width: 120,
-//             child: Text(
-//               "$label:",
-//               style: const TextStyle(
-//                 fontWeight: FontWeight.w600,
-//                 fontSize: 14,
-//               ),
-//             ),
-//           ),
-//           Expanded(
-//             child: Text(
-//               value,
-//               style: const TextStyle(
-//                 fontSize: 14,
-//                 color: Colors.black87,
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// import 'dart:convert';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_typeahead/flutter_typeahead.dart';
-// import 'package:http/http.dart' as http;
-// import '../../../RFIDPlugin.dart';
-//
-// class SearchTagPage extends StatefulWidget {
-//   @override
-//   _SearchTagPageState createState() => _SearchTagPageState();
-// }
-//
-// class _SearchTagPageState extends State<SearchTagPage> {
-//   List<dynamic> patternList = [];
-//   List<bool> expanded = [];
-//
-//   final TextEditingController _patternController = TextEditingController();
-//   final FocusNode _focusNode = FocusNode();
-//   String status = 'Search by pattern name';
-//   bool isSearching = false;
-//   double signalStrength = 0.0;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     // fetchSearchTagPage();
-//   }
-//
-//   // Future<void> fetchSearchTagPage() async {
-//   //   final response = await http.get(
-//   //     Uri.parse('http://10.10.1.7:8301/api/productionappservices/getSearchTagPagelist'),
-//   //   );
-//   //   if (response.statusCode == 200) {
-//   //     final List<dynamic> data = json.decode(response.body);
-//   //     setState(() {
-//   //       patternList = data;
-//   //       expanded = List.generate(data.length, (index) => false);
-//   //     });
-//   //   } else {
-//   //     print("Failed to load pattern data");
-//   //   }
-//   // }
-//
-//   Future<List<String>> fetchPatternSuggestions(String query) async {
-//     final response = await http.get(
-//       Uri.parse('http://192.168.0.120:3000/patterns?query=$query'),
-//     );
-//     if (response.statusCode == 200) {
-//       final List<dynamic> data = json.decode(response.body);
-//       return data.cast<String>();
-//     } else {
-//       return [];
-//     }
-//   }
-//
-//   Future<List<String>> fetchRfidsForPattern(String patternName) async {
-//     final response = await http.get(
-//       Uri.parse('http://192.168.0.120:3000/patterns/rfids?pattern_name=$patternName'),
-//     );
-//     if (response.statusCode == 200) {
-//       final data = json.decode(response.body);
-//       return [data['rfid1'], data['rfid2'], data['rfid3']]
-//           .where((rfid) => rfid != null && rfid.isNotEmpty)
-//           .cast<String>()
-//           .toList();
-//     } else {
-//       return [];
-//     }
-//   }
-//
-//   void startSearch(List<String> rfids) async {
-//     setState(() {
-//       isSearching = true;
-//       status = 'Searching for ${rfids.length} tags...';
-//     });
-//
-//     final started = await RFIDPlugin.startMultiSearchTags(rfids, (matchedEpc) {
-//       setState(() {
-//         status = 'Found: $matchedEpc';
-//         signalStrength = 1.0;
-//       });
-//     });
-//
-//     if (!started) {
-//       setState(() {
-//         isSearching = false;
-//         status = 'Failed to start search';
-//       });
-//     }
-//   }
-//
-//   void stopSearch() async {
-//     await RFIDPlugin.stopSearchTag();
-//     setState(() {
-//       isSearching = false;
-//       status = 'Search stopped';
-//       signalStrength = 0.0;
-//     });
-//   }
-//
-//   @override
-//   void dispose() {
-//     _patternController.dispose();
-//     _focusNode.dispose();
-//     stopSearch();
-//     super.dispose();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text('Pattern Details')),
-//       body: patternList.isEmpty
-//           ? Center(child: CircularProgressIndicator())
-//           : SingleChildScrollView(
-//         child: Padding(
-//           padding: const EdgeInsets.all(10.0),
-//           child: Column(
-//             children: [
-//               TypeAheadField<String>(
-//                 controller: _patternController,
-//                 focusNode: _focusNode,
-//                 suggestionsCallback: fetchPatternSuggestions,
-//                 builder: (context, controller, focusNode) {
-//                   return TextField(
-//                     controller: controller,
-//                     focusNode: focusNode,
-//                     decoration: InputDecoration(
-//                       labelText: 'Enter Pattern Name',
-//                       filled: true,
-//                       fillColor: Colors.grey[200],
-//                       border: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(12),
-//                       ),
-//                     ),
-//                   );
-//                 },
-//                 itemBuilder: (context, suggestion) {
-//                   return ListTile(title: Text(suggestion));
-//                 },
-//                 onSelected: (suggestion) {
-//                   setState(() {
-//                     _patternController.text = suggestion;
-//                   });
-//                 },
-//               ),
-//               const SizedBox(height: 10),
-//               ElevatedButton(
-//                 onPressed: isSearching
-//                     ? stopSearch
-//                     : () async {
-//                   final pattern = _patternController.text.trim();
-//                   if (pattern.isEmpty) return;
-//                   final rfids = await fetchRfidsForPattern(pattern);
-//                   if (rfids.isNotEmpty) {
-//                     startSearch(rfids);
-//                   } else {
-//                     setState(() {
-//                       status = 'No RFID tags found for "$pattern"';
-//                     });
-//                   }
-//                 },
-//                 style: ElevatedButton.styleFrom(
-//                   backgroundColor: isSearching ? Colors.red : Colors.black,
-//                   foregroundColor: Colors.white,
-//                 ),
-//                 child: Text(isSearching ? "Stop Search" : "Start Search"),
-//               ),
-//               const SizedBox(height: 10),
-//               Text(status),
-//               const SizedBox(height: 10),
-//               LinearProgressIndicator(
-//                 value: signalStrength,
-//                 minHeight: 10,
-//                 backgroundColor: Colors.grey[300],
-//                 color: Colors.green,
-//               ),
-//               const SizedBox(height: 10),
-//               const Text("Signal Strength Indicator"),
-//               const Divider(thickness: 1),
-//
-//               // Pattern List
-//               ListView.builder(
-//                 shrinkWrap: true,
-//                 physics: NeverScrollableScrollPhysics(),
-//                 itemCount: patternList.length,
-//                 itemBuilder: (context, index) {
-//                   final item = patternList[index];
-//                   return Card(
-//                     margin: EdgeInsets.symmetric(vertical: 6),
-//                     child: InkWell(
-//                       onTap: () {
-//                         setState(() {
-//                           expanded[index] = !expanded[index];
-//                         });
-//                       },
-//                       child: Padding(
-//                         padding: const EdgeInsets.all(12.0),
-//                         child: Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text(
-//                               item['PatternName'] ?? '',
-//                               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//                             ),
-//                             Text("Code: ${item['PatternCode']}"),
-//                             Text("Supplier: ${item['SupplierName']}"),
-//                             if (expanded[index]) ...[
-//                               SizedBox(height: 10),
-//                               Text("Tool Life Start: ${item['ToolLifeStartDate']}"),
-//                               Text("Invoice No: ${item['InvoiceNo']}"),
-//                               Text("Invoice Date: ${item['InvoiceDate']}"),
-//                               Text("Number of Parts: ${item['NumberOfParts']}"),
-//                               Text("Parts Produced: ${item['PartsProduced']}"),
-//                               Text("Remaining: ${item['RemainingBalance']}"),
-//                               Text("Signal: ${item['Signal']}"),
-//                               Text("Last Produced: ${item['LastPrdDate']}"),
-//                               Text("Asset Name: ${item['AssetName']}"),
-//                             ]
-//                           ],
-//                         ),
-//                       ),
-//                     ),
-//                   );
-//                 },
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-
-
