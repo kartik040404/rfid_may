@@ -16,13 +16,13 @@ class AboutScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _CompanyInfo(),
-            SizedBox(height: 30),
+            SizedBox(height: 20),
             _MissionStory(),
-            SizedBox(height: 24),
+            SizedBox(height: 20),
             _AppInfo(),
-            SizedBox(height: 24),
+            SizedBox(height: 20),
             _LegalSection(),
-            SizedBox(height: 30),
+            SizedBox(height: 20),
             Center(
               child: Text(
                 '© 2025 Zanvar Group. All rights reserved.',
@@ -50,25 +50,16 @@ class _CompanyInfo extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(20), // 0.08 * 255 ≈ 20
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Icon(
-              Icons.business,
-              size: 60,
-              color: Colors.teal[700],
+            child: ClipOval(
+              child: Image.asset(
+                'assets/Z.jpg',
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           const Text(
             'Zanvar Group',
             style: TextStyle(
@@ -77,7 +68,7 @@ class _CompanyInfo extends StatelessWidget {
               fontFamily: 'Poppins',
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           const _TagChip(),
         ],
       ),
@@ -132,35 +123,35 @@ class _MissionStory extends StatelessWidget {
           Text(
             'Our Mission',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               fontFamily: 'Poppins',
             ),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 6),
           Text(
             'At Zanvar Group, we strive to revolutionize industrial operations through innovative technology solutions that enhance productivity, safety, and sustainability.',
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 13,
               height: 1.5,
               fontFamily: 'Poppins',
               color: Colors.black87,
             ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 10),
           Text(
             'Our Story',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               fontFamily: 'Poppins',
             ),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 6),
           Text(
             'Founded in 2020, Zanvar Group began with a vision to transform traditional industrial processes through digital innovation. What started as a small team of passionate engineers has grown into a leading provider of industrial management solutions across multiple sectors.',
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 13,
               height: 1.5,
               fontFamily: 'Poppins',
               color: Colors.black87,
@@ -196,18 +187,18 @@ class _AppInfo extends StatelessWidget {
           Text(
             'App Information',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               fontFamily: 'Poppins',
             ),
           ),
-          SizedBox(height: 16),
+          SizedBox(height: 10),
           InfoRow(title: 'Version', value: '1.0.0'),
-          SizedBox(height: 8),
+          SizedBox(height: 6),
           InfoRow(title: 'Beta Testing', value: 'January 2025'),
-          SizedBox(height: 8),
+          SizedBox(height: 6),
           InfoRow(title: 'Platform', value: 'Android'),
-          SizedBox(height: 8),
+          SizedBox(height: 6),
           InfoRow(title: 'Developer', value: 'DYPCET & Zanvar Tech Team'),
         ],
       ),
@@ -239,26 +230,26 @@ class _LegalSection extends StatelessWidget {
           const Text(
             'Legal',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               fontFamily: 'Poppins',
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           LegalLink(
             title: 'Terms of Service',
             onTap: () {
               // TODO: Navigate to Terms of Service
             },
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 6),
           LegalLink(
             title: 'Privacy Policy',
             onTap: () {
               // TODO: Navigate to Privacy Policy
             },
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 6),
           LegalLink(
             title: 'Licenses',
             onTap: () {
@@ -297,7 +288,7 @@ class InfoRow extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             fontFamily: 'Poppins',
           ),
         ),

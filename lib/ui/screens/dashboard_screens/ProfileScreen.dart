@@ -12,9 +12,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String name = 'John Doe';
   String email = 'johndoe@example.com';
   String employeeId = 'EMP12345';
-  String designation = 'Supervisor';
   String department = 'Production';
-
   bool isLoading = false;
 
   @override
@@ -24,15 +22,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: const CustomAppBar(title: 'Profile'),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+          : Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           children: [
             // Modern profile card
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
@@ -65,35 +62,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: const CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.white,
-                      child: Icon(Icons.person, size: 60, color: Colors.red),
+                      child: Icon(Icons.person, size: 55, color: Colors.red),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 4),
                   Text(
                     name,
                     style: const TextStyle(
-                      fontSize: 22,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Poppins',
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      designation,
-                      style: TextStyle(
-                        color: Colors.red.shade700,
-                        fontSize: 12,
-                        fontFamily: 'Poppins',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 4),
                   Wrap(
                     spacing: 20,
                     runSpacing: 12,
@@ -108,12 +89,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 10),
 
-            // Account options & logout
+            // Account options logout
             const ProfileAccountSection(),
-            const SizedBox(height: 30),
-
+            const SizedBox(height: 8),
             // Version info
             const AppVersionInfo(),
           ],
@@ -135,12 +115,12 @@ class InfoItem extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 18, color: Colors.grey[600]),
+        Icon(icon, size: 16, color: Colors.grey[600]),
         const SizedBox(width: 6),
         Text(
           text,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 12,
             fontFamily: 'Poppins',
           ),
         ),
@@ -167,7 +147,7 @@ class ProfileAccountSection extends StatelessWidget {
             color: Colors.black87,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 4),
         AccountOptionTile(
           title: 'Support',
           icon: Icons.help_outline,
@@ -176,7 +156,7 @@ class ProfileAccountSection extends StatelessWidget {
             Navigator.pushNamed(context, '/support');
           },
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         AccountOptionTile(
           title: 'About',
           icon: Icons.info_outline,
@@ -185,7 +165,7 @@ class ProfileAccountSection extends StatelessWidget {
             Navigator.pushNamed(context, '/about');
           },
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 8),
         const LogoutButton(),
       ],
     );
@@ -213,7 +193,7 @@ class AccountOptionTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
@@ -261,39 +241,42 @@ class LogoutButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => _showLogoutDialog(context),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.red[400]!, Colors.red[600]!],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.red.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 80,right: 80),
+        child: Container(
+          width: 180,
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.red[400]!, Colors.red[600]!],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-          ],
-        ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.logout, color: Colors.white),
-            SizedBox(width: 10),
-            Text(
-              'Log Out',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-                fontFamily: 'Poppins',
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.red.withOpacity(0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
-            ),
-          ],
+            ],
+          ),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.logout, color: Colors.white),
+              SizedBox(width: 10),
+              Text(
+                'Log Out',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -348,7 +331,7 @@ class AppVersionInfo extends StatelessWidget {
     return const Text(
       'v1.0.0 | Zanvar Group © 2025',
       style: TextStyle(
-        fontSize: 12,
+        fontSize: 10,
         color: Colors.grey,
         fontFamily: 'Poppins',
       ),

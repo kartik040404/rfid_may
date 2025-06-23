@@ -11,7 +11,7 @@ class SupportScreen extends StatelessWidget {
       appBar: const CustomAppBar(title: 'Support'),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -26,7 +26,7 @@ class SupportScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  Icon(Icons.support_agent, size: 48, color: Colors.blue[700]),
+                  Icon(Icons.support_agent, size: 45, color: Colors.blue[700]),
                   const SizedBox(height: 12),
                   const Text(
                     'How can we help you?',

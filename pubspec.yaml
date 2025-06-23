@@ -32,6 +32,7 @@ flutter:
     - assets/worker.png
     - assets/user.svg
     - assets/ZanvarGroup.png
+    - assets/Z.jpg
   fonts:
     - family: Poppins
       fonts:
