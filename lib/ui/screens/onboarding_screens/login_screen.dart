@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:testing_aar_file/ui/screens/onboarding_screens/forgot_password_screen.dart';
 import 'package:testing_aar_file/ui/screens/onboarding_screens/onboarding_screen.dart';
 import '../../widgets/black_button.dart';
 import '../../widgets/error_message.dart';
@@ -21,11 +20,85 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _errorMessage;
   bool _isLoading = false;
 
+  // Future<void> _login() async {
+  //   if (_employeeId.isEmpty || _password.isEmpty) {
+  //     setState(() {
+  //       _errorMessage = "Please enter both Employee ID and Password.";
+  //     });
+  //     return;
+  //   }
+  //
+  //   setState(() {
+  //     _isLoading = true;
+  //     _errorMessage = null;
+  //   });
+  //
+  //   try {
+  //     final response = await http.post(
+  //       Uri.parse('http://192.168.15.253:3000/login'), // server IP address
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: json.encode({
+  //         'employee_id': _employeeId,
+  //         'password': _password,
+  //       }),
+  //     );
+  //
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //
+  //     final responseData = json.decode(response.body);
+  //
+  //     if (response.statusCode == 200 && responseData['success'] == true) {
+  //       // Login successful
+  //       // Save user info to SharedPreferences
+  //       _employeeName=responseData['user']['employee_name'];
+  //       final prefs = await SharedPreferences.getInstance();
+  //       await prefs.setString('userId', responseData['user']['id'].toString());
+  //       await prefs.setString('employeeId', responseData['user']['employee_id']);
+  //       await prefs.setString('employeeName', responseData['user']['employee_name']);
+  //       await prefs.setBool('isLoggedIn', true);
+  //
+  //       // Navigate to home screen
+  //       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => OnboardingScreen(_employeeId,_employeeName),));
+  //
+  //     } else {
+  //       // Login failed
+  //       setState(() {
+  //         _errorMessage = responseData['message'] ?? 'Authentication failed. Please try again.';
+  //       });
+  //     }
+  //   } catch (e) {
+  //     setState(() {
+  //       _isLoading = false;
+  //       _errorMessage = 'Connection error. Please check your internet connection.';
+  //     });
+  //     print('Login error: $e');
+  //   }
+  // }
+
   Future<void> _login() async {
     if (_employeeId.isEmpty || _password.isEmpty) {
       setState(() {
         _errorMessage = "Please enter both Employee ID and Password.";
       });
+      return;
+    }
+
+    // ✅ Hardcoded login check
+    if (_employeeId == 'EMP001' && _password == 'password123') {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userId', '0');
+      await prefs.setString('employeeId', _employeeId);
+      await prefs.setString('employeeName', 'Demo User');
+      await prefs.setBool('isLoggedIn', true);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OnboardingScreen(_employeeId, 'Demo User'),
+        ),
+      );
       return;
     }
 
@@ -36,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://:3000/login'), // server IP address
+        Uri.parse('http://192.168.15.253:3000/login'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'employee_id': _employeeId,
@@ -51,20 +124,20 @@ class _LoginScreenState extends State<LoginScreen> {
       final responseData = json.decode(response.body);
 
       if (response.statusCode == 200 && responseData['success'] == true) {
-        // Login successful
-        // Save user info to SharedPreferences
-        _employeeName=responseData['user']['employee_name'];
+        _employeeName = responseData['user']['employee_name'];
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('userId', responseData['user']['id'].toString());
         await prefs.setString('employeeId', responseData['user']['employee_id']);
         await prefs.setString('employeeName', responseData['user']['employee_name']);
         await prefs.setBool('isLoggedIn', true);
 
-        // Navigate to home screen
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => OnboardingScreen(_employeeId,_employeeName),));
-
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OnboardingScreen(_employeeId, _employeeName),
+          ),
+        );
       } else {
-        // Login failed
         setState(() {
           _errorMessage = responseData['message'] ?? 'Authentication failed. Please try again.';
         });
@@ -158,7 +231,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 30),
-
                 // Error Message
                 if (_errorMessage != null)
                   ErrorMessage(message: _errorMessage!),
@@ -173,20 +245,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         : BlackButton(
                       text: "Log in",
                       onPressed: _login,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 15),
-
-                // Forgot Password Text
-                Center(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ForgotPasswordScreen(),));
-                    },
-                    child: const Text(
-                      "Forgot your password?",
-                      style: TextStyle(color: Colors.grey),
                     ),
                   ),
                 ),
