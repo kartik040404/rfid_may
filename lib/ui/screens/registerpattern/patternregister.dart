@@ -8,6 +8,7 @@ import '../../widgets/register_pattern/stepper_indicator_widget.dart';
 import '../../widgets/register_pattern/pattern_selection_step_widget.dart';
 import '../../widgets/register_pattern/rfid_attachment_step_widget.dart';
 import '../../widgets/register_pattern/review_and_save_step_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NewRegisterPatternScreen extends StatefulWidget {
   @override
@@ -224,63 +225,50 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
       return;
     }
 
-    final uri = Uri.parse('http://10.10.1.7:8301/api/productionappservices/updatepatternrfd');
-    final body = jsonEncode({
-      'PatternCode': selectedPattern!['code'],
-      'RfdId': rfidTags[0],
-    });
-
-    setState(() => status = 'Saving pattern...');
-
+    // Try to save to server, if fails, save locally
+    bool savedToServer = false;
     try {
+      final uri = Uri.parse('http://10.10.1.7:8301/api/productionappservices/updatepatternrfd');
+      final body = jsonEncode({
+        'PatternCode': selectedPattern!['code'],
+        'RfdId': rfidTags[0],
+      });
       final resp = await http
           .post(uri,
           headers: {'Content-Type': 'application/json'},
           body: body)
           .timeout(const Duration(seconds: 10));
-
       if (!mounted) return;
-
       if (resp.statusCode == 200) {
-        await LocalStorageService.addRecentRegistration({
-          'PatternCode': selectedPattern!['code'],
-          'PatternName': selectedPattern!['name'],
-          'date': DateTime.now().toIso8601String(),
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Pattern saved successfully!'),
-            backgroundColor: Colors.green.shade700,
-          ),
-        );
-
-        setState(() {
-          selectedPattern = null;
-          rfidTags.clear();
-          _currentStep = 0;
-          _searchController.clear();
-          status = 'Idle';
-        });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to save pattern (Code: ${resp.statusCode})'),
-            backgroundColor: Colors.red.shade700,
-          ),
-        );
-        setState(() => status = 'Save failed');
+        savedToServer = true;
       }
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error saving pattern: $e'),
-          backgroundColor: Colors.red.shade700,
-        ),
-      );
-      setState(() => status = 'Save error');
+      // ignore error, will save locally
     }
+
+    // Always save locally if not saved to server
+    await LocalStorageService.addRecentRegistration({
+      'PatternCode': selectedPattern!['code'],
+      'PatternName': selectedPattern!['name'],
+      'date': DateTime.now().toIso8601String(),
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(savedToServer
+            ? 'Pattern saved successfully!'
+            : 'Pattern saved locally (offline mode)!'),
+        backgroundColor: savedToServer ? Colors.green.shade700 : Colors.orange.shade700,
+      ),
+    );
+
+    setState(() {
+      selectedPattern = null;
+      rfidTags.clear();
+      _currentStep = 0;
+      _searchController.clear();
+      status = 'Idle';
+    });
   }
 
   Future<bool?> _confirmPatternDialog() => showDialog<bool>(
@@ -430,6 +418,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
                         child: Container(key: ValueKey(_currentStep), child: _buildStepWidgets()[_currentStep]),
                       ),
                     ),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),

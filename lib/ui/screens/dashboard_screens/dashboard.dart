@@ -5,34 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../RFIDPlugin.dart';
 import '../../../services/local_storage_service.dart';
 import '../../../utils/date_format.dart';
-import '../../widgets/BottomNaviagtionBar.dart';
-
-// class MainScreen extends StatefulWidget {
-//    MainScreen({Key? key}) : super(key: key);
-//
-//   @override
-//   State<MainScreen> createState() => _MainScreenState();
-// }
-//
-// class _MainScreenState extends State<MainScreen> {
-//   @override
-//   void initState() {
-//     super.initState();
-//     _initializeRFID();
-//   }
-//
-//   Future<void> _initializeRFID() async {
-//     await RFIDPlugin.initRFID();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return  Scaffold(
-//       body: DashboardContent(), // Change to any other screen you want
-//     );
-//   }
-// }
-
 
 class DashboardTheme {
   static const Color primaryRed = Color(0xFFDC143C);
@@ -89,7 +61,13 @@ class _DashboardContentState extends State<DashboardContent> {
   @override
   void initState() {
     super.initState();
+    // _initializeRFID();
+
   }
+
+  // Future<void> _initializeRFID() async {
+  //   await RFIDPlugin.initRFID();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -137,11 +115,13 @@ class _DashboardContentState extends State<DashboardContent> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                //---------------------------------Welcome message for user---------------------------//
                 Text(
                   "Welcome, ${widget.userName}",
                   style: DashboardTheme.headerStyle.copyWith(fontSize: 16), // Smaller font
                 ),
                 const SizedBox(height: 4), // Less spacing
+                //---------------------------------App title---------------------------//
                 const Text(
                   "Pattern Management System",
                   style: DashboardTheme.subHeaderStyle,
@@ -149,90 +129,113 @@ class _DashboardContentState extends State<DashboardContent> {
               ],
             ),
           ),
+          //---------------------------------RFID connection status widget---------------------------//
           _buildConnectionStatus(),
         ],
       ),
     );
   }
 
-  //-----------------------------------------------------RFID Connection----------------------------------------------//
 
+  //---------------------------------Widget to show RFID connection status---------------------------//
   Widget _buildConnectionStatus() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: Colors.white.withOpacity(0.3)),
-      ),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.wifi, color: Colors.green, size: 18),
-          SizedBox(width: 8),
-          Text(
-            "RFID Connected",
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: Colors.white.withOpacity(0.3)),
           ),
-        ],
-      ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.wifi, color: Colors.green, size: 18),
+              SizedBox(width: 8),
+              Text(
+                "RFID Connected",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 4,),
+        const Padding(
+          padding: EdgeInsets.only(left: 70.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.location_on, color: Colors.white, size: 16),
+              SizedBox(width: 4),
+              Text(
+                "SHIROLI",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildStatisticsSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Pattern Statistics", style: DashboardTheme.sectionTitleStyle),
-          const SizedBox(height: 10),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 14,
-                mainAxisSpacing: 14,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                childAspectRatio: 1.25,
-                children: const [
-                  StatsCard(
-                    title: "Total Patterns",
-                    value: "1,250",
-                    trend: "+12% this month",
-                    icon: Icons.donut_large_outlined,
-                    iconColor: DashboardTheme.primaryRed,
-                  ),
-                  // StatsCard(
-                  //   title: "Available",
-                  //   value: "1,240",
-                  //   trend: "Ready to use",
-                  //   icon: Icons.check_circle_outline,
-                  //   iconColor: Color(0xFF27AE60),
-                  // ),
-                  // StatsCard(
-                  //   title: "Pending",
-                  //   value: "5",
-                  //   trend: "Needs approval",
-                  //   icon: Icons.schedule_outlined,
-                  //   iconColor: Color(0xFFFF6B35),
-                  // ),
-                  StatsCard(
-                    title: "Tagged Items",
-                    value: "832",
-                    trend: "RFID enabled",
-                    icon: Icons.local_offer_outlined,
-                    iconColor: DashboardTheme.darkRed,
-                  ),
-                ],
-              );
-            },
+          Text("Pattern Statistics", style: DashboardTheme.sectionTitleStyle),
+          SizedBox(height: 10),
+          // First card full width
+          Row(
+            children: const [
+              Expanded(
+                child: StatsCard(
+                  title: "Total Patterns",
+                  value: "1,250",
+                  trend: "+12% this month",
+                  icon: Icons.donut_large_outlined,
+                  iconColor: DashboardTheme.primaryRed,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 14),
+          // Next two cards in a row
+          Row(
+            children: [
+              Expanded(
+                child: StatsCard(
+                  title: "Available",
+                  value: "1,240",
+                  trend: "Ready to use",
+                  icon: Icons.check_circle_outline,
+                  iconColor: Color(0xFF27AE60),
+                ),
+              ),
+              SizedBox(width: 14),
+              Expanded(
+                child: StatsCard(
+                  title: "Tagged Items",
+                  value: "832",
+                  trend: "RFID enabled",
+                  icon: Icons.local_offer_outlined,
+                  iconColor: DashboardTheme.darkRed,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -369,19 +372,6 @@ class StatsCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                // Uncomment if you want to show trend info
-                // const SizedBox(height: 4),
-                // Text(
-                //   trend,
-                //   style: TextStyle(
-                //     fontFamily: 'Poppins',
-                //     fontSize: 10,
-                //     color: Colors.grey[500],
-                //     fontWeight: FontWeight.w400,
-                //   ),
-                //   maxLines: 1,
-                //   overflow: TextOverflow.ellipsis,
-                // ),
               ],
             ),
           ),

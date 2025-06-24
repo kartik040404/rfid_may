@@ -166,13 +166,14 @@ class ProfileAccountSection extends StatelessWidget {
           },
         ),
         const SizedBox(height: 8),
+        //---------------------------------Logout Button---------------------------------//
         const LogoutButton(),
       ],
     );
   }
 }
 
-// Account Option Tile Widget
+//---------------------------------Account Option Tile Widget---------------------------------//
 class AccountOptionTile extends StatelessWidget {
   final String title;
   final IconData icon;

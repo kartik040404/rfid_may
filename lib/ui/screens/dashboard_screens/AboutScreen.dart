@@ -1,6 +1,8 @@
+//-----------------------------AboutScreen shows company, mission, app info, and legal links-----------------------------//
 import 'package:flutter/material.dart';
 import '../../widgets/custom_app_bar.dart';
 
+//-----------------------------Main AboutScreen widget-----------------------------//
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
@@ -15,12 +17,16 @@ class AboutScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            //-----------------------------Company Info Section-----------------------------//
             _CompanyInfo(),
             SizedBox(height: 20),
+            //-----------------------------Mission & Story Section-----------------------------//
             _MissionStory(),
             SizedBox(height: 20),
+            //-----------------------------App Info Section-----------------------------//
             _AppInfo(),
             SizedBox(height: 20),
+            //-----------------------------Legal Section-----------------------------//
             _LegalSection(),
             SizedBox(height: 20),
             Center(
@@ -41,6 +47,7 @@ class AboutScreen extends StatelessWidget {
   }
 }
 
+//-----------------------------Company Info Widget-----------------------------//
 class _CompanyInfo extends StatelessWidget {
   const _CompanyInfo({super.key});
 
@@ -69,6 +76,7 @@ class _CompanyInfo extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
+          //-----------------------------Tag Chip-----------------------------//
           const _TagChip(),
         ],
       ),
@@ -76,6 +84,7 @@ class _CompanyInfo extends StatelessWidget {
   }
 }
 
+//-----------------------------Tag Chip Widget-----------------------------//
 class _TagChip extends StatelessWidget {
   const _TagChip({super.key});
 
@@ -99,6 +108,7 @@ class _TagChip extends StatelessWidget {
   }
 }
 
+//-----------------------------Mission & Story Widget-----------------------------//
 class _MissionStory extends StatelessWidget {
   const _MissionStory({super.key});
 
@@ -163,6 +173,7 @@ class _MissionStory extends StatelessWidget {
   }
 }
 
+//-----------------------------App Info Widget-----------------------------//
 class _AppInfo extends StatelessWidget {
   const _AppInfo({super.key});
 
@@ -206,6 +217,7 @@ class _AppInfo extends StatelessWidget {
   }
 }
 
+//-----------------------------Legal Section Widget-----------------------------//
 class _LegalSection extends StatelessWidget {
   const _LegalSection({super.key});
 
@@ -236,6 +248,7 @@ class _LegalSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
+          //-----------------------------Legal Links-----------------------------//
           LegalLink(
             title: 'Terms of Service',
             onTap: () {
@@ -262,6 +275,7 @@ class _LegalSection extends StatelessWidget {
   }
 }
 
+//-----------------------------Reusable Info Row Widget-----------------------------//
 class InfoRow extends StatelessWidget {
   final String title;
   final String value;
@@ -297,6 +311,7 @@ class InfoRow extends StatelessWidget {
   }
 }
 
+//-----------------------------Reusable Legal Link Widget-----------------------------//
 class LegalLink extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
