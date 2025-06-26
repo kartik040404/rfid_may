@@ -166,7 +166,7 @@ class _DashboardContentState extends State<DashboardContent> {
             ],
           ),
         ),
-        const SizedBox(height: 4,),
+        const SizedBox(height: 4),
         const Padding(
           padding: EdgeInsets.only(left: 70.0),
           child: Row(
@@ -191,28 +191,27 @@ class _DashboardContentState extends State<DashboardContent> {
   }
 
   Widget _buildStatisticsSection() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Pattern Statistics", style: DashboardTheme.sectionTitleStyle),
-          SizedBox(height: 10),
+          const Text("Pattern Statistics", style: DashboardTheme.sectionTitleStyle),
+          const SizedBox(height: 10),
           // First card full width
           Row(
-            children: const [
+            children: [
               Expanded(
-                child: StatsCard(
+                child: TotalCard(
                   title: "Total Patterns",
                   value: "1,250",
-                  trend: "+12% this month",
                   icon: Icons.donut_large_outlined,
                   iconColor: DashboardTheme.primaryRed,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 14),
+          const SizedBox(height: 12),
           // Next two cards in a row
           Row(
             children: [
@@ -220,17 +219,15 @@ class _DashboardContentState extends State<DashboardContent> {
                 child: StatsCard(
                   title: "Available",
                   value: "1,240",
-                  trend: "Ready to use",
                   icon: Icons.check_circle_outline,
-                  iconColor: Color(0xFF27AE60),
+                  iconColor: const Color(0xFF27AE60),
                 ),
               ),
-              SizedBox(width: 14),
+              const SizedBox(width: 12),
               Expanded(
                 child: StatsCard(
                   title: "Tagged Items",
                   value: "832",
-                  trend: "RFID enabled",
                   icon: Icons.local_offer_outlined,
                   iconColor: DashboardTheme.darkRed,
                 ),
@@ -303,7 +300,6 @@ class _DashboardContentState extends State<DashboardContent> {
 class StatsCard extends StatelessWidget {
   final String title;
   final String value;
-  final String trend;
   final IconData icon;
   final Color iconColor;
 
@@ -311,7 +307,6 @@ class StatsCard extends StatelessWidget {
     Key? key,
     required this.title,
     required this.value,
-    required this.trend,
     required this.icon,
     required this.iconColor,
   }) : super(key: key);
@@ -383,6 +378,95 @@ class StatsCard extends StatelessWidget {
 
 
 
+class TotalCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color iconColor;
+
+  const TotalCard({
+    Key? key,
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.iconColor,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: DashboardTheme.cardBackground,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {},
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: iconColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: iconColor, size: 28),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: DashboardTheme.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        value,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: DashboardTheme.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
 class LogCard extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -420,7 +504,7 @@ class LogCard extends StatelessWidget {
           },
           borderRadius: BorderRadius.circular(10),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14.0),
             child: Row(
               children: [
                 Container(
@@ -440,14 +524,28 @@ class LogCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: DashboardTheme.textPrimary,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: DashboardTheme.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            time,
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.redAccent,
+                            ),
+                          ),
+                        ],
                       ),
                       Text(
                         subtitle,
@@ -460,15 +558,7 @@ class LogCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Text(
-                  time,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey[500],
-                  ),
-                ),
+
               ],
             ),
           ),

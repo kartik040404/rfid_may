@@ -40,7 +40,7 @@ class StepNavigationControlsWidget extends StatelessWidget {
           if (currentStep < totalSteps - 1)
             ElevatedButton.icon(
               label: const Text("Continue"),
-              icon: const Icon(Icons.arrow_forward_ios, size: 16),
+              icon: const Icon(Icons.arrow_forward_ios, size: 4),
               onPressed: () async {
                 if (!canProceedToNextStep()) {
                   String message = currentStep == 0

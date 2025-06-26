@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:testing_aar_file/ui/screens/scanpattern/SearchTagPage.dart';
 import '../../../RFIDPlugin.dart';
 import '../../widgets/custom_app_bar.dart';
+import '../../../utils/size_config.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
@@ -11,12 +14,22 @@ class ScanScreen extends StatefulWidget {
 }
 
 class _ScanScreenState extends State<ScanScreen> {
+  // Dummy RFID tag mapping
+  final Map<String, Map<String, String>> rfidTagMap = {
+    'E200001D880601882800A28A': {
+      'name': 'PATTERN FOR 3L BED PLATE 5706 0110 3702/398534010000 (S)',
+      'code': '1010602615',
+      'rfdId': 'E200001D880601882800A28A',
+    },
+  };
+
   bool isScanning = false;
   String status = 'Idle';
   final List<String> epcList = [];
   bool isSingleTag = false;
   int selectedPower = 30;
   final List<int> powerLevels = List.generate(30, (index) => index + 1);
+  // final Map<String, Map<String, String>> rfidTagMap = {};
 
   @override
   void initState() {
@@ -46,7 +59,9 @@ class _ScanScreenState extends State<ScanScreen> {
           epcList.add(epc);
         });
       }
-    });
+    }
+
+    );
   }
 
   Future<void> stopInventory() async {
@@ -84,131 +99,77 @@ class _ScanScreenState extends State<ScanScreen> {
     if (!isSingleTag) stopInventory();
   }
 
+  // Future<Map<String, String>?> fetchTagDetails(String epc) async {
+  //   final response = await http.get(Uri.parse('https://your-api.com/tags/$epc'));
+  //   if (response.statusCode == 200) {
+  //     final data = json.decode(response.body);
+  //     return {
+  //       'name': data['name'] ?? '',
+  //       'code': data['code'] ?? '',
+  //       'rfdId': data['rfdId'] ?? '',
+  //       'supplier': data['supplier'] ?? '',
+  //     };
+  //   }
+  //   return null;
+  // }
+  //
+  //
+  // Future<void> startInventory() async {
+  //   setState(() {
+  //     isScanning = true;
+  //     status = 'Scanning...';
+  //     epcList.clear();
+  //   });
+  //
+  //   await RFIDPlugin.startInventory((String epc) async {
+  //     if (!epcList.contains(epc)) {
+  //       final details = await fetchTagDetails(epc);
+  //       setState(() {
+  //         epcList.add(epc);
+  //         if (details != null) {
+  //           rfidTagMap[epc] = details;
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
+  //
+  // void startScan() async {
+  //   setState(() {
+  //     isScanning = true;
+  //     epcList.clear();
+  //     status = 'Scanning...';
+  //   });
+  //
+  //   if (isSingleTag) {
+  //     final epc = await RFIDPlugin.readSingleTag();
+  //     if (epc != null && !epcList.contains(epc)) {
+  //       final details = await fetchTagDetails(epc);
+  //       setState(() {
+  //         epcList.add(epc);
+  //         if (details != null) {
+  //           rfidTagMap[epc] = details;
+  //         }
+  //         status = 'Tag Scanned';
+  //         isScanning = false;
+  //       });
+  //     } else {
+  //       setState(() {
+  //         status = 'No Tag Found';
+  //         isScanning = false;
+  //       });
+  //     }
+  //   } else {
+  //     await startInventory();
+  //   }
+  // }
+
+
   @override
   Widget build(BuildContext context) {
+    SizeConfig.init(context); // Initialize SizeConfig
     return Scaffold(
       appBar: const CustomAppBar(title: 'RFID Scanner'),
-      // body: SingleChildScrollView(
-      //   padding: const EdgeInsets.all(16),
-      //   child: Column(
-      //     children: [
-      //       GestureDetector(
-      //         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SearchTagPage())),
-      //         child: Container(
-      //           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      //           decoration: BoxDecoration(
-      //             color: Colors.grey[100],
-      //             borderRadius: BorderRadius.circular(12),
-      //             border: Border.all(color: Colors.grey.shade300),
-      //           ),
-      //           child: const Row(
-      //             children: [
-      //               Icon(Icons.search, color: Colors.black),
-      //               SizedBox(width: 10),
-      //               Text(
-      //                 "Search RFID Tags",
-      //                 style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
-      //               ),
-      //             ],
-      //           ),
-      //         ),
-      //       ),
-      //       const SizedBox(height: 20),
-      //       Card(
-      //         elevation: 2,
-      //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      //         child: Padding(
-      //           padding: const EdgeInsets.all(16.0),
-      //           child: Row(
-      //             children: [
-      //               Expanded(
-      //                 child: DropdownButton<int>(
-      //                   isExpanded: true,
-      //                   value: selectedPower,
-      //                   underline: const SizedBox(),
-      //                   items: powerLevels.map((level) {
-      //                     return DropdownMenuItem(
-      //                       value: level,
-      //                       child: Text("Power $level", style: TextStyle(fontFamily: 'Poppins')),
-      //                     );
-      //                   }).toList(),
-      //                   onChanged: (value) {
-      //                     if (value != null) {
-      //                       setState(() => selectedPower = value);
-      //                     }
-      //                   },
-      //                 ),
-      //               ),
-      //               ElevatedButton(
-      //                 onPressed: () async {
-      //                   final success = await RFIDPlugin.setPower(selectedPower);
-      //                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      //                     content: Text(success ? "Power Set!" : "Failed to Set Power"),
-      //                   ));
-      //                 },
-      //                 style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
-      //                 child: const Text(
-      //                   "Set Power",
-      //                   style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
-      //                 ),
-      //               )
-      //             ],
-      //           ),
-      //         ),
-      //       ),
-      //       const SizedBox(height: 10),
-      //       Row(
-      //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //         children: [
-      //           const Text(
-      //             "Single Tag Inventory",
-      //             style: TextStyle(fontFamily: 'Poppins'),
-      //           ),
-      //           Switch(
-      //             value: isSingleTag,
-      //             activeColor: Colors.red,
-      //             onChanged: (val) => setState(() => isSingleTag = val),
-      //           ),
-      //         ],
-      //       ),
-      //       const SizedBox(height: 10),
-      //       ElevatedButton.icon(
-      //         icon: Icon(isScanning ? Icons.stop : Icons.play_arrow),
-      //         label: Text(
-      //           isScanning ? "Stop Scanning" : "Start Scanning",
-      //           style: TextStyle(fontFamily: 'Poppins', color: Colors.white),
-      //         ),
-      //         style: ElevatedButton.styleFrom(
-      //           backgroundColor: isScanning ? Colors.red[700] : Colors.black,
-      //           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-      //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      //         ),
-      //         onPressed: isScanning ? stopScan : startScan,
-      //       ),
-      //       const SizedBox(height: 30),
-      //       Align(
-      //         alignment: Alignment.centerLeft,
-      //         child: Text("Scanned Tags:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-      //       ),
-      //       const SizedBox(height: 100),
-      //       epcList.isEmpty
-      //           ? Center(
-      //         child: Text("No tags scanned yet.", style: TextStyle(color: Colors.black45,)),
-      //       )
-      //           : ListView.separated(
-      //         shrinkWrap: true,
-      //         physics: NeverScrollableScrollPhysics(),
-      //         itemCount: epcList.length,
-      //         separatorBuilder: (_, __) => const Divider(),
-      //         itemBuilder: (context, index) => ListTile(
-      //           leading: const Icon(Icons.nfc, color: Colors.red),
-      //           title: Text(epcList[index]),
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
-
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -221,7 +182,11 @@ class _ScanScreenState extends State<ScanScreen> {
           ),
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.only(left: 16,right: 16,top: 10),
+          padding: EdgeInsets.only(
+            left: 4 * SizeConfig.widthMultiplier,
+            right: 4 * SizeConfig.widthMultiplier,
+            top: 2 * SizeConfig.heightMultiplier,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -229,14 +194,17 @@ class _ScanScreenState extends State<ScanScreen> {
               GestureDetector(
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SearchTagPage())),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 3 * SizeConfig.widthMultiplier,
+                    vertical: 1.5 * SizeConfig.heightMultiplier,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.red.withOpacity(0.2), width: 1.5),
-                    boxShadow: [
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Color.fromRGBO(255, 0, 0, 0.2), width: 1.5),
+                    boxShadow: const [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
+                        color: Color.fromRGBO(0, 0, 0, 0.08),
                         blurRadius: 12,
                         offset: Offset(0, 4),
                       ),
@@ -245,42 +213,42 @@ class _ScanScreenState extends State<ScanScreen> {
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: EdgeInsets.all(1 * SizeConfig.widthMultiplier),
                         decoration: BoxDecoration(
                           color: Colors.red.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Icon(Icons.search, color: Colors.red[700], size: 20),
+                        child: Icon(Icons.search, color: Colors.red[700], size: 2.5 * SizeConfig.textMultiplier),
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: 2 * SizeConfig.widthMultiplier),
                       Text(
                         "Search RFID Tags",
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 2.2 * SizeConfig.textMultiplier,
                           fontFamily: 'Poppins',
                           color: Colors.black87,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      Spacer(),
-                      Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 16),
+                      const Spacer(),
+                      Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 2.2 * SizeConfig.textMultiplier),
                     ],
                   ),
                 ),
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: 1.5 * SizeConfig.heightMultiplier),
 
               // Power Control Section
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(2.5 * SizeConfig.widthMultiplier),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.grey.withOpacity(0.2)),
-                  boxShadow: [
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Color.fromRGBO(128, 128, 128, 0.2)),
+                  boxShadow: const [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Color.fromRGBO(0, 0, 0, 0.08),
                       blurRadius: 12,
                       offset: Offset(0, 4),
                     ),
@@ -292,18 +260,18 @@ class _ScanScreenState extends State<ScanScreen> {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: EdgeInsets.all(1 * SizeConfig.widthMultiplier),
                           decoration: BoxDecoration(
                             color: Colors.black.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Icon(Icons.power_settings_new, color: Colors.black87, size: 20),
+                          child: Icon(Icons.power_settings_new, color: Colors.black87, size: 2.5 * SizeConfig.textMultiplier),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 2 * SizeConfig.widthMultiplier),
                         Text(
                           "Power Control",
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 2.4 * SizeConfig.textMultiplier,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Poppins',
                             color: Colors.black87,
@@ -311,16 +279,16 @@ class _ScanScreenState extends State<ScanScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 1 * SizeConfig.heightMultiplier),
                     Row(
                       children: [
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
                             decoration: BoxDecoration(
                               color: Colors.grey[50],
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Color.fromRGBO(128, 128, 128, 0.3)),
                             ),
                             child: DropdownButton<int>(
                               isExpanded: true,
@@ -348,13 +316,13 @@ class _ScanScreenState extends State<ScanScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 20),
+                        SizedBox(width: 2 * SizeConfig.widthMultiplier),
                         Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [Colors.red[600]!, Colors.red[700]!],
                             ),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(10),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.red.withOpacity(0.3),
@@ -381,7 +349,7 @@ class _ScanScreenState extends State<ScanScreen> {
                               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
-                            child: Text(
+                            child: const Text(
                               "Set Power",
                               style: TextStyle(
                                 color: Colors.white,
@@ -397,73 +365,43 @@ class _ScanScreenState extends State<ScanScreen> {
                 ),
               ),
 
-              const SizedBox(height: 10),
 
               // Single Tag Toggle
               Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.grey.withOpacity(0.2)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 12,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
+                padding: EdgeInsets.all(2.5 * SizeConfig.widthMultiplier),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: isSingleTag ? Colors.red.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            Icons.inventory,
-                            color: isSingleTag ? Colors.red[700] : Colors.grey[600],
-                            size: 18,
+                        Text(
+                          "Single Tag Inventory",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 2.2 * SizeConfig.textMultiplier,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Single Tag Inventory",
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            Text(
-                              isSingleTag ? "Enabled" : "Disabled",
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 10,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
+                        Text(
+                          isSingleTag ? "Enabled" : "Disabled",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 1.8 * SizeConfig.textMultiplier,
+                            color: Colors.grey[600],
+                          ),
                         ),
                       ],
                     ),
                     Transform.scale(
-                      scale: 1.2,
+                      scale: 1,
                       child: Switch(
                         value: isSingleTag,
                         activeColor: Colors.red[600],
-                        activeTrackColor: Colors.red.withOpacity(0.3),
+                        activeTrackColor: Color.fromRGBO(255, 0, 0, 0.3),
                         inactiveThumbColor: Colors.grey[400],
-                        inactiveTrackColor: Colors.grey.withOpacity(0.3),
+                        inactiveTrackColor: Color.fromRGBO(128, 128, 128, 0.3),
                         onChanged: (val) => setState(() => isSingleTag = val),
                       ),
                     ),
@@ -471,12 +409,12 @@ class _ScanScreenState extends State<ScanScreen> {
                 ),
               ),
 
-              const SizedBox(height: 10),
+              SizedBox(height: 1.5 * SizeConfig.heightMultiplier),
               // Scan Button
               Center(
                 child: Container(
-                  width: 210,
-                  height: 55,
+                  width: 55 * SizeConfig.widthMultiplier,
+                  height: 8 * SizeConfig.heightMultiplier,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: isScanning
@@ -486,7 +424,7 @@ class _ScanScreenState extends State<ScanScreen> {
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       BoxShadow(
-                        color: (isScanning ? Colors.red : Colors.black).withOpacity(0.3),
+                        color: (isScanning ? Color.fromRGBO(255, 0, 0, 1) : Color.fromRGBO(0, 0, 0, 1)).withOpacity(0.3),
                         blurRadius: 12,
                         offset: Offset(0, 6),
                       ),
@@ -494,11 +432,11 @@ class _ScanScreenState extends State<ScanScreen> {
                   ),
                   child: ElevatedButton.icon(
                     icon: Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: EdgeInsets.all(1 * SizeConfig.widthMultiplier),
                       child: Icon(
                         isScanning ? Icons.stop : Icons.play_arrow,
                         color: Colors.white,
-                        size: 20,
+                        size: 2.5 * SizeConfig.textMultiplier,
                       ),
                     ),
                     label: Text(
@@ -506,7 +444,7 @@ class _ScanScreenState extends State<ScanScreen> {
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         color: Colors.white,
-                        fontSize: 16,
+                        fontSize: 2.5 * SizeConfig.textMultiplier,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -520,18 +458,18 @@ class _ScanScreenState extends State<ScanScreen> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 2.5 * SizeConfig.heightMultiplier),
 
               // Scanned Tags Section
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(2.5 * SizeConfig.widthMultiplier),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                  border: Border.all(color: Color.fromRGBO(128, 128, 128, 0.2)),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Color.fromRGBO(0, 0, 0, 0.08),
                       blurRadius: 12,
                       offset: Offset(0, 4),
                     ),
@@ -543,18 +481,18 @@ class _ScanScreenState extends State<ScanScreen> {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: EdgeInsets.all(1 * SizeConfig.widthMultiplier),
                           decoration: BoxDecoration(
                             color: Colors.red.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Icon(Icons.nfc, color: Colors.red[700], size: 20),
+                          child: Icon(Icons.nfc, color: Colors.red[700], size: 2.5 * SizeConfig.textMultiplier),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 2 * SizeConfig.widthMultiplier),
                         Text(
                           "Scanned Tags",
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 2.8 * SizeConfig.textMultiplier,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Poppins',
                             color: Colors.black87,
@@ -563,7 +501,7 @@ class _ScanScreenState extends State<ScanScreen> {
                         Spacer(),
                         if (epcList.isNotEmpty)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.red[50],
                               borderRadius: BorderRadius.circular(20),
@@ -580,32 +518,32 @@ class _ScanScreenState extends State<ScanScreen> {
                           ),
                       ],
                     ),
-                    const SizedBox(height: 14),
+                    SizedBox(height: 1.5 * SizeConfig.heightMultiplier),
                     epcList.isEmpty
                         ? Container(
-                      padding: const EdgeInsets.all(40),
+                      padding: EdgeInsets.all(10 * SizeConfig.widthMultiplier),
                       child: Column(
                         children: [
                           Icon(
                             Icons.nfc_outlined,
-                            size: 60,
+                            size: 15 * SizeConfig.textMultiplier,
                             color: Colors.grey[400],
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 4 * SizeConfig.heightMultiplier),
                           Text(
                             "No tags scanned yet",
                             style: TextStyle(
                               color: Colors.grey[600],
-                              fontSize: 16,
+                              fontSize: 2.5 * SizeConfig.textMultiplier,
                               fontFamily: 'Poppins',
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 2 * SizeConfig.heightMultiplier),
                           Text(
                             "Start scanning to see RFID tags here",
                             style: TextStyle(
                               color: Colors.grey[500],
-                              fontSize: 14,
+                              fontSize: 2 * SizeConfig.textMultiplier,
                               fontFamily: 'Poppins',
                             ),
                           ),
@@ -621,57 +559,168 @@ class _ScanScreenState extends State<ScanScreen> {
                         thickness: 1,
                         height: 1,
                       ),
-                      itemBuilder: (context, index) => Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.red.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(10),
+                      itemBuilder: (context, index) {
+                        final epc = epcList[index];
+                        final mapped = rfidTagMap[epc];
+                        return Container(
+                          padding: EdgeInsets.symmetric(vertical: 1.2 * SizeConfig.heightMultiplier),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(1 * SizeConfig.widthMultiplier),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  Icons.nfc,
+                                  color: Colors.red[600],
+                                  size: 2.5 * SizeConfig.textMultiplier,
+                                ),
                               ),
-                              child: Icon(
-                                Icons.nfc,
-                                color: Colors.red[600],
-                                size: 16,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    epcList[index],
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black87,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    "Tag ${index + 1}",
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      color: Colors.grey[600],
-                                      fontSize: 10,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                              SizedBox(width: 2 * SizeConfig.widthMultiplier),
+                              Expanded(
+                                child: mapped != null
+                                    ? GestureDetector(
+                                        onTap: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: Row(
+                                                children: [
+                                                  Text(
+                                                    'Tag Details',
+                                                    style: TextStyle(
+                                                      fontFamily: 'Poppins',
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Colors.red[600],
+                                                      fontSize: 2.2 * SizeConfig.textMultiplier,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              content: Container(
+                                                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
 
-                          ],
-                        ),
-                      ),
+                                                child: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Name: ${mapped['name'] ?? ''}',
+                                                      style: TextStyle(fontWeight: FontWeight.w600, fontFamily: 'Poppins'),
+                                                    ),
+                                                    SizedBox(height: 10),
+                                                    Text(
+                                                      'Code: ${mapped['code'] ?? ''}',
+                                                      style: TextStyle(fontWeight: FontWeight.w600, fontFamily: 'Poppins'),
+                                                    ),
+                                                    SizedBox(height: 10),
+                                                    Text(
+                                                      'Tag ID: ${mapped['rfdId'] ?? ''}',
+                                                      style: TextStyle(fontWeight: FontWeight.w600, fontFamily: 'Poppins'),
+                                                    ),
+                                                    SizedBox(height: 10),
+                                                    Text(
+                                                      'Supplier: Demo Supplier',
+                                                      style: TextStyle(fontWeight: FontWeight.w600, fontFamily: 'Poppins'),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  style: TextButton.styleFrom(
+                                                    backgroundColor: Colors.red[50],
+                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                                  ),
+                                                  onPressed: () => Navigator.of(context).pop(),
+                                                  child: Text(
+                                                    'Close',
+                                                    style: TextStyle(
+                                                      color: Colors.red[600],
+                                                      fontWeight: FontWeight.bold,
+                                                      fontFamily: 'Poppins',
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    mapped['name'] ?? '',
+                                                    style: TextStyle(
+                                                      fontFamily: 'Poppins',
+                                                      fontWeight: FontWeight.w500,
+                                                      color: Colors.black87,
+                                                      fontSize: 2 * SizeConfig.textMultiplier,
+                                                    ),
+                                                    overflow: TextOverflow.ellipsis,
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 0.5 * SizeConfig.heightMultiplier),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    'Code: ${mapped['code'] ?? ''}',
+                                                    style: TextStyle(
+                                                      fontFamily: 'Poppins',
+                                                      color: Colors.grey[600],
+                                                      fontSize: 1.5 * SizeConfig.textMultiplier,
+                                                    ),
+                                                    overflow: TextOverflow.ellipsis,
+                                                    maxLines: 1,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    : Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            epc,
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black87,
+                                              fontSize: 2 * SizeConfig.textMultiplier,
+                                            ),
+                                          ),
+                                          SizedBox(height: 0.5 * SizeConfig.heightMultiplier),
+                                          Text(
+                                            'Unknown Tag',
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              color: Colors.grey[600],
+                                              fontSize: 1.5 * SizeConfig.textMultiplier,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 1 * SizeConfig.heightMultiplier),
             ],
           ),
         ),
