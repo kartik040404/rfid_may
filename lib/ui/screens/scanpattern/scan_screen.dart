@@ -21,6 +21,11 @@ class _ScanScreenState extends State<ScanScreen> {
       'code': '1010602615',
       'rfdId': 'E200001D880601882800A28A',
     },
+    'E20000162015005719704BE1': {
+      'name': 'PATTERN FOR 3L BED PLATE 5706 0110 3702/398534010000 (S)',
+      'code': '1010602615',
+      'rfdId': 'E200001D880601882800A28A',
+    },
   };
 
   bool isScanning = false;
@@ -45,6 +50,18 @@ class _ScanScreenState extends State<ScanScreen> {
       });
     }
   }
+  // Future<void> initRFID() async {
+  //   int power = await RFIDPlugin.getPower();
+  //   if (powerLevels.contains(power)) {
+  //     setState(() {
+  //       selectedPower = power;
+  //     });
+  //   } else {
+  //     setState(() {
+  //       selectedPower = powerLevels.first; // fallback to a valid value
+  //     });
+  //   }
+  // }
 
   Future<void> startInventory() async {
     setState(() {
@@ -300,7 +317,7 @@ class _ScanScreenState extends State<ScanScreen> {
                                   value: level,
                                   child: Text(
                                     "Power Level $level",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontFamily: 'Poppins',
                                       color: Colors.black87,
                                       fontWeight: FontWeight.w500,

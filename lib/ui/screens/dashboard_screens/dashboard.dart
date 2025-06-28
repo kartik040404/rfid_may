@@ -191,13 +191,13 @@ class _DashboardContentState extends State<DashboardContent> {
   }
 
   Widget _buildStatisticsSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Pattern Statistics", style: DashboardTheme.sectionTitleStyle),
-          const SizedBox(height: 10),
+          Text("Pattern Statistics", style: DashboardTheme.sectionTitleStyle),
+          SizedBox(height: 10),
           // First card full width
           Row(
             children: [
@@ -211,7 +211,7 @@ class _DashboardContentState extends State<DashboardContent> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           // Next two cards in a row
           Row(
             children: [
@@ -220,10 +220,10 @@ class _DashboardContentState extends State<DashboardContent> {
                   title: "Available",
                   value: "1,240",
                   icon: Icons.check_circle_outline,
-                  iconColor: const Color(0xFF27AE60),
+                  iconColor: Color(0xFF27AE60),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: StatsCard(
                   title: "Tagged Items",
@@ -412,17 +412,17 @@ class TotalCard extends StatelessWidget {
           onTap: () {},
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(26),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: iconColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, color: iconColor, size: 28),
+                  child: Icon(icon, color: iconColor, size: 30),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -434,7 +434,7 @@ class TotalCard extends StatelessWidget {
                         title,
                         style: const TextStyle(
                           fontFamily: 'Poppins',
-                          fontSize: 12,
+                          fontSize: 14,
                           fontWeight: FontWeight.w500,
                           color: DashboardTheme.textSecondary,
                         ),
@@ -446,7 +446,7 @@ class TotalCard extends StatelessWidget {
                         value,
                         style: const TextStyle(
                           fontFamily: 'Poppins',
-                          fontSize: 24,
+                          fontSize: 26,
                           fontWeight: FontWeight.bold,
                           color: DashboardTheme.textPrimary,
                         ),
@@ -558,7 +558,6 @@ class LogCard extends StatelessWidget {
                     ],
                   ),
                 ),
-
               ],
             ),
           ),

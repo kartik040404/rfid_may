@@ -311,7 +311,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(ctx).pop(false),
-          child: Text('Cancel', style: TextStyle(color: Colors.grey.shade700, fontSize: 16, fontWeight: FontWeight.bold)),
+          child: Text('Cancel', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, fontWeight: FontWeight.bold,fontFamily: 'Poppins')),
         ),
         ElevatedButton(
           onPressed: () => Navigator.of(ctx).pop(true),
@@ -319,9 +319,10 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
             backgroundColor: Colors.red.shade700,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           ),
-          child: const Text('Continue'),
+          child: const Text('Continue',style: TextStyle(fontFamily: 'Poppins',color: Colors.white
+          ),),
         ),
       ],
     ),
@@ -434,11 +435,11 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
                         height: SizeConfig.blockSizeVertical * 5,
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.arrow_back_ios, size: 18),
-                          label: const Text('Back', style: TextStyle(fontWeight: FontWeight.w600)),
+                          label: const Text('Back', style: TextStyle(fontWeight: FontWeight.w600,fontFamily: 'Poppins',fontSize: 9)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.grey.shade200,
                             foregroundColor: Colors.red.shade700,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             textStyle: TextStyle(fontSize: SizeConfig.textMultiplier * 1.4),
                           ),
                           onPressed: _onPreviousStep,
@@ -447,15 +448,15 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
                     if (_currentStep == 0) const SizedBox.shrink(),
                     if (_currentStep < _totalSteps - 1)
                       SizedBox(
-                        width: SizeConfig.blockSizeHorizontal * 29,
+                        width: SizeConfig.blockSizeHorizontal * 30,
                         height: SizeConfig.blockSizeVertical * 5,
                         child: ElevatedButton.icon(
-                          icon: const Icon(Icons.arrow_forward_ios, size: 18),
-                          label: const Text('Continue', style: TextStyle(fontWeight: FontWeight.w600)),
+                          icon: const Icon(Icons.arrow_forward_ios, size: 16,color: Colors.white,),
+                          label: const Text('Continue', style: TextStyle(fontWeight: FontWeight.w600,fontFamily: 'Poppins',fontSize: 9.2)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red.shade700,
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             textStyle: TextStyle(fontSize: SizeConfig.textMultiplier * 1.6),
                           ),
                           onPressed: () async {
@@ -493,7 +494,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green.shade700,
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             textStyle: TextStyle(fontSize: SizeConfig.textMultiplier * 1.6),
                           ),
                           onPressed: savePattern,
