@@ -1,6 +1,6 @@
 //-----------------------------AboutScreen shows company, mission, app info, and legal links-----------------------------//
 import 'package:flutter/material.dart';
-import '../../widgets/custom_app_bar.dart';
+import '../../../widgets/custom_app_bar.dart';
 
 //-----------------------------Main AboutScreen widget-----------------------------//
 class AboutScreen extends StatelessWidget {

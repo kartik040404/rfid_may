@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:testing_aar_file/ui/screens/scanpattern/SearchTagPage.dart';
+import 'package:testing_aar_file/ui/screens/dashboard_screens/SearchTagPage.dart';
 import '../../../RFIDPlugin.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../../utils/size_config.dart';
@@ -638,7 +638,7 @@ class _ScanScreenState extends State<ScanScreen> {
                                                       style: TextStyle(fontWeight: FontWeight.w600, fontFamily: 'Poppins'),
                                                     ),
                                                     SizedBox(height: 10),
-                                                    Text(
+                                                    const Text(
                                                       'Supplier: Demo Supplier',
                                                       style: TextStyle(fontWeight: FontWeight.w600, fontFamily: 'Poppins'),
                                                     ),

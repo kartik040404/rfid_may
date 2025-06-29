@@ -46,16 +46,16 @@ class DashboardTheme {
 
 
 
-class DashboardContent extends StatefulWidget {
+class DashboardScreen extends StatefulWidget {
   final String userName;
 
-  const DashboardContent({Key? key, this.userName = "User"}) : super(key: key);
+  const DashboardScreen({Key? key, this.userName = "User"}) : super(key: key);
 
   @override
-  State<DashboardContent> createState() => _DashboardContentState();
+  State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardContentState extends State<DashboardContent> {
+class _DashboardScreenState extends State<DashboardScreen> {
   late Future<List<LogCard>> recentScansFuture;
 
   @override

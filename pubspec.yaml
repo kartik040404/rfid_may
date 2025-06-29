@@ -17,6 +17,7 @@ dependencies:
   flutter_typeahead: ^5.2.0
   shared_preferences: ^2.1.0
   url_launcher: ^6.0.0 # Ensure this version is compatible or use the latest
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:

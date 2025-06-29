@@ -4,12 +4,11 @@ import 'package:http/http.dart' as http;
 import 'package:testing_aar_file/ui/widgets/custom_app_bar.dart';
 import '../../../../../RFIDPlugin.dart';
 import '../../../services/local_storage_service.dart';
-import '../../widgets/register_pattern/stepper_indicator_widget.dart';
 import '../../widgets/register_pattern/pattern_selection_step_widget.dart';
 import '../../widgets/register_pattern/rfid_attachment_step_widget.dart';
 import '../../widgets/register_pattern/review_and_save_step_widget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../utils/size_config.dart';
+import '../../widgets/register_pattern/stepper_indicator_widget.dart';
 
 class NewRegisterPatternScreen extends StatefulWidget {
   @override
