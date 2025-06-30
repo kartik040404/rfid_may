@@ -526,12 +526,15 @@
 //     );
 //   }
 // }
+// lib/ui/screens/scanpattern/SearchTagPage.dart
+// lib/ui/screens/scanpattern/SearchTagPage.dart
 
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:http/http.dart' as http;
+import 'package:testing_aar_file/services/pattern_service.dart';
+import 'package:testing_aar_file/model/Pattern.dart';
 import '../../../RFIDPlugin.dart';
+import '../../widgets/custom_app_bar.dart';
+import '../../../utils/size_config.dart';
 
 class SearchTagPage extends StatefulWidget {
   const SearchTagPage({super.key});
@@ -543,103 +546,71 @@ class SearchTagPage extends StatefulWidget {
 class _SearchTagPageState extends State<SearchTagPage> {
   final TextEditingController _patternController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+
   String status = 'Search by pattern name or code';
   bool isSearching = false;
-  Map<String, String>? selectedItem;
-
   bool tagFound = false;
-  double signalStrength = 0.0;
-
   bool showSuggestions = false;
 
-  List<Map<String, String>> dummyData = [
-    {
-      'PatternName': 'PATTERN FOR 3L BED PLATE 5706 0110 3702/398534010000 (S)',
-      'PatternCode': '1010602615',
-      'rfdId': 'E200001D880601882800A28A',
-      'SupplierName': 'ABC Supplier',
-      'ToolLifeStartDate': '2024-01-01',
-      'InvoiceNo': 'INV12345',
-      'InvoiceDate': '2024-01-10',
-      'NumberOfParts': '1000',
-      'PartsProduced': '500',
-      'RemainingBalance': '500',
-      'Signal': 'Strong',
-      'LastPrdDate': '2024-06-01',
-      'AssetName': 'Bed Plate Asset',
-    },
-    {
-      'PatternName': 'ATTERN FOR 3L BED PLATE 5706 0110 3702/398534010000 (S)',
-      'PatternCode': '1010602616',
-      'rfdId': 'E20000162015005719704BE1',
-      'SupplierName': 'ABC Supplier',
-      'ToolLifeStartDate': '2024-01-01',
-      'InvoiceNo': 'INV12345',
-      'InvoiceDate': '2024-01-10',
-      'NumberOfParts': '1000',
-      'PartsProduced': '500',
-      'RemainingBalance': '500',
-      'Signal': 'Strong',
-      'LastPrdDate': '2024-06-01',
-      'AssetName': 'Bed Plate Asset',
-    },
-
-    // Add more items here if needed
-  ];
-  List<Map<String, String>> filteredData = [];
+  Pattern? selectedPattern;
+  List<Pattern> allPatterns = [];
+  List<Pattern> filteredPatterns = [];
 
   @override
   void initState() {
     super.initState();
-    filteredData = List.from(dummyData);
+    // Load cached patterns
+    allPatterns = PatternService.patterns.values.toList();
+    filteredPatterns = List.from(allPatterns);
   }
 
   void _onSearchChanged(String query) {
     setState(() {
-      filteredData = dummyData.where((item) {
-        return item['PatternName']!.toLowerCase().contains(query.toLowerCase()) ||
-            item['PatternCode']!.toLowerCase().contains(query.toLowerCase());
+      final q = query.toLowerCase();
+      filteredPatterns = allPatterns.where((p) {
+        return p.patternName.toLowerCase().contains(q) ||
+            p.patternCode.toLowerCase().contains(q);
       }).toList();
       showSuggestions = query.isNotEmpty;
     });
   }
 
-  void _onSelectItem(Map<String, String> item) {
+  void _onSelectPattern(Pattern p) {
+    _focusNode.unfocus();
     setState(() {
-      selectedItem = item;
-      _patternController.text = item['PatternName'] ?? '';
+      selectedPattern = p;
+      _patternController.text = p.patternName;
       showSuggestions = false;
     });
-    FocusScope.of(context).unfocus();
   }
 
   void _startTagSearch() async {
+    if (selectedPattern == null) return;
     setState(() {
       isSearching = true;
-      status = 'Searching for tag...';
       tagFound = false;
-      signalStrength = 0.0;
+      status = 'Searching for tag...';
     });
-    final rfdId = selectedItem?["rfdId"];
-    if (rfdId == null) return;
-    await RFIDPlugin.startMultiSearchTags([rfdId], (matchedEpc) {
-      setState(() {
-        status = 'Tag found!';
-        isSearching = false;
-        tagFound = true;
-        signalStrength = 1.0;
-      });
-      RFIDPlugin.stopSearchTag();
-    });
+
+    // Start scanning but do NOT auto-stop on first find
+    await RFIDPlugin.startMultiSearchTags(
+      [selectedPattern!.rfdId],
+          (matchedEpc) {
+        // Just update UI; keep scanning
+        setState(() {
+          tagFound = true;
+          status = 'Tag found: $matchedEpc';
+        });
+      },
+    );
   }
 
   void _stopTagSearch() async {
     await RFIDPlugin.stopSearchTag();
     setState(() {
       isSearching = false;
-      status = 'Search stopped.';
       tagFound = false;
-      signalStrength = 0.0;
+      status = 'Search stopped.';
     });
   }
 
@@ -652,38 +623,16 @@ class _SearchTagPageState extends State<SearchTagPage> {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig.init(context);
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          'Search RFID by Pattern',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-            fontFamily: 'Poppins',
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: Colors.grey.shade200,
-            height: 1.0,
-          ),
-        ),
-      ),
+      appBar: const CustomAppBar(title: 'Search RFID by Pattern'),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Colors.grey[50]!,
-              Colors.white,
-            ],
+            colors: [Colors.grey[50]!, Colors.white],
           ),
         ),
         child: SingleChildScrollView(
@@ -691,25 +640,21 @@ class _SearchTagPageState extends State<SearchTagPage> {
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: Padding(
             padding: EdgeInsets.only(
-              left: 16.0,
-              right: 16.0,
-              top: 16.0,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 16.0,
+              left: 16,
+              right: 16,
+              top: 16,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 16,
             ),
             child: Column(
               children: [
-                // Search Pattern Field
+                // Search Field + Suggestions
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.red.withAlpha((0.2 * 255).toInt()), width: 1.5),
+                    border: Border.all(color: Colors.red.withOpacity(0.2), width: 1.5),
                     boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha((0.08 * 255).toInt()),
-                        blurRadius: 12,
-                        offset: Offset(0, 4),
-                      ),
+                      BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12, offset: Offset(0,4)),
                     ],
                   ),
                   child: Column(
@@ -719,19 +664,15 @@ class _SearchTagPageState extends State<SearchTagPage> {
                         focusNode: _focusNode,
                         decoration: InputDecoration(
                           labelText: 'Search by Pattern Name or Code',
-                          labelStyle: TextStyle(
+                          labelStyle: const TextStyle(
                             color: Colors.black54,
                             fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w500
+                            fontWeight: FontWeight.w500,
                           ),
                           filled: true,
                           fillColor: Colors.grey[50],
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          contentPadding: const EdgeInsets.symmetric(horizontal:20, vertical:16),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide.none,
-                          ),
-                          enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide.none,
                           ),
@@ -740,8 +681,8 @@ class _SearchTagPageState extends State<SearchTagPage> {
                             borderSide: BorderSide(color: Colors.red.shade300),
                           ),
                           prefixIcon: Container(
-                            padding: EdgeInsets.all(12),
-                            child: Icon(Icons.search, color: Colors.red[700], size: 20),
+                            padding: const EdgeInsets.all(12),
+                            child: Icon(Icons.search, color: Colors.red[700], size:20),
                           ),
                         ),
                         onChanged: _onSearchChanged,
@@ -751,18 +692,20 @@ class _SearchTagPageState extends State<SearchTagPage> {
                           });
                         },
                       ),
-                      if (showSuggestions && filteredData.isNotEmpty)
+                      if (showSuggestions && filteredPatterns.isNotEmpty)
                         Container(
-                          constraints: BoxConstraints(maxHeight: 200),
+                          constraints: const BoxConstraints(maxHeight:200),
                           child: ListView.builder(
                             shrinkWrap: true,
-                            itemCount: filteredData.length,
-                            itemBuilder: (context, index) {
-                              final item = filteredData[index];
+                            itemCount: filteredPatterns.length,
+                            itemBuilder: (context, i) {
+                              final p = filteredPatterns[i];
                               return ListTile(
-                                title: Text(item['PatternName'] ?? '', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600)),
-                                subtitle: Text('Code: ${item['PatternCode']}', style: TextStyle(fontFamily: 'Poppins')),
-                                onTap: () => _onSelectItem(item),
+                                title: Text(p.patternName,
+                                    style: const TextStyle(fontFamily:'Poppins', fontWeight: FontWeight.w600)),
+                                subtitle: Text('Code: ${p.patternCode}',
+                                    style: const TextStyle(fontFamily:'Poppins')),
+                                onTap: () => _onSelectPattern(p),
                               );
                             },
                           ),
@@ -770,12 +713,13 @@ class _SearchTagPageState extends State<SearchTagPage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
-                // Search Button
+
+                const SizedBox(height:20),
+
+                // Search / Stop button
                 Center(
                   child: Container(
-                    width: 210,
-                    height: 55,
+                    width:210, height:55,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: isSearching
@@ -785,9 +729,8 @@ class _SearchTagPageState extends State<SearchTagPage> {
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
-                          color: (isSearching ? Colors.red : Colors.black).withAlpha((0.3 * 255).toInt()),
-                          blurRadius: 12,
-                          offset: Offset(0, 6),
+                            color: (isSearching ? Colors.red : Colors.black).withOpacity(0.3),
+                            blurRadius:12, offset:Offset(0,6)
                         ),
                       ],
                     ),
@@ -795,27 +738,23 @@ class _SearchTagPageState extends State<SearchTagPage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                       ),
-                      onPressed: selectedItem == null ? null : (isSearching ? _stopTagSearch : _startTagSearch),
+                      onPressed: selectedPattern == null
+                          ? null
+                          : (isSearching ? _stopTagSearch : _startTagSearch),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            isSearching ? Icons.stop : Icons.search,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
+                          Icon(isSearching ? Icons.stop : Icons.search, color:Colors.white),
+                          const SizedBox(width:8),
                           Text(
-                            isSearching ? "Stop Search" : "Start Search",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                            isSearching ? 'Stop Search' : 'Start Search',
+                            style: const TextStyle(
+                                fontSize:16,
+                                fontFamily:'Poppins',
+                                fontWeight: FontWeight.w600,
+                                color:Colors.white
                             ),
                           ),
                         ],
@@ -823,20 +762,18 @@ class _SearchTagPageState extends State<SearchTagPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                // Status and Signal Strength
+
+                const SizedBox(height:20),
+
+                // Status + signal
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.grey.withAlpha((0.2 * 255).toInt())),
+                    border: Border.all(color: Colors.grey.withOpacity(0.2)),
                     boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha((0.08 * 255).toInt()),
-                        blurRadius: 12,
-                        offset: Offset(0, 4),
-                      ),
+                      BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius:12, offset:Offset(0,4)),
                     ],
                   ),
                   child: Column(
@@ -847,70 +784,58 @@ class _SearchTagPageState extends State<SearchTagPage> {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.red.withAlpha((0.1 * 255).toInt()),
+                              color: Colors.red.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Icon(Icons.info_outline, color: Colors.red[700], size: 20),
+                            child: Icon(Icons.info_outline, color:Colors.red[700], size:20),
                           ),
-                          const SizedBox(width: 12),
-                          Text(
-                            "Status",
+                          const SizedBox(width:12),
+                          const Text('Status',
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'Poppins',
-                              color: Colors.black87,
+                                fontSize:16,
+                                fontWeight: FontWeight.w600,
+                                fontFamily:'Poppins',
+                                color:Colors.black87
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        status,
+                      const SizedBox(height:16),
+                      Text(status,
+                        style: TextStyle(fontFamily:'Poppins', fontSize:14, color:Colors.grey[700]),
+                      ),
+                      const SizedBox(height:16),
+                      const Text('Signal Strength',
                         style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 14,
-                          color: Colors.grey[700],
+                            fontFamily:'Poppins', fontSize:14,
+                            fontWeight: FontWeight.w500, color:Colors.black87
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "Signal Strength",
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height:8),
                       LinearProgressIndicator(
                         value: tagFound ? 1.0 : (isSearching ? null : 0.0),
-                        minHeight: 8,
+                        minHeight:8,
                         backgroundColor: Colors.grey[200],
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          tagFound ? Colors.green : Colors.red[600]!,
+                            tagFound ? Colors.green : Colors.red[600]!
                         ),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ],
                   ),
                 ),
-                // Pattern Details Card
-                if (tagFound && selectedItem != null)
+
+                // Details card
+                if (tagFound && selectedPattern != null)
                   Container(
-                    margin: const EdgeInsets.only(top: 20),
+                    margin: const EdgeInsets.only(top:20),
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.grey.withAlpha((0.2 * 255).toInt())),
+                      border: Border.all(color: Colors.grey.withOpacity(0.2)),
                       boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha((0.08 * 255).toInt()),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
+                        BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius:12, offset:Offset(0,4)),
                       ],
                     ),
                     child: Column(
@@ -921,93 +846,65 @@ class _SearchTagPageState extends State<SearchTagPage> {
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: Colors.red.withAlpha((0.1 * 255).toInt()),
+                                color: Colors.red.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Icon(Icons.description_outlined, color: Colors.red[700], size: 20),
+                              child: Icon(Icons.description_outlined, color:Colors.red[700], size:20),
                             ),
-                            const SizedBox(width: 12),
-                            const Text(
-                              "Pattern Details",
+                            const SizedBox(width:12),
+                            const Text('Pattern Details',
                               style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'Poppins',
-                                color: Colors.black87,
+                                  fontSize:16,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily:'Poppins',
+                                  color:Colors.black87
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
-                        // Primary Details (always visible)
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.withAlpha((0.1 * 255).toInt())),
-                          ),
-                          child: Column(
-                            children: [
-                              _buildDetailItem("Pattern Name", selectedItem!["PatternName"]),
-                              _buildDetailItem("Code", selectedItem!["PatternCode"]),
-                              _buildDetailItem("Tag ID", selectedItem!["rfdId"]),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        // Expandable Additional Details
+                        const SizedBox(height:16),
+                        _buildDetailRow('Pattern Name', selectedPattern!.patternName),
+                        _buildDetailRow('Code', selectedPattern!.patternCode),
+                        _buildDetailRow('RFID', selectedPattern!.rfdId),
+                        _buildDetailRow('Supplier', selectedPattern!.supplierName),
+                        const SizedBox(height:16),
                         Theme(
-                          data: Theme.of(context).copyWith(
-                            dividerColor: Colors.transparent,
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey[50],
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.withAlpha((0.1 * 255).toInt())),
-                            ),
-                            child: ExpansionTile(
-                              tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              title: const Text(
-                                "Additional Details",
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
-                                ),
+                          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                          child: ExpansionTile(
+                            tilePadding: const EdgeInsets.symmetric(horizontal:16, vertical:8),
+                            title: const Text('Additional Details',
+                              style: TextStyle(
+                                  fontFamily:'Poppins', fontSize:14, fontWeight: FontWeight.w600
                               ),
-                              leading: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.red.withAlpha((0.1 * 255).toInt()),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Icon(Icons.more_horiz, color: Colors.red[700], size: 20),
-                              ),
-                              iconColor: Colors.red[700],
-                              collapsedIconColor: Colors.grey[600],
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    children: [
-                                      _buildDetailItem("Supplier", selectedItem!["SupplierName"]),
-                                      _buildDetailItem("Tool Life Start", selectedItem!["ToolLifeStartDate"]),
-                                      _buildDetailItem("Invoice No", selectedItem!["InvoiceNo"]),
-                                      _buildDetailItem("Invoice Date", selectedItem!["InvoiceDate"]),
-                                      _buildDetailItem("Number of Parts", selectedItem!["NumberOfParts"]),
-                                      _buildDetailItem("Parts Produced", selectedItem!["PartsProduced"]),
-                                      _buildDetailItem("Remaining", selectedItem!["RemainingBalance"]),
-                                      _buildDetailItem("Signal", selectedItem!["Signal"]),
-                                      _buildDetailItem("Last Produced", selectedItem!["LastPrdDate"]),
-                                      _buildDetailItem("Asset Name", selectedItem!["AssetName"]),
-                                    ],
-                                  ),
-                                ),
-                              ],
                             ),
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(Icons.more_horiz, color: Colors.red[700], size:20),
+                            ),
+                            iconColor: Colors.red[700],
+                            collapsedIconColor: Colors.grey[600],
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  children: [
+                                    _buildDetailRow('Tool Life Start', selectedPattern!.toolLifeStartDate.toLocal().toString().split(' ')[0]),
+                                    _buildDetailRow('Invoice No', selectedPattern!.invoiceNo),
+                                    _buildDetailRow('Invoice Date', selectedPattern!.invoiceDate.toLocal().toString().split(' ')[0]),
+                                    _buildDetailRow('Number of Parts', selectedPattern!.numberOfParts.toString()),
+                                    _buildDetailRow('Parts Produced', selectedPattern!.partsProduced.toString()),
+                                    _buildDetailRow('Remaining Balance', selectedPattern!.remainingBalance.toString()),
+                                    _buildDetailRow('Signal', selectedPattern!.signal),
+                                    _buildDetailRow('Last Production Date', selectedPattern!.lastPrdDate.toLocal().toString().split(' ')[0]),
+                                    _buildDetailRow('Asset Name', selectedPattern!.assetName),
+                                  ],
+                                ),
+                              )
+                            ],
                           ),
                         ),
                       ],
@@ -1021,34 +918,27 @@ class _SearchTagPageState extends State<SearchTagPage> {
     );
   }
 
-  Widget _buildDetailItem(String label, dynamic value) {
+  Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.symmetric(vertical:6.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            flex: 2,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 12,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
+            flex:2,
+            child: Text(label,
+              style: const TextStyle(
+                  fontFamily:'Poppins', fontSize:12,
+                  fontWeight: FontWeight.w500, color:Colors.grey
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width:8),
           Expanded(
-            flex: 3,
-            child: Text(
-              value?.toString() ?? '-',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 12,
-                color: Colors.black87,
-                fontWeight: FontWeight.w500,
+            flex:3,
+            child: Text(value,
+              style: const TextStyle(
+                  fontFamily:'Poppins', fontSize:12,
+                  fontWeight: FontWeight.w600, color:Colors.black87
               ),
             ),
           ),
@@ -1057,5 +947,3 @@ class _SearchTagPageState extends State<SearchTagPage> {
     );
   }
 }
-
-

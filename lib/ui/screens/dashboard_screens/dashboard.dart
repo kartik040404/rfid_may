@@ -1,9 +1,12 @@
+// lib/ui/screens/dashboard_screens/dashboard_screen.dart
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../RFIDPlugin.dart';
 import '../../../services/local_storage_service.dart';
+import '../../../services/pattern_service.dart';
 import '../../../utils/date_format.dart';
 
 class DashboardTheme {
@@ -44,8 +47,6 @@ class DashboardTheme {
   );
 }
 
-
-
 class DashboardScreen extends StatefulWidget {
   final String userName;
 
@@ -56,21 +57,22 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  late Future<List<LogCard>> recentScansFuture;
-
   @override
   void initState() {
     super.initState();
-    // _initializeRFID();
-
+    // If you need to re-fetch on resume, call PatternService.fetchPatterns() here
   }
-
-  // Future<void> _initializeRFID() async {
-  //   await RFIDPlugin.initRFID();
-  // }
 
   @override
   Widget build(BuildContext context) {
+    // patterns is now a Map<String,Pattern>, so take its values
+    final allPatterns = PatternService.patterns.values.toList();
+    print(allPatterns);
+    final totalCount = allPatterns.length;
+    final registeredCount =
+        allPatterns.where((p) => p.rfdId.isNotEmpty).length;
+    final unregisteredCount = totalCount - registeredCount;
+
     return Scaffold(
       backgroundColor: DashboardTheme.lightGrey,
       body: SingleChildScrollView(
@@ -79,7 +81,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeaderSection(),
-            _buildStatisticsSection(),
+            _buildStatisticsSection(
+              totalCount,
+              registeredCount,
+              unregisteredCount,
+            ),
             const SizedBox(height: 32),
             _buildRecentRegistrationsSection(),
             const SizedBox(height: 100),
@@ -91,20 +97,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildHeaderSection() {
     return Container(
-      margin: const EdgeInsets.all(16), // Reduced margin
-      padding: const EdgeInsets.all(20), // Reduced padding
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [DashboardTheme.primaryRed, DashboardTheme.darkRed],
         ),
-        borderRadius: BorderRadius.circular(12), // Smaller radius
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: DashboardTheme.primaryRed.withOpacity(0.2), // Lighter shadow
-            blurRadius: 8, // Smaller blur
-            offset: const Offset(0, 4), // Smaller offset
+            color: DashboardTheme.primaryRed.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -115,13 +121,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                //---------------------------------Welcome message for user---------------------------//
                 Text(
                   "Welcome, ${widget.userName}",
-                  style: DashboardTheme.headerStyle.copyWith(fontSize: 16), // Smaller font
+                  style: DashboardTheme.headerStyle
+                      .copyWith(fontSize: 16),
                 ),
-                const SizedBox(height: 4), // Less spacing
-                //---------------------------------App title---------------------------//
+                const SizedBox(height: 4),
                 const Text(
                   "Pattern Management System",
                   style: DashboardTheme.subHeaderStyle,
@@ -129,21 +134,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
           ),
-          //---------------------------------RFID connection status widget---------------------------//
           _buildConnectionStatus(),
         ],
       ),
     );
   }
 
-
-  //---------------------------------Widget to show RFID connection status---------------------------//
   Widget _buildConnectionStatus() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          padding:
+          const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.2),
             borderRadius: BorderRadius.circular(25),
@@ -190,44 +193,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildStatisticsSection() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+  Widget _buildStatisticsSection(
+      int totalCount, int registeredCount, int unregisteredCount) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Pattern Statistics", style: DashboardTheme.sectionTitleStyle),
-          SizedBox(height: 10),
-          // First card full width
+          Text("Pattern Statistics",
+              style: DashboardTheme.sectionTitleStyle),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
                 child: TotalCard(
                   title: "Total Patterns",
-                  value: "1,250",
+                  value: totalCount.toString(),
                   icon: Icons.donut_large_outlined,
                   iconColor: DashboardTheme.primaryRed,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 12),
-          // Next two cards in a row
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 child: StatsCard(
-                  title: "Available",
-                  value: "1,240",
+                  title: "Registered",
+                  value: registeredCount.toString(),
                   icon: Icons.check_circle_outline,
-                  iconColor: Color(0xFF27AE60),
+                  iconColor: const Color(0xFF27AE60),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: StatsCard(
-                  title: "Tagged Items",
-                  value: "832",
+                  title: "Unregistered",
+                  value: unregisteredCount.toString(),
                   icon: Icons.local_offer_outlined,
                   iconColor: DashboardTheme.darkRed,
                 ),
@@ -239,8 +242,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-
-  //-------------------------------------------------------Recent registration----------------------------------------------------//
   Widget _buildRecentRegistrationsSection() {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: LocalStorageService.getRecentRegistrations(),
@@ -251,22 +252,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: CircularProgressIndicator(),
           );
         }
-
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Padding(
             padding: EdgeInsets.all(16),
             child: Text("No recent registrations."),
           );
         }
-
         final registrations = snapshot.data!;
-
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionHeader("Recent Registrations", onViewAll: () {}),
+              _buildSectionHeader("Recent Registrations"),
               const SizedBox(height: 12),
               Column(
                 children: registrations.take(3).map((item) {
@@ -285,8 +283,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-
-  Widget _buildSectionHeader(String title, {VoidCallback? onViewAll}) {
+  Widget _buildSectionHeader(String title) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -295,7 +292,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 }
-
 
 class StatsCard extends StatelessWidget {
   final String title;
@@ -375,8 +371,6 @@ class StatsCard extends StatelessWidget {
     );
   }
 }
-
-
 
 class TotalCard extends StatelessWidget {
   final String title;
@@ -465,8 +459,6 @@ class TotalCard extends StatelessWidget {
   }
 }
 
-
-
 class LogCard extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -499,9 +491,7 @@ class LogCard extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
-            // Optional: define tap action here
-          },
+          onTap: () {},
           borderRadius: BorderRadius.circular(10),
           child: Padding(
             padding: const EdgeInsets.all(14.0),
@@ -525,7 +515,8 @@ class LogCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment:
+                        MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             title,

@@ -18,7 +18,7 @@ dependencies:
   shared_preferences: ^2.1.0
   url_launcher: ^6.0.0 # Ensure this version is compatible or use the latest
   flutter_dotenv: ^5.2.1
-
+  intl: ^0.20.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -34,6 +34,7 @@ flutter:
     - assets/user.svg
     - assets/ZanvarGroup.png
     - assets/Z.jpg
+    - .env
   fonts:
     - family: Poppins
       fonts:

@@ -1,28 +1,36 @@
+// lib/services/local_storage_service.dart
+
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorageService {
-  static const String _recentRegistrationsKey = 'recent_registrations';
+  static const _prefsKey = 'recent_register_patterns';
 
-  /// Add a pattern to local storage
-  static Future<void> addRecentRegistration(Map<String, dynamic> data) async {
+  /// Add a new registration to the front of the list, trim to max 4.
+  static Future<void> addRecentRegistration(Map<String, dynamic> reg) async {
     final prefs = await SharedPreferences.getInstance();
-    final List<String> registrations = prefs.getStringList(_recentRegistrationsKey) ?? [];
+    final existing = prefs.getStringList(_prefsKey) ?? [];
 
-    registrations.insert(0, jsonEncode(data)); // Add to top
-    await prefs.setStringList(
-      _recentRegistrationsKey,
-      registrations.take(20).toList(), // Keep only last 20
-    );
+    // Remove any existing entry with the same PatternCode to avoid duplicates
+    final filtered = existing.where((s) {
+      final m = jsonDecode(s) as Map<String, dynamic>;
+      return m['PatternCode'] != reg['PatternCode'];
+    }).toList();
+
+    // Insert the new one at front
+    filtered.insert(0, jsonEncode(reg));
+
+    // Keep only the first 4
+    final toStore = filtered.take(4).toList();
+    await prefs.setStringList(_prefsKey, toStore);
   }
 
-  /// Fetch all recent pattern registrations
+  /// Retrieve up to 4 most-recent registrations.
   static Future<List<Map<String, dynamic>>> getRecentRegistrations() async {
     final prefs = await SharedPreferences.getInstance();
-    final List<String> registrations = prefs.getStringList(_recentRegistrationsKey) ?? [];
-
-    return registrations
-        .map((e) => jsonDecode(e) as Map<String, dynamic>)
-        .toList();
+    final stored = prefs.getStringList(_prefsKey) ?? [];
+    return stored.map((s) {
+      return jsonDecode(s) as Map<String, dynamic>;
+    }).toList();
   }
 }

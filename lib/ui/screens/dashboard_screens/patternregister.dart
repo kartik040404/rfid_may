@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:testing_aar_file/ui/widgets/custom_app_bar.dart';
 import '../../../../../RFIDPlugin.dart';
 import '../../../services/local_storage_service.dart';
+import '../../../services/pattern_service.dart';
 import '../../widgets/register_pattern/pattern_selection_step_widget.dart';
 import '../../widgets/register_pattern/rfid_attachment_step_widget.dart';
 import '../../widgets/register_pattern/review_and_save_step_widget.dart';
@@ -97,12 +98,11 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
 
     await Future.delayed(const Duration(milliseconds: 500));
     setState(() {
-      allPatterns = [
-        {'name': 'PATTERN FOR 3L BED PLATE 5706 0110 3702/398534010000 (S)', 'code': '1010602615', 'rfdId': 'E200001D880601882800A28A'},
-        {'name': 'PATTERN FOR L BED LATE 5706 0110 3702/398534010000 (S)', 'code': '1010602618', 'rfdId': 'RFD1002'},
-        {'name': 'Pattern Gamma', 'code': 'C003', 'rfdId': 'RFD1003'},
-        {'name': 'Pattern Delta', 'code': 'D004', 'rfdId': 'RFD1004'},
-      ];
+      allPatterns = PatternService.patterns.values.map((p) => {
+        'name': p.patternName,
+        'code': p.patternCode,
+        'rfdId': p.rfdId,
+      }).toList();
       filteredPatterns = [];
       status = 'Loaded dummy patterns';
     });
@@ -131,33 +131,6 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     super.dispose();
   }
 
-  Future<void> updateRfdId(String patternCode, String rfidId) async {
-    final uri = Uri.parse(
-        'http://10.10.1.7:8301/api/productionappservices/updatepatternrfd'
-    );
-    final body = jsonEncode({
-      'PatternCode': patternCode,
-      'RfdId': rfidId,
-    });
-
-    setState(() => status = 'Updating RFID on server...');
-
-    try {
-      final resp = await http
-          .post(uri, headers: {'Content-Type': 'application/json'}, body: body)
-          .timeout(const Duration(seconds: 10));
-
-      if (!mounted) return;
-      if (resp.statusCode == 200) {
-        setState(() => status = 'RFID updated successfully');
-      } else {
-        setState(() => status = 'Update failed (code: ${resp.statusCode})');
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => status = 'Error updating RFID: $e');
-    }
-  }
 
   Future<void> startInventory() async {
     if (rfidTags.isNotEmpty) {
@@ -225,40 +198,36 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
       return;
     }
 
-    // Try to save to server, if fails, save locally
     bool savedToServer = false;
+
+    // Use PatternService.updateRfd instead of manual HTTP
     try {
-      final uri = Uri.parse('http://10.10.1.7:8301/api/productionappservices/updatepatternrfd');
-      final body = jsonEncode({
-        'PatternCode': selectedPattern!['code'],
-        'RfdId': rfidTags[0],
-      });
-      final resp = await http
-          .post(uri,
-          headers: {'Content-Type': 'application/json'},
-          body: body)
-          .timeout(const Duration(seconds: 10));
-      if (!mounted) return;
-      if (resp.statusCode == 200) {
-        savedToServer = true;
-      }
+      await PatternService.updateRfd(
+        patternCode: selectedPattern!['code']!,
+        rfdId: rfidTags.first,
+      );
+      savedToServer = true;
     } catch (e) {
-      // ignore error, will save locally
+      // If the server update fails, we'll fall back to local save
+      print('Server update failed: $e');
     }
 
-    // Always save locally if not saved to server
+    // Always save locally
     await LocalStorageService.addRecentRegistration({
-      'PatternCode': selectedPattern!['code'],
-      'PatternName': selectedPattern!['name'],
+      'PatternCode': selectedPattern!['code']!,
+      'PatternName': selectedPattern!['name']!,
       'date': DateTime.now().toIso8601String(),
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(savedToServer
-            ? 'Pattern saved successfully!'
-            : 'Pattern saved locally (offline mode)!'),
-        backgroundColor: savedToServer ? Colors.green.shade700 : Colors.orange.shade700,
+        content: Text(
+          savedToServer
+              ? 'Pattern saved successfully!'
+              : 'Pattern saved locally (offline mode)!',
+        ),
+        backgroundColor:
+        savedToServer ? Colors.green.shade700 : Colors.orange.shade700,
       ),
     );
 
