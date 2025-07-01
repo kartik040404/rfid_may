@@ -7,7 +7,7 @@ import 'RFIDPlugin.dart';
 import './routes/routes.dart';
 
 void main() async{
-  await dotenv.load(fileName: ".env");
+  // await dotenv.load(fileName: ".env");
   runApp(MyApp());
 }
 
