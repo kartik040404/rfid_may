@@ -64,21 +64,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    // patterns is now a Map<String,Pattern>, so take its values
-    // final allPatterns = PatternService.patterns.values.toList();
-    final allPatterns = PatternService.allPatterns;
+@override
+Widget build(BuildContext context) {
+  final allPatterns = PatternService.allPatterns;
+  final totalCount = allPatterns.length;
+  final registeredCount = allPatterns.where((p) => p.rfdId.isNotEmpty).length;
+  final unregisteredCount = totalCount - registeredCount;
 
-    print(allPatterns);
-    final totalCount = allPatterns.length;
-    final registeredCount =
-        allPatterns.where((p) => p.rfdId.isNotEmpty).length;
-    final unregisteredCount = totalCount - registeredCount;
-
-    return Scaffold(
-      backgroundColor: DashboardTheme.lightGrey,
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
+  return Scaffold(
+    backgroundColor: DashboardTheme.lightGrey,
+    // Add the RefreshIndicator here!
+    body: RefreshIndicator(
+      onRefresh: () async {
+        await PatternService.fetchPatterns();
+        // Make sure to update the UI after fetching
+        setState(() {});
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(), // ensures scroll even if content is short
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -94,8 +97,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildHeaderSection() {
     return Container(

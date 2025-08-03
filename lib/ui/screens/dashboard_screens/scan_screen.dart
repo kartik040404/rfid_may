@@ -17,19 +17,6 @@ class _ScanScreenState extends State<ScanScreen> {
   // Channel for receiving toggleScan from native
   static const MethodChannel _platform = MethodChannel('rfid_plugin');
 
-  // Dummy RFID tag mapping
-  final Map<String, Map<String, String>> rfidTagMap = {
-    'E200001D880601882800A28A': {
-      'name': 'PATTERN FOR 3L BED PLATE 5706 0110 3702/398534010000 (S)',
-      'code': '1010602615',
-      'rfdId': 'E200001D880601882800A28A',
-    },
-    'E20000162015005719704BE1': {
-      'name': 'PATTERN FOR 3L BED PLATE 5706 0110 3702/398534010000 (S)',
-      'code': '1010602615',
-      'rfdId': 'E200001D880601882800A28A',
-    },
-  };
   final allPatterns = PatternService.patterns.values.toList();
 
   bool isScanning = false;
