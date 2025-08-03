@@ -66,7 +66,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     // patterns is now a Map<String,Pattern>, so take its values
-    final allPatterns = PatternService.patterns.values.toList();
+    // final allPatterns = PatternService.patterns.values.toList();
+    final allPatterns = PatternService.allPatterns;
+
     print(allPatterns);
     final totalCount = allPatterns.length;
     final registeredCount =

@@ -92,22 +92,24 @@ import '../model/Pattern.dart';
 class PatternService {
   static const _baseUrl = 'http://10.10.1.7:8301';
 
-  // In-memory cache keyed by rfd_id
   static Map<String, Pattern> patterns = {};
+  static List<Pattern> allPatterns = [];
 
-  // Fetch all patterns from backend and index them by rfd_id.
-  static Future<void> fetchPatterns() async {
+ static Future<void> fetchPatterns() async {
     final uri = Uri.parse('$_baseUrl/api/productionappservices/getpatterndetailslist');
     final resp = await http.get(uri);
     if (resp.statusCode == 200) {
       final List<dynamic> data = json.decode(resp.body);
       final fetched = data.map((e) => Pattern.fromJson(e)).toList();
-      // Build a map where each key is the tag ID (rfd_id)
+      allPatterns = fetched;
+
+      // Only keep patterns with non-empty rfdId in the Map!
       patterns = {
         for (final p in fetched)
-          p.rfdId: p
+          if (p.rfdId.isNotEmpty) p.rfdId: p,
       };
       print('Loaded ${patterns.length} patterns keyed by RFID');
+      print('Loaded ${allPatterns.length} patterns in total');
     } else {
       throw Exception('Failed to load patterns (${resp.statusCode})');
     }
@@ -149,7 +151,7 @@ class PatternService {
         patternName: oldPattern.patternName,
         toolLifeStartDate: oldPattern.toolLifeStartDate,
         invoiceNo: oldPattern.invoiceNo,
-        invoiceDate: oldPattern.invoiceDate,
+        // invoiceDate: oldPattern.invoiceDate,
         numberOfParts: oldPattern.numberOfParts,
         partsProduced: oldPattern.partsProduced,
         remainingBalance: oldPattern.remainingBalance,

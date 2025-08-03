@@ -98,7 +98,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
 
     await Future.delayed(const Duration(milliseconds: 500));
     setState(() {
-      allPatterns = PatternService.patterns.values.map((p) => {
+      allPatterns = PatternService.allPatterns.map((p) => {
         'name': p.patternName,
         'code': p.patternCode,
         'rfdId': p.rfdId,
