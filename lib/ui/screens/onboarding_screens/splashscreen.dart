@@ -1,14 +1,10 @@
-// lib/ui/screens/onboarding_screens/splash_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:testing_aar_file/RFIDPlugin.dart';
 import 'package:testing_aar_file/services/pattern_service.dart';
-
 import '../../widgets/BottomNaviagtionBar.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
-
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -22,16 +18,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _loadResources() async {
     try {
-      // Run RFID init and pattern fetch at the same time
       await Future.wait([
         RFIDPlugin.initRFID(),
         PatternService.fetchPatterns(),
       ]);
     } catch (e) {
-      // TODO: handle error (e.g. show retry dialog)
       debugPrint('Error during splash init: $e');
     } finally {
-      // Once done, go to MainScreen
       if (mounted) {
         Navigator.pushReplacement(
           context,

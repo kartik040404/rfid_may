@@ -1,15 +1,15 @@
-// lib/RFIDPlugin.dart
-
+//------------------------------------------------- Imports --------------------------------------------------//
 import 'package:flutter/services.dart';
 
+//------------------------------------------------- RFIDPlugin Class --------------------------------------------------//
 class RFIDPlugin {
+  // Channel declarations
   static const MethodChannel _channel = MethodChannel('rfid_plugin');
   static const EventChannel _eventChannel = EventChannel('rfid_epc_stream');
 
-  // User-supplied toggleScan callback
+  //------------------------------------------------- Handler Section --------------------------------------------------//
   static VoidCallback? _onToggleScan;
 
-  // Internal: ensure we only register the handler once
   static bool _handlerRegistered = false;
   static void _ensureHandler() {
     if (_handlerRegistered) return;
@@ -22,19 +22,17 @@ class RFIDPlugin {
             _onToggleScan!();
           }
           break;
-      // you could handle more incoming calls here
       }
       return null;
     });
   }
 
-  /// Call this in your screen’s initState:
-  /// RFIDPlugin.setToggleScanHandler(() { /* start/stop scan */ });
   static void setToggleScanHandler(VoidCallback onToggle) {
     _ensureHandler();
     _onToggleScan = onToggle;
   }
 
+  //------------------------------------------------- RFID Methods --------------------------------------------------//
   static Future<String?> readSingleTag() async {
     _ensureHandler();
     try {
@@ -46,10 +44,12 @@ class RFIDPlugin {
     }
   }
 
+  // Set RFID power
   static Future<bool> setPower(int power) async {
     _ensureHandler();
     try {
-      final bool result = await _channel.invokeMethod('setPower', {'power': power});
+      final bool result =
+          await _channel.invokeMethod('setPower', {'power': power});
       return result;
     } catch (e) {
       print('Error setting power: $e');
@@ -57,6 +57,7 @@ class RFIDPlugin {
     }
   }
 
+  // Get RFID power
   static Future<int> getPower() async {
     _ensureHandler();
     try {
@@ -68,6 +69,7 @@ class RFIDPlugin {
     }
   }
 
+  // Initialize RFID
   static Future<bool> initRFID() async {
     _ensureHandler();
     try {
@@ -78,6 +80,7 @@ class RFIDPlugin {
     }
   }
 
+  // Start inventory and listen for EPCs
   static Future<bool> startInventory(Function(String epc) onEpcRead) async {
     _ensureHandler();
     _eventChannel.receiveBroadcastStream().listen((dynamic epc) {
@@ -94,6 +97,7 @@ class RFIDPlugin {
     }
   }
 
+  // Stop inventory
   static Future<void> stopInventory() async {
     _ensureHandler();
     try {
@@ -103,6 +107,7 @@ class RFIDPlugin {
     }
   }
 
+  // Release RFID resources
   static Future<void> releaseRFID() async {
     _ensureHandler();
     try {
@@ -112,6 +117,7 @@ class RFIDPlugin {
     }
   }
 
+  // Start searching for multiple tags
   static Future<bool> startMultiSearchTags(
       List<String> epcs, Function(String epc) onTagFound) async {
     _ensureHandler();
@@ -133,6 +139,7 @@ class RFIDPlugin {
     }
   }
 
+  // Stop searching for tags
   static Future<void> stopSearchTag() async {
     _ensureHandler();
     try {
@@ -142,3 +149,4 @@ class RFIDPlugin {
     }
   }
 }
+//------------------------------------------------- End of RFIDPlugin --------------------------------------------------//

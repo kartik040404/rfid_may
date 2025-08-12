@@ -1,6 +1,8 @@
+//------------------------------------------------- ProfileScreen --------------------------------------------------//
 import 'package:flutter/material.dart';
 import '../../../widgets/custom_app_bar.dart';
 
+//------------------------------------------------- ProfileScreen Widget --------------------------------------------------//
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -8,6 +10,7 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
+//------------------------------------------------- ProfileScreen State --------------------------------------------------//
 class _ProfileScreenState extends State<ProfileScreen> {
   String name = 'John Doe';
   String email = 'johndoe@example.com';
@@ -15,6 +18,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String department = 'Production';
   bool isLoading = false;
 
+  //------------------------------------------------- Build Method --------------------------------------------------//
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,87 +27,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          children: [
-            // Modern profile card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Column(
                 children: [
-                  // Avatar with light border & shadow
+                  //------------------------------------------------- Profile Card --------------------------------------------------//
                   Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 15),
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.grey[200]!,
-                        width: 3,
-                      ),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
                         ),
                       ],
                     ),
-                    child: const CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.white,
-                      child: Icon(Icons.person, size: 55, color: Colors.red),
+                    child: Column(
+                      children: [
+                        //------------------------------------------------- Avatar --------------------------------------------------//
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.grey[200]!,
+                              width: 3,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const CircleAvatar(
+                            radius: 50,
+                            backgroundColor: Colors.white,
+                            child:
+                                Icon(Icons.person, size: 55, color: Colors.red),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          name,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Wrap(
+                          spacing: 20,
+                          runSpacing: 12,
+                          alignment: WrapAlignment.center,
+                          children: [
+                            InfoItem(
+                                icon: Icons.badge, text: 'ID: $employeeId'),
+                            InfoItem(icon: Icons.business, text: department),
+                            InfoItem(icon: Icons.email, text: email),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Wrap(
-                    spacing: 20,
-                    runSpacing: 12,
-                    alignment: WrapAlignment.center,
-                    children: [
-                      InfoItem(icon: Icons.badge, text: 'ID: $employeeId'),
-                      InfoItem(icon: Icons.business, text: department),
-                      InfoItem(icon: Icons.email, text: email),
-                    ],
-                  ),
+
+                  const SizedBox(height: 10),
+
+                  const SizedBox(height: 10),
+                  //------------------------------------------------- Account Section --------------------------------------------------//
+                  const ProfileAccountSection(),
+                  const SizedBox(height: 8),
+                  //------------------------------------------------- Version Info --------------------------------------------------//
+                  const AppVersionInfo(),
                 ],
               ),
             ),
-
-            const SizedBox(height: 10),
-
-            // Account options logout
-            const ProfileAccountSection(),
-            const SizedBox(height: 8),
-            // Version info
-            const AppVersionInfo(),
-          ],
-        ),
-      ),
     );
   }
 }
 
-// InfoItem Widget
+//------------------------------------------------- InfoItem Widget --------------------------------------------------//
 class InfoItem extends StatelessWidget {
   final IconData icon;
   final String text;
@@ -129,7 +137,7 @@ class InfoItem extends StatelessWidget {
   }
 }
 
-// Account Section Widget
+//------------------------------------------------- ProfileAccountSection Widget --------------------------------------------------//
 class ProfileAccountSection extends StatelessWidget {
   const ProfileAccountSection({super.key});
 
@@ -174,6 +182,7 @@ class ProfileAccountSection extends StatelessWidget {
 }
 
 //---------------------------------Account Option Tile Widget---------------------------------//
+//------------------------------------------------- AccountOptionTile Widget --------------------------------------------------//
 class AccountOptionTile extends StatelessWidget {
   final String title;
   final IconData icon;
@@ -235,6 +244,7 @@ class AccountOptionTile extends StatelessWidget {
 }
 
 // Logout Button Widget
+//------------------------------------------------- LogoutButton Widget --------------------------------------------------//
 class LogoutButton extends StatelessWidget {
   const LogoutButton({super.key});
 
@@ -243,7 +253,7 @@ class LogoutButton extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showLogoutDialog(context),
       child: Padding(
-        padding: const EdgeInsets.only(left: 80,right: 80),
+        padding: const EdgeInsets.only(left: 80, right: 80),
         child: Container(
           width: 180,
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -283,6 +293,7 @@ class LogoutButton extends StatelessWidget {
     );
   }
 
+  //------------------------------------------------- Show Logout Dialog --------------------------------------------------//
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -324,7 +335,7 @@ class LogoutButton extends StatelessWidget {
   }
 }
 
-// App Version Info Widget
+//------------------------------------------------- AppVersionInfo Widget --------------------------------------------------//
 class AppVersionInfo extends StatelessWidget {
   const AppVersionInfo({super.key});
   @override

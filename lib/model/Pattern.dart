@@ -1,128 +1,16 @@
-// "SupplierName": "S J IRON AND STEELS PVT LTD",
-//
-// "PatternCode": 1010602615,
-//
-// "PatternName": "PATTERN FOR 3L BED PLATE 5706 0110 3702/398534010000 (S)",
-//
-// "ToolLifeStartDate": "01/02/2023",
-//
-// "InvoiceNo": "",
-//
-// "InvoiceDate": "",
-//
-// "NumberOfParts": 70000.000,
-//
-// "PartsProduced": 60551.000,
-//
-// "RemainingBalance": 9449.000,
-//
-// "Signal": "RED",
-//
-// "LastPrdDate": "07/06/2025",
-//
-// "AssetName": ""
-// "RfdId": ""
-
-
-
-// import 'package:intl/intl.dart';
-
-// class Pattern {
-//   final int id;
-//   final String supplierName;
-//   final String patternCode;
-//   final String patternName;
-//   final DateTime toolLifeStartDate;
-//   final String invoiceNo;
-//   final DateTime invoiceDate;
-//   final double numberOfParts;
-//   final double partsProduced;
-//   final double remainingBalance;
-//   final String signal;
-//   final DateTime lastPrdDate;
-//   final String assetName;
-//   final String rfdId;
-
-//   Pattern({
-//     required this.id,
-//     required this.supplierName,
-//     required this.patternCode,
-//     required this.patternName,
-//     required this.toolLifeStartDate,
-//     required this.invoiceNo,
-//     required this.invoiceDate,
-//     required this.numberOfParts,
-//     required this.partsProduced,
-//     required this.remainingBalance,
-//     required this.signal,
-//     required this.lastPrdDate,
-//     required this.assetName,
-//     required this.rfdId,
-//   });
-
-//   static double _toDouble(dynamic val) {
-//     if (val is num) return val.toDouble();
-//     if (val is String) return double.tryParse(val) ?? 0.0;
-//     return 0.0;
-//   }
-
-//   factory Pattern.fromJson(Map<String, dynamic> json) {
-//     // helper to parse "dd/MM/yyyy" dates, falling back on epoch if blank
-//     // DateTime _parseDate(String? s) {
-//     //   if (s == null || s.isEmpty) return DateTime.fromMillisecondsSinceEpoch(0);
-//     //   return DateFormat('dd/MM/yyyy').parse(s);
-//     // }
-    
-
-//     return Pattern(
-//       id: json['id'] is int
-//           ? json['id'] as int
-//           : int.tryParse(json['id']?.toString() ?? '') ?? 0,
-//       supplierName: json['SupplierName'] as String? ?? '',
-//       patternCode: json['PatternCode']?.toString() ?? '',
-//       patternName: json['PatternName'] as String? ?? '',
-//       toolLifeStartDate: _parseDate(json['ToolLifeStartDate'] as String?),
-//       invoiceNo: json['InvoiceNo'] as String? ?? '',
-//       invoiceDate: _parseDate(json['InvoiceDate'] as String?),
-//       numberOfParts: _toDouble(json['NumberOfParts']),
-//       partsProduced: _toDouble(json['PartsProduced']),
-//       remainingBalance: _toDouble(json['RemainingBalance']),
-//       signal: json['Signal'] as String? ?? '',
-//       lastPrdDate: _parseDate(json['LastPrdDate'] as String?),
-//       assetName: json['AssetName'] as String? ?? '',
-//       rfdId: json['RfdId'] as String? ?? '',
-//     );
-//   }
-
-//   Map<String, dynamic> toJson() => {
-//     'id': id,
-//     'SupplierName': supplierName,
-//     'PatternCode': patternCode,
-//     'PatternName': patternName,
-//     'ToolLifeStartDate': DateFormat('dd/MM/yyyy').format(toolLifeStartDate),
-//     'InvoiceNo': invoiceNo,
-//     'InvoiceDate': DateFormat('dd/MM/yyyy').format(invoiceDate),
-//     'NumberOfParts': numberOfParts,
-//     'PartsProduced': partsProduced,
-//     'RemainingBalance': remainingBalance,
-//     'Signal': signal,
-//     'LastPrdDate': DateFormat('dd/MM/yyyy').format(lastPrdDate),
-//     'AssetName': assetName,
-//     'RfdId': rfdId,
-//   };
-// }
-
-
+//------------------ Pattern Model -------------//
 import 'package:intl/intl.dart';
 
+//------------------ Pattern Class -------------//
 class Pattern {
+  //------------------ Fields -------------//
   final int id;
   final String supplierName;
   final String patternCode;
   final String patternName;
   final DateTime toolLifeStartDate;
   final String invoiceNo;
-  // final DateTime invoiceDate;
+
   final double numberOfParts;
   final double partsProduced;
   final double remainingBalance;
@@ -131,6 +19,7 @@ class Pattern {
   final String assetName;
   final String rfdId;
 
+  //------------------ Constructor -------------//
   Pattern({
     required this.id,
     required this.supplierName,
@@ -138,7 +27,6 @@ class Pattern {
     required this.patternName,
     required this.toolLifeStartDate,
     required this.invoiceNo,
-    // required this.invoiceDate,
     required this.numberOfParts,
     required this.partsProduced,
     required this.remainingBalance,
@@ -148,33 +36,30 @@ class Pattern {
     required this.rfdId,
   });
 
+  //------------------ Utility: Convert to double -------------//
   static double _toDouble(dynamic val) {
     if (val is num) return val.toDouble();
     if (val is String) return double.tryParse(val) ?? 0.0;
     return 0.0;
   }
 
+  //------------------ Factory: From JSON -------------//
   factory Pattern.fromJson(Map<String, dynamic> json) {
-    // Updated to match 'yyyyMMdd' input (e.g., 20150430)
-DateTime _parseDate(String? s) {
-  print('Parsing date: $s');
-  if (s == null || s.isEmpty) return DateTime.fromMillisecondsSinceEpoch(0);
-  if (s.length == 8 && RegExp(r"^\d{8}$").hasMatch(s)) {
-    print('Using yyyyMMdd format');
-    return DateFormat('yyyyMMdd').parse(s);
-  }
-  try {
-    print('Trying dd/MM/yyyy format');
-    return DateFormat('dd/MM/yyyy').parse(s);
-  } catch (e) {
-    print('Failed parsing date $s: $e');
-    return DateTime.fromMillisecondsSinceEpoch(0);
-  }
-}
-
-
-
-
+    DateTime _parseDate(String? s) {
+      print('Parsing date: $s');
+      if (s == null || s.isEmpty) return DateTime.fromMillisecondsSinceEpoch(0);
+      if (s.length == 8 && RegExp(r"^\d{8}$").hasMatch(s)) {
+        print('Using yyyyMMdd format');
+        return DateFormat('yyyyMMdd').parse(s);
+      }
+      try {
+        print('Trying dd/MM/yyyy format');
+        return DateFormat('dd/MM/yyyy').parse(s);
+      } catch (e) {
+        print('Failed parsing date $s: $e');
+        return DateTime.fromMillisecondsSinceEpoch(0);
+      }
+    }
 
     return Pattern(
       id: json['id'] is int
@@ -185,7 +70,6 @@ DateTime _parseDate(String? s) {
       patternName: json['PatternName'] as String? ?? '',
       toolLifeStartDate: _parseDate(json['ToolLifeStartDate'] as String?),
       invoiceNo: json['InvoiceNo'] as String? ?? '',
-      // invoiceDate: _parseDate(json['InvoiceDate'] as String?),
       numberOfParts: _toDouble(json['NumberOfParts']),
       partsProduced: _toDouble(json['PartsProduced']),
       remainingBalance: _toDouble(json['RemainingBalance']),
@@ -196,21 +80,20 @@ DateTime _parseDate(String? s) {
     );
   }
 
+  //------------------ Convert to JSON -------------//
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'SupplierName': supplierName,
-    'PatternCode': patternCode,
-    'PatternName': patternName,
-    // Export as dd/MM/yyyy; change as needed for your backend
-    'ToolLifeStartDate': DateFormat('dd/MM/yyyy').format(toolLifeStartDate),
-    'InvoiceNo': invoiceNo,
-    // 'InvoiceDate': DateFormat('dd/MM/yyyy').format(invoiceDate),
-    'NumberOfParts': numberOfParts,
-    'PartsProduced': partsProduced,
-    'RemainingBalance': remainingBalance,
-    'Signal': signal,
-    'LastPrdDate': DateFormat('dd/MM/yyyy').format(lastPrdDate),
-    'AssetName': assetName,
-    'RfdId': rfdId,
-  };
+        'id': id,
+        'SupplierName': supplierName,
+        'PatternCode': patternCode,
+        'PatternName': patternName,
+        'ToolLifeStartDate': DateFormat('dd/MM/yyyy').format(toolLifeStartDate),
+        'InvoiceNo': invoiceNo,
+        'NumberOfParts': numberOfParts,
+        'PartsProduced': partsProduced,
+        'RemainingBalance': remainingBalance,
+        'Signal': signal,
+        'LastPrdDate': DateFormat('dd/MM/yyyy').format(lastPrdDate),
+        'AssetName': assetName,
+        'RfdId': rfdId,
+      };
 }

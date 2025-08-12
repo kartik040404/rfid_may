@@ -19,10 +19,12 @@ class PatternSelectionStepWidget extends StatefulWidget {
   });
 
   @override
-  State<PatternSelectionStepWidget> createState() => _PatternSelectionStepWidgetState();
+  State<PatternSelectionStepWidget> createState() =>
+      _PatternSelectionStepWidgetState();
 }
 
-class _PatternSelectionStepWidgetState extends State<PatternSelectionStepWidget> {
+class _PatternSelectionStepWidgetState
+    extends State<PatternSelectionStepWidget> {
   bool _isSearchFocused = false;
 
   @override
@@ -55,9 +57,7 @@ class _PatternSelectionStepWidgetState extends State<PatternSelectionStepWidget>
     SizeConfig.init(context);
     return Stack(
       children: [
-        // Main content (initial layout)
         _buildInitialLayout(context),
-        // Overlay search UI
         if (_isSearchFocused) _buildSearchOverlayStack(context),
       ],
     );
@@ -75,9 +75,9 @@ class _PatternSelectionStepWidgetState extends State<PatternSelectionStepWidget>
             Text(
               "Select Pattern Name/Code",
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: SizeConfig.textMultiplier * 2,
-              ),
+                    fontWeight: FontWeight.bold,
+                    fontSize: SizeConfig.textMultiplier * 2,
+                  ),
             ),
             SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
             SizedBox(
@@ -88,7 +88,8 @@ class _PatternSelectionStepWidgetState extends State<PatternSelectionStepWidget>
                 focusNode: widget.searchFocusNode,
                 decoration: InputDecoration(
                   hintText: "Enter pattern name or code",
-                  hintStyle: TextStyle(fontSize: SizeConfig.textMultiplier * 1.5),
+                  hintStyle:
+                      TextStyle(fontSize: SizeConfig.textMultiplier * 1.5),
                   prefixIcon: Icon(Icons.search, color: Colors.red.shade700),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -96,20 +97,25 @@ class _PatternSelectionStepWidgetState extends State<PatternSelectionStepWidget>
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.red.shade700, width: 2),
+                    borderSide:
+                        BorderSide(color: Colors.red.shade700, width: 2),
                   ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: SizeConfig.blockSizeHorizontal * 2),
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: SizeConfig.blockSizeHorizontal * 2),
                 ),
               ),
             ),
             SizedBox(height: SizeConfig.blockSizeVertical * 1.5),
-            if (widget.searchController.text.isNotEmpty && widget.filteredPatterns.isEmpty)
+            if (widget.searchController.text.isNotEmpty &&
+                widget.filteredPatterns.isEmpty)
               Padding(
                 padding: EdgeInsets.all(SizeConfig.blockSizeHorizontal * 2),
                 child: Center(
                   child: Text(
                     "No patterns found matching your search.",
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: SizeConfig.textMultiplier * 1.7),
+                    style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: SizeConfig.textMultiplier * 1.7),
                   ),
                 ),
               ),
@@ -126,27 +132,37 @@ class _PatternSelectionStepWidgetState extends State<PatternSelectionStepWidget>
                                 widget.selectedPattern!['code'] == pat['code'];
                             return Card(
                               elevation: 2,
-                              margin: EdgeInsets.symmetric(vertical: SizeConfig.blockSizeVertical * 0.5),
+                              margin: EdgeInsets.symmetric(
+                                  vertical: SizeConfig.blockSizeVertical * 0.5),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 side: BorderSide(
-                                  color: isSelected ? Colors.red.shade700 : Colors.transparent,
+                                  color: isSelected
+                                      ? Colors.red.shade700
+                                      : Colors.transparent,
                                   width: 1.5,
                                 ),
                               ),
-                              color: isSelected ? Colors.red.shade50 : Colors.white,
+                              color: isSelected
+                                  ? Colors.red.shade50
+                                  : Colors.white,
                               child: ListTile(
                                 title: Text(
                                   '${pat['name']} (${pat['code']})',
                                   style: TextStyle(
-                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                    color: isSelected ? Colors.red.shade900 : Colors.black87,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                    color: isSelected
+                                        ? Colors.red.shade900
+                                        : Colors.black87,
                                     fontSize: SizeConfig.textMultiplier * 1.7,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 trailing: isSelected
-                                    ? Icon(Icons.check_circle, color: Colors.red.shade700)
+                                    ? Icon(Icons.check_circle,
+                                        color: Colors.red.shade700)
                                     : null,
                                 onTap: () => widget.onPatternSelected(pat),
                               ),
@@ -159,7 +175,9 @@ class _PatternSelectionStepWidgetState extends State<PatternSelectionStepWidget>
                       child: Text(
                         "Start typing to search for available patterns.",
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey.shade600, fontSize: SizeConfig.textMultiplier * 1.5),
+                        style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: SizeConfig.textMultiplier * 1.5),
                       ),
                     ),
             ),
@@ -200,17 +218,22 @@ class _PatternSelectionStepWidgetState extends State<PatternSelectionStepWidget>
                           autofocus: true,
                           decoration: InputDecoration(
                             hintText: "Enter pattern name or code",
-                            hintStyle: TextStyle(fontSize: SizeConfig.textMultiplier * 1.5),
-                            prefixIcon: Icon(Icons.search, color: Colors.red.shade700),
+                            hintStyle: TextStyle(
+                                fontSize: SizeConfig.textMultiplier * 1.5),
+                            prefixIcon:
+                                Icon(Icons.search, color: Colors.red.shade700),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: Colors.grey.shade400),
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade400),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: Colors.red.shade700, width: 2),
+                              borderSide: BorderSide(
+                                  color: Colors.red.shade700, width: 2),
                             ),
-                            contentPadding: EdgeInsets.symmetric(horizontal: SizeConfig.blockSizeHorizontal * 2),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: SizeConfig.blockSizeHorizontal * 2),
                           ),
                         ),
                       ),
@@ -232,31 +255,45 @@ class _PatternSelectionStepWidgetState extends State<PatternSelectionStepWidget>
                               itemCount: widget.filteredPatterns.length,
                               itemBuilder: (context, idx) {
                                 final pat = widget.filteredPatterns[idx];
-                                final isSelected = widget.selectedPattern != null &&
-                                    widget.selectedPattern!['code'] == pat['code'];
+                                final isSelected =
+                                    widget.selectedPattern != null &&
+                                        widget.selectedPattern!['code'] ==
+                                            pat['code'];
                                 return Card(
                                   elevation: 2,
-                                  margin: EdgeInsets.symmetric(vertical: SizeConfig.blockSizeVertical * 0.5),
+                                  margin: EdgeInsets.symmetric(
+                                      vertical:
+                                          SizeConfig.blockSizeVertical * 0.5),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                     side: BorderSide(
-                                      color: isSelected ? Colors.red.shade700 : Colors.transparent,
+                                      color: isSelected
+                                          ? Colors.red.shade700
+                                          : Colors.transparent,
                                       width: 1.5,
                                     ),
                                   ),
-                                  color: isSelected ? Colors.red.shade50 : Colors.white,
+                                  color: isSelected
+                                      ? Colors.red.shade50
+                                      : Colors.white,
                                   child: ListTile(
                                     title: Text(
                                       '${pat['name']} (${pat['code']})',
                                       style: TextStyle(
-                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                        color: isSelected ? Colors.red.shade900 : Colors.black87,
-                                        fontSize: SizeConfig.textMultiplier * 1.7,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                        color: isSelected
+                                            ? Colors.red.shade900
+                                            : Colors.black87,
+                                        fontSize:
+                                            SizeConfig.textMultiplier * 1.7,
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                     trailing: isSelected
-                                        ? Icon(Icons.check_circle, color: Colors.red.shade700)
+                                        ? Icon(Icons.check_circle,
+                                            color: Colors.red.shade700)
                                         : null,
                                     onTap: () {
                                       widget.onPatternSelected(pat);
@@ -274,7 +311,9 @@ class _PatternSelectionStepWidgetState extends State<PatternSelectionStepWidget>
                             child: Text(
                               "Start typing to search for available patterns.",
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: SizeConfig.textMultiplier * 1.5),
+                              style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: SizeConfig.textMultiplier * 1.5),
                             ),
                           ),
                   ),

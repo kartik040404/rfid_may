@@ -11,11 +11,14 @@ import '../../widgets/register_pattern/review_and_save_step_widget.dart';
 import '../../../utils/size_config.dart';
 import '../../widgets/register_pattern/stepper_indicator_widget.dart';
 
+//------------------------------------------------- NewRegisterPatternScreen Widget --------------------------------------------------//
 class NewRegisterPatternScreen extends StatefulWidget {
   @override
-  _NewRegisterPatternScreenState createState() => _NewRegisterPatternScreenState();
+  _NewRegisterPatternScreenState createState() =>
+      _NewRegisterPatternScreenState();
 }
 
+//------------------------------------------------- NewRegisterPatternScreen State --------------------------------------------------//
 class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
   int _currentStep = 0;
   final int _totalSteps = 3;
@@ -33,6 +36,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
   bool isScanning = false;
   double? _previousScrollOffset;
 
+  //------------------------------------------------- Init State --------------------------------------------------//
   @override
   void initState() {
     super.initState();
@@ -40,8 +44,8 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     _searchController.addListener(_onSearchChanged);
     _searchFocusNode.addListener(() {
       if (_searchFocusNode.hasFocus) {
-        // Store the current offset before scrolling to top
-        _previousScrollOffset = _scrollController.hasClients ? _scrollController.offset : null;
+        _previousScrollOffset =
+            _scrollController.hasClients ? _scrollController.offset : null;
         Future.delayed(Duration(milliseconds: 100), () {
           if (_scrollController.hasClients) {
             _scrollController.animateTo(
@@ -52,7 +56,6 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
           }
         });
       } else {
-        // Restore previous offset when focus is lost
         if (_previousScrollOffset != null && _scrollController.hasClients) {
           Future.delayed(Duration(milliseconds: 100), () {
             _scrollController.animateTo(
@@ -67,47 +70,23 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     });
   }
 
+  //------------------------------------------------- Fetch Patterns --------------------------------------------------//
   Future<void> _fetchPatterns() async {
-    // final uri = Uri.parse(
-    //     'http://10.10.1.7:8301/api/productionappservices/getpatterndetailslist'
-    // );
-    // try {
-    //   final resp = await http.get(uri).timeout(const Duration(seconds: 10));
-    //   if (resp.statusCode == 200) {
-    //     final data = jsonDecode(resp.body) as List;
-    //     setState(() {
-    //       allPatterns = data.map<Map<String, String>>((item) {
-    //         return {
-    //           'name': item['PatternName']?.toString() ?? '',
-    //           'code': item['PatternCode']?.toString() ?? '',
-    //           'rfdId': item['RfdId']?.toString() ?? '',
-    //         };
-    //       }).toList();
-    //       filteredPatterns = [];
-    //     });
-    //   } else {
-    //     setState(() {
-    //       status = 'Failed to load patterns (${resp.statusCode})';
-    //     });
-    //   }
-    // } catch (e) {
-    //   setState(() {
-    //     status = 'Error loading patterns: $e';
-    //   });
-    // }
-
     await Future.delayed(const Duration(milliseconds: 500));
     setState(() {
-      allPatterns = PatternService.allPatterns.map((p) => {
-        'name': p.patternName,
-        'code': p.patternCode,
-        'rfdId': p.rfdId,
-      }).toList();
+      allPatterns = PatternService.allPatterns
+          .map((p) => {
+                'name': p.patternName,
+                'code': p.patternCode,
+                'rfdId': p.rfdId,
+              })
+          .toList();
       filteredPatterns = [];
       status = 'Loaded dummy patterns';
     });
   }
 
+  //------------------------------------------------- Search Changed --------------------------------------------------//
   void _onSearchChanged() {
     final query = _searchController.text.toLowerCase().trim();
     setState(() {
@@ -122,6 +101,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     });
   }
 
+  //------------------------------------------------- Dispose --------------------------------------------------//
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
@@ -131,7 +111,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     super.dispose();
   }
 
-
+  //------------------------------------------------- Start Inventory --------------------------------------------------//
   Future<void> startInventory() async {
     if (rfidTags.isNotEmpty) {
       setState(() => status = 'Only one RFID tag allowed');
@@ -165,6 +145,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     }
   }
 
+  //------------------------------------------------- Stop Inventory --------------------------------------------------//
   Future<void> stopInventory() async {
     if (isScanning) {
       try {
@@ -180,6 +161,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     }
   }
 
+  //------------------------------------------------- Remove RFID Tag --------------------------------------------------//
   void removeRfidTag(int index) {
     setState(() {
       rfidTags.removeAt(index);
@@ -187,6 +169,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     });
   }
 
+  //------------------------------------------------- Save Pattern --------------------------------------------------//
   Future<void> savePattern() async {
     if (selectedPattern == null || rfidTags.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -200,7 +183,6 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
 
     bool savedToServer = false;
 
-    // Use PatternService.updateRfd instead of manual HTTP
     try {
       await PatternService.updateRfd(
         patternCode: selectedPattern!['code']!,
@@ -208,7 +190,6 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
       );
       savedToServer = true;
     } catch (e) {
-      // If the server update fails, we'll fall back to local save
       print('Server update failed: $e');
     }
 
@@ -227,7 +208,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
               : 'Pattern saved locally (offline mode)!',
         ),
         backgroundColor:
-        savedToServer ? Colors.green.shade700 : Colors.orange.shade700,
+            savedToServer ? Colors.green.shade700 : Colors.orange.shade700,
       ),
     );
 
@@ -240,62 +221,82 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     });
   }
 
+  //------------------------------------------------- Confirm Pattern Dialog --------------------------------------------------//
   Future<bool?> _confirmPatternDialog() => showDialog<bool>(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Row(
-        children: [
-          Icon(Icons.check_circle_outline, color: Colors.red.shade700, size: 24),
-          const SizedBox(width: 10),
-          const Text('Confirm Selection',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        ],
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Divider(thickness: 1),
-          const Text('You have selected:', style: TextStyle(fontSize: 12, color: Colors.black54)),
-          const SizedBox(height: 6),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.red.shade50,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.red.shade200),
-            ),
-            child: Text(
-              '	${selectedPattern?['name']} (${selectedPattern?['code']})',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.red.shade900),
-            ),
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              Icon(Icons.check_circle_outline,
+                  color: Colors.red.shade700, size: 24),
+              const SizedBox(width: 10),
+              const Text('Confirm Selection',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            ],
           ),
-          const SizedBox(height: 6),
-          const Text('Proceed to attach RFID tags?', style: TextStyle(fontSize: 12)),
-        ],
-      ),
-      actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(ctx).pop(false),
-          child: Text('Cancel', style: TextStyle(color: Colors.grey.shade700, fontSize: 13, fontWeight: FontWeight.bold,fontFamily: 'Poppins')),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.of(ctx).pop(true),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red.shade700,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Divider(thickness: 1),
+              const Text('You have selected:',
+                  style: TextStyle(fontSize: 12, color: Colors.black54)),
+              const SizedBox(height: 6),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Text(
+                  '	${selectedPattern?['name']} (${selectedPattern?['code']})',
+                  style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.red.shade900),
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text('Proceed to attach RFID tags?',
+                  style: TextStyle(fontSize: 12)),
+            ],
           ),
-          child: const Text('Continue',style: TextStyle(fontFamily: 'Poppins',color: Colors.white
-          ),),
+          actionsPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text('Cancel',
+                  style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins')),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red.shade700,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                textStyle:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+              child: const Text(
+                'Continue',
+                style: TextStyle(fontFamily: 'Poppins', color: Colors.white),
+              ),
+            ),
+          ],
         ),
-      ],
-    ),
-  );
+      );
 
+  //------------------------------------------------- Can Proceed To Next Step --------------------------------------------------//
   bool _canProceedToNextStep() {
     switch (_currentStep) {
       case 0:
@@ -307,12 +308,15 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     }
   }
 
+  //------------------------------------------------- On Next Step --------------------------------------------------//
   void _onNextStep() {
     if (_currentStep < _totalSteps - 1) {
       setState(() {
         _currentStep++;
         if (_currentStep == 1) {
-          status = rfidTags.isEmpty ? 'Scan RFID tags.' : '${rfidTags.length} tag(s) attached.';
+          status = rfidTags.isEmpty
+              ? 'Scan RFID tags.'
+              : '${rfidTags.length} tag(s) attached.';
         } else if (_currentStep == 2) {
           status = 'Review your pattern details.';
         }
@@ -320,6 +324,7 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
     }
   }
 
+  //------------------------------------------------- On Previous Step --------------------------------------------------//
   void _onPreviousStep() {
     if (_currentStep > 0) {
       setState(() {
@@ -327,34 +332,39 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
         if (_currentStep == 0) {
           status = 'Select a pattern.';
         } else if (_currentStep == 1) {
-          status = rfidTags.isEmpty ? 'Scan RFID tags.' : '${rfidTags.length} tag(s) attached.';
+          status = rfidTags.isEmpty
+              ? 'Scan RFID tags.'
+              : '${rfidTags.length} tag(s) attached.';
         }
       });
     }
   }
 
+  //------------------------------------------------- Build Step Widgets --------------------------------------------------//
   List<Widget> _buildStepWidgets() => [
-    PatternSelectionStepWidget(
-      searchController: _searchController,
-      searchFocusNode: _searchFocusNode,
-      filteredPatterns: filteredPatterns,
-      selectedPattern: selectedPattern,
-      onPatternSelected: (pattern) => setState(() => selectedPattern = pattern),
-    ),
-    RfidAttachmentStepWidget(
-      status: status,
-      rfidTags: rfidTags,
-      isScanning: isScanning,
-      onStartInventory: startInventory,
-      onStopInventory: stopInventory,
-      onRemoveRfidTag: removeRfidTag,
-    ),
-    ReviewAndSaveStepWidget(
-      selectedPattern: selectedPattern,
-      rfidTags: rfidTags,
-      onSavePattern: savePattern,
-    ),
-  ];
+        PatternSelectionStepWidget(
+          searchController: _searchController,
+          searchFocusNode: _searchFocusNode,
+          filteredPatterns: filteredPatterns,
+          selectedPattern: selectedPattern,
+          onPatternSelected: (pattern) =>
+              setState(() => selectedPattern = pattern),
+        ),
+        RfidAttachmentStepWidget(
+          //------------------------------------------------- Build Method --------------------------------------------------//
+          status: status,
+          rfidTags: rfidTags,
+          isScanning: isScanning,
+          onStartInventory: startInventory,
+          onStopInventory: stopInventory,
+          onRemoveRfidTag: removeRfidTag,
+        ),
+        ReviewAndSaveStepWidget(
+          selectedPattern: selectedPattern,
+          rfidTags: rfidTags,
+          onSavePattern: savePattern,
+        ),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -381,12 +391,14 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
             ),
             child: Column(
               children: [
-                StepperIndicatorWidget(currentStep: _currentStep, stepLabels: stepLabels),
+                StepperIndicatorWidget(
+                    currentStep: _currentStep, stepLabels: stepLabels),
                 SizedBox(height: SizeConfig.blockSizeVertical * 2),
                 Expanded(
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
-                    transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
+                    transitionBuilder: (child, anim) =>
+                        FadeTransition(opacity: anim, child: child),
                     child: Container(
                       key: ValueKey(_currentStep),
                       child: _buildStepWidgets()[_currentStep],
@@ -403,12 +415,18 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
                         height: SizeConfig.blockSizeVertical * 5,
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.arrow_back_ios, size: 18),
-                          label: const Text('Back', style: TextStyle(fontWeight: FontWeight.w600,fontFamily: 'Poppins',fontSize: 9)),
+                          label: const Text('Back',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Poppins',
+                                  fontSize: 9)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.grey.shade200,
                             foregroundColor: Colors.red.shade700,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            textStyle: TextStyle(fontSize: SizeConfig.textMultiplier * 1.4),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                            textStyle: TextStyle(
+                                fontSize: SizeConfig.textMultiplier * 1.4),
                           ),
                           onPressed: _onPreviousStep,
                         ),
@@ -419,13 +437,23 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
                         width: SizeConfig.blockSizeHorizontal * 30,
                         height: SizeConfig.blockSizeVertical * 5,
                         child: ElevatedButton.icon(
-                          icon: const Icon(Icons.arrow_forward_ios, size: 16,color: Colors.white,),
-                          label: const Text('Continue', style: TextStyle(fontWeight: FontWeight.w600,fontFamily: 'Poppins',fontSize: 9.2)),
+                          icon: const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                          label: const Text('Continue',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Poppins',
+                                  fontSize: 9.2)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red.shade700,
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            textStyle: TextStyle(fontSize: SizeConfig.textMultiplier * 1.6),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                            textStyle: TextStyle(
+                                fontSize: SizeConfig.textMultiplier * 1.6),
                           ),
                           onPressed: () async {
                             if (!_canProceedToNextStep()) {
@@ -441,7 +469,8 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
                               );
                               return;
                             }
-                            if (_currentStep == 0 && _confirmPatternDialog != null) {
+                            if (_currentStep == 0 &&
+                                _confirmPatternDialog != null) {
                               final proceed = await _confirmPatternDialog();
                               if (proceed == true) {
                                 _onNextStep();
@@ -458,12 +487,15 @@ class _NewRegisterPatternScreenState extends State<NewRegisterPatternScreen> {
                         height: SizeConfig.blockSizeVertical * 5,
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.save_alt_outlined, size: 18),
-                          label: const Text('Save Pattern', style: TextStyle(fontWeight: FontWeight.w600)),
+                          label: const Text('Save Pattern',
+                              style: TextStyle(fontWeight: FontWeight.w600)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green.shade700,
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            textStyle: TextStyle(fontSize: SizeConfig.textMultiplier * 1.6),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                            textStyle: TextStyle(
+                                fontSize: SizeConfig.textMultiplier * 1.6),
                           ),
                           onPressed: savePattern,
                         ),

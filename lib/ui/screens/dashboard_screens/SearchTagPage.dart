@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:testing_aar_file/services/pattern_service.dart';
 import 'package:testing_aar_file/model/Pattern.dart';
@@ -7,6 +5,7 @@ import '../../../RFIDPlugin.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../../utils/size_config.dart';
 
+//------------------------------------------------- SearchTagPage Widget --------------------------------------------------//
 class SearchTagPage extends StatefulWidget {
   const SearchTagPage({super.key});
 
@@ -14,6 +13,7 @@ class SearchTagPage extends StatefulWidget {
   State<SearchTagPage> createState() => _SearchTagPageState();
 }
 
+//------------------------------------------------- SearchTagPage State --------------------------------------------------//
 class _SearchTagPageState extends State<SearchTagPage> {
   final TextEditingController _patternController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -35,6 +35,8 @@ class _SearchTagPageState extends State<SearchTagPage> {
     filteredPatterns = List.from(allPatterns);
   }
 
+  //------------------------------------------------- Search Changed --------------------------------------------------//
+
   void _onSearchChanged(String query) {
     setState(() {
       final q = query.toLowerCase();
@@ -46,6 +48,8 @@ class _SearchTagPageState extends State<SearchTagPage> {
     });
   }
 
+  //------------------------------------------------- Select Pattern --------------------------------------------------//
+
   void _onSelectPattern(Pattern p) {
     _focusNode.unfocus();
     setState(() {
@@ -55,6 +59,8 @@ class _SearchTagPageState extends State<SearchTagPage> {
     });
   }
 
+  //------------------------------------------------- Start Tag Search --------------------------------------------------//
+
   void _startTagSearch() async {
     if (selectedPattern == null) return;
     setState(() {
@@ -63,11 +69,9 @@ class _SearchTagPageState extends State<SearchTagPage> {
       status = 'Searching for tag...';
     });
 
-    // Start scanning but do NOT auto-stop on first find
     await RFIDPlugin.startMultiSearchTags(
       [selectedPattern!.rfdId],
-          (matchedEpc) {
-        // Just update UI; keep scanning
+      (matchedEpc) {
         setState(() {
           tagFound = true;
           status = 'Tag found: $matchedEpc';
@@ -75,6 +79,8 @@ class _SearchTagPageState extends State<SearchTagPage> {
       },
     );
   }
+
+  //------------------------------------------------- Stop Tag Search --------------------------------------------------//
 
   void _stopTagSearch() async {
     await RFIDPlugin.stopSearchTag();
@@ -85,12 +91,16 @@ class _SearchTagPageState extends State<SearchTagPage> {
     });
   }
 
+  //------------------------------------------------- Dispose --------------------------------------------------//
+
   @override
   void dispose() {
     _patternController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
+
+  //------------------------------------------------- Build Method --------------------------------------------------//
 
   @override
   Widget build(BuildContext context) {
@@ -118,14 +128,18 @@ class _SearchTagPageState extends State<SearchTagPage> {
             ),
             child: Column(
               children: [
-                // Search Field + Suggestions
+                //------------------------------------------------- Search Field + Suggestions --------------------------------------------------//
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.red.withOpacity(0.2), width: 1.5),
+                    border: Border.all(
+                        color: Colors.red.withOpacity(0.2), width: 1.5),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12, offset: Offset(0,4)),
+                      BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 12,
+                          offset: Offset(0, 4)),
                     ],
                   ),
                   child: Column(
@@ -142,7 +156,8 @@ class _SearchTagPageState extends State<SearchTagPage> {
                           ),
                           filled: true,
                           fillColor: Colors.grey[50],
-                          contentPadding: const EdgeInsets.symmetric(horizontal:20, vertical:16),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 16),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide.none,
@@ -153,19 +168,21 @@ class _SearchTagPageState extends State<SearchTagPage> {
                           ),
                           prefixIcon: Container(
                             padding: const EdgeInsets.all(12),
-                            child: Icon(Icons.search, color: Colors.red[700], size:20),
+                            child: Icon(Icons.search,
+                                color: Colors.red[700], size: 20),
                           ),
                         ),
                         onChanged: _onSearchChanged,
                         onTap: () {
                           setState(() {
-                            showSuggestions = _patternController.text.isNotEmpty;
+                            showSuggestions =
+                                _patternController.text.isNotEmpty;
                           });
                         },
                       ),
                       if (showSuggestions && filteredPatterns.isNotEmpty)
                         Container(
-                          constraints: const BoxConstraints(maxHeight:200),
+                          constraints: const BoxConstraints(maxHeight: 200),
                           child: ListView.builder(
                             shrinkWrap: true,
                             itemCount: filteredPatterns.length,
@@ -173,9 +190,12 @@ class _SearchTagPageState extends State<SearchTagPage> {
                               final p = filteredPatterns[i];
                               return ListTile(
                                 title: Text(p.patternName,
-                                    style: const TextStyle(fontFamily:'Poppins', fontWeight: FontWeight.w600)),
+                                    style: const TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w600)),
                                 subtitle: Text('Code: ${p.patternCode}',
-                                    style: const TextStyle(fontFamily:'Poppins')),
+                                    style:
+                                        const TextStyle(fontFamily: 'Poppins')),
                                 onTap: () => _onSelectPattern(p),
                               );
                             },
@@ -184,13 +204,12 @@ class _SearchTagPageState extends State<SearchTagPage> {
                     ],
                   ),
                 ),
-
-                const SizedBox(height:20),
-
-                // Search / Stop button
+                //------------------------------------------------- Search / Stop button --------------------------------------------------//
+                const SizedBox(height: 20),
                 Center(
                   child: Container(
-                    width:210, height:55,
+                    width: 210,
+                    height: 55,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: isSearching
@@ -200,16 +219,18 @@ class _SearchTagPageState extends State<SearchTagPage> {
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
-                            color: (isSearching ? Colors.red : Colors.black).withOpacity(0.3),
-                            blurRadius:12, offset:Offset(0,6)
-                        ),
+                            color: (isSearching ? Colors.red : Colors.black)
+                                .withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: Offset(0, 6)),
                       ],
                     ),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30)),
                       ),
                       onPressed: selectedPattern == null
                           ? null
@@ -217,26 +238,24 @@ class _SearchTagPageState extends State<SearchTagPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(isSearching ? Icons.stop : Icons.search, color:Colors.white),
-                          const SizedBox(width:8),
+                          Icon(isSearching ? Icons.stop : Icons.search,
+                              color: Colors.white),
+                          const SizedBox(width: 8),
                           Text(
                             isSearching ? 'Stop Search' : 'Start Search',
                             style: const TextStyle(
-                                fontSize:16,
-                                fontFamily:'Poppins',
+                                fontSize: 16,
+                                fontFamily: 'Poppins',
                                 fontWeight: FontWeight.w600,
-                                color:Colors.white
-                            ),
+                                color: Colors.white),
                           ),
                         ],
                       ),
                     ),
                   ),
                 ),
-
-                const SizedBox(height:20),
-
-                // Status + signal
+                //------------------------------------------------- Status + signal --------------------------------------------------//
+                const SizedBox(height: 20),
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -244,7 +263,10 @@ class _SearchTagPageState extends State<SearchTagPage> {
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: Colors.grey.withOpacity(0.2)),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius:12, offset:Offset(0,4)),
+                      BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 12,
+                          offset: Offset(0, 4)),
                     ],
                   ),
                   child: Column(
@@ -258,55 +280,63 @@ class _SearchTagPageState extends State<SearchTagPage> {
                               color: Colors.red.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Icon(Icons.info_outline, color:Colors.red[700], size:20),
+                            child: Icon(Icons.info_outline,
+                                color: Colors.red[700], size: 20),
                           ),
-                          const SizedBox(width:12),
-                          const Text('Status',
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Status',
                             style: TextStyle(
-                                fontSize:16,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                fontFamily:'Poppins',
-                                color:Colors.black87
-                            ),
+                                fontFamily: 'Poppins',
+                                color: Colors.black87),
                           ),
                         ],
                       ),
-                      const SizedBox(height:16),
-                      Text(status,
-                        style: TextStyle(fontFamily:'Poppins', fontSize:14, color:Colors.grey[700]),
-                      ),
-                      const SizedBox(height:16),
-                      const Text('Signal Strength',
+                      const SizedBox(height: 16),
+                      Text(
+                        status,
                         style: TextStyle(
-                            fontFamily:'Poppins', fontSize:14,
-                            fontWeight: FontWeight.w500, color:Colors.black87
-                        ),
+                            fontFamily: 'Poppins',
+                            fontSize: 14,
+                            color: Colors.grey[700]),
                       ),
-                      const SizedBox(height:8),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Signal Strength',
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black87),
+                      ),
+                      const SizedBox(height: 8),
                       LinearProgressIndicator(
                         value: tagFound ? 1.0 : (isSearching ? null : 0.0),
-                        minHeight:8,
+                        minHeight: 8,
                         backgroundColor: Colors.grey[200],
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            tagFound ? Colors.green : Colors.red[600]!
-                        ),
+                            tagFound ? Colors.green : Colors.red[600]!),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ],
                   ),
                 ),
-
-                // Details card
+                //------------------------------------------------- Details card --------------------------------------------------//
                 if (tagFound && selectedPattern != null)
                   Container(
-                    margin: const EdgeInsets.only(top:20),
+                    margin: const EdgeInsets.only(top: 20),
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: Colors.grey.withOpacity(0.2)),
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius:12, offset:Offset(0,4)),
+                        BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 12,
+                            offset: Offset(0, 4)),
                       ],
                     ),
                     child: Column(
@@ -320,33 +350,40 @@ class _SearchTagPageState extends State<SearchTagPage> {
                                 color: Colors.red.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Icon(Icons.description_outlined, color:Colors.red[700], size:20),
+                              child: Icon(Icons.description_outlined,
+                                  color: Colors.red[700], size: 20),
                             ),
-                            const SizedBox(width:12),
-                            const Text('Pattern Details',
+                            const SizedBox(width: 12),
+                            const Text(
+                              'Pattern Details',
                               style: TextStyle(
-                                  fontSize:16,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  fontFamily:'Poppins',
-                                  color:Colors.black87
-                              ),
+                                  fontFamily: 'Poppins',
+                                  color: Colors.black87),
                             ),
                           ],
                         ),
-                        const SizedBox(height:16),
-                        _buildDetailRow('Pattern Name', selectedPattern!.patternName),
+                        const SizedBox(height: 16),
+                        _buildDetailRow(
+                            'Pattern Name', selectedPattern!.patternName),
                         _buildDetailRow('Code', selectedPattern!.patternCode),
                         _buildDetailRow('RFID', selectedPattern!.rfdId),
-                        _buildDetailRow('Supplier', selectedPattern!.supplierName),
-                        const SizedBox(height:16),
+                        _buildDetailRow(
+                            'Supplier', selectedPattern!.supplierName),
+                        const SizedBox(height: 16),
                         Theme(
-                          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                          data: Theme.of(context)
+                              .copyWith(dividerColor: Colors.transparent),
                           child: ExpansionTile(
-                            tilePadding: const EdgeInsets.symmetric(horizontal:16, vertical:8),
-                            title: const Text('Additional Details',
+                            tilePadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            title: const Text(
+                              'Additional Details',
                               style: TextStyle(
-                                  fontFamily:'Poppins', fontSize:14, fontWeight: FontWeight.w600
-                              ),
+                                  fontFamily: 'Poppins',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600),
                             ),
                             leading: Container(
                               padding: const EdgeInsets.all(8),
@@ -354,7 +391,8 @@ class _SearchTagPageState extends State<SearchTagPage> {
                                 color: Colors.red.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Icon(Icons.more_horiz, color: Colors.red[700], size:20),
+                              child: Icon(Icons.more_horiz,
+                                  color: Colors.red[700], size: 20),
                             ),
                             iconColor: Colors.red[700],
                             collapsedIconColor: Colors.grey[600],
@@ -363,15 +401,36 @@ class _SearchTagPageState extends State<SearchTagPage> {
                                 padding: const EdgeInsets.all(16),
                                 child: Column(
                                   children: [
-                                    _buildDetailRow('Tool Life Start', selectedPattern!.toolLifeStartDate.toLocal().toString().split(' ')[0]),
-                                    _buildDetailRow('Invoice No', selectedPattern!.invoiceNo),
-                                    // _buildDetailRow('Invoice Date', selectedPattern!.invoiceDate.toLocal().toString().split(' ')[0]),
-                                    _buildDetailRow('Number of Parts', selectedPattern!.numberOfParts.toString()),
-                                    _buildDetailRow('Parts Produced', selectedPattern!.partsProduced.toString()),
-                                    _buildDetailRow('Remaining Balance', selectedPattern!.remainingBalance.toString()),
-                                    _buildDetailRow('Signal', selectedPattern!.signal),
-                                    _buildDetailRow('Last Production Date', selectedPattern!.lastPrdDate.toLocal().toString().split(' ')[0]),
-                                    _buildDetailRow('Asset Name', selectedPattern!.assetName),
+                                    _buildDetailRow(
+                                        'Tool Life Start',
+                                        selectedPattern!.toolLifeStartDate
+                                            .toLocal()
+                                            .toString()
+                                            .split(' ')[0]),
+                                    _buildDetailRow('Invoice No',
+                                        selectedPattern!.invoiceNo),
+                                    _buildDetailRow(
+                                        'Number of Parts',
+                                        selectedPattern!.numberOfParts
+                                            .toString()),
+                                    _buildDetailRow(
+                                        'Parts Produced',
+                                        selectedPattern!.partsProduced
+                                            .toString()),
+                                    _buildDetailRow(
+                                        'Remaining Balance',
+                                        selectedPattern!.remainingBalance
+                                            .toString()),
+                                    _buildDetailRow(
+                                        'Signal', selectedPattern!.signal),
+                                    _buildDetailRow(
+                                        'Last Production Date',
+                                        selectedPattern!.lastPrdDate
+                                            .toLocal()
+                                            .toString()
+                                            .split(' ')[0]),
+                                    _buildDetailRow('Asset Name',
+                                        selectedPattern!.assetName),
                                   ],
                                 ),
                               )
@@ -389,28 +448,33 @@ class _SearchTagPageState extends State<SearchTagPage> {
     );
   }
 
+  //------------------------------------------------- Build Detail Row --------------------------------------------------//
   Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical:6.0),
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
         children: [
           Expanded(
-            flex:2,
-            child: Text(label,
+            flex: 2,
+            child: Text(
+              label,
               style: const TextStyle(
-                  fontFamily:'Poppins', fontSize:12,
-                  fontWeight: FontWeight.w500, color:Colors.grey
-              ),
+                  fontFamily: 'Poppins',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey),
             ),
           ),
-          const SizedBox(width:8),
+          const SizedBox(width: 8),
           Expanded(
-            flex:3,
-            child: Text(value,
+            flex: 3,
+            child: Text(
+              value,
               style: const TextStyle(
-                  fontFamily:'Poppins', fontSize:12,
-                  fontWeight: FontWeight.w600, color:Colors.black87
-              ),
+                  fontFamily: 'Poppins',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87),
             ),
           ),
         ],

@@ -1,7 +1,5 @@
-// lib/ui/screens/dashboard_screens/dashboard_screen.dart
-
+//------------------------------------------------- DashboardTheme --------------------------------------------------//
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../RFIDPlugin.dart';
@@ -47,6 +45,7 @@ class DashboardTheme {
   );
 }
 
+//------------------------------------------------- DashboardScreen Widget --------------------------------------------------//
 class DashboardScreen extends StatefulWidget {
   final String userName;
 
@@ -56,53 +55,53 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
+//------------------------------------------------- DashboardScreen State --------------------------------------------------//
 class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    // If you need to re-fetch on resume, call PatternService.fetchPatterns() here
   }
 
   @override
-@override
-Widget build(BuildContext context) {
-  final allPatterns = PatternService.allPatterns;
-  final totalCount = allPatterns.length;
-  final registeredCount = allPatterns.where((p) => p.rfdId.isNotEmpty).length;
-  final unregisteredCount = totalCount - registeredCount;
+  //------------------------------------------------- Build Method --------------------------------------------------//
+  @override
+  Widget build(BuildContext context) {
+    final allPatterns = PatternService.allPatterns;
+    final totalCount = allPatterns.length;
+    final registeredCount = allPatterns.where((p) => p.rfdId.isNotEmpty).length;
+    final unregisteredCount = totalCount - registeredCount;
 
-  return Scaffold(
-    backgroundColor: DashboardTheme.lightGrey,
-    // Add the RefreshIndicator here!
-    body: RefreshIndicator(
-      onRefresh: () async {
-        await PatternService.fetchPatterns();
-        // Make sure to update the UI after fetching
-        setState(() {});
-      },
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(), // ensures scroll even if content is short
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeaderSection(),
-            _buildStatisticsSection(
-              totalCount,
-              registeredCount,
-              unregisteredCount,
-            ),
-            const SizedBox(height: 32),
-            _buildRecentRegistrationsSection(),
-            const SizedBox(height: 100),
-          ],
+    return Scaffold(
+      backgroundColor: DashboardTheme.lightGrey,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await PatternService.fetchPatterns();
+          // Make sure to update the UI after fetching
+          setState(() {});
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeaderSection(),
+              _buildStatisticsSection(
+                totalCount,
+                registeredCount,
+                unregisteredCount,
+              ),
+              const SizedBox(height: 32),
+              _buildRecentRegistrationsSection(),
+              const SizedBox(height: 100),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget _buildHeaderSection() {
+    //------------------------------------------------- Header Section --------------------------------------------------//
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
@@ -130,8 +129,7 @@ Widget build(BuildContext context) {
               children: [
                 Text(
                   "Welcome, ${widget.userName}",
-                  style: DashboardTheme.headerStyle
-                      .copyWith(fontSize: 16),
+                  style: DashboardTheme.headerStyle.copyWith(fontSize: 16),
                 ),
                 const SizedBox(height: 4),
                 const Text(
@@ -152,8 +150,7 @@ Widget build(BuildContext context) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding:
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.2),
             borderRadius: BorderRadius.circular(25),
@@ -200,6 +197,7 @@ Widget build(BuildContext context) {
     );
   }
 
+  //------------------------------------------------- Statistics Section --------------------------------------------------//
   Widget _buildStatisticsSection(
       int totalCount, int registeredCount, int unregisteredCount) {
     return Padding(
@@ -207,8 +205,7 @@ Widget build(BuildContext context) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Pattern Statistics",
-              style: DashboardTheme.sectionTitleStyle),
+          Text("Pattern Statistics", style: DashboardTheme.sectionTitleStyle),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -249,6 +246,7 @@ Widget build(BuildContext context) {
     );
   }
 
+  //------------------------------------------------- Recent Registrations Section --------------------------------------------------//
   Widget _buildRecentRegistrationsSection() {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: LocalStorageService.getRecentRegistrations(),
@@ -290,6 +288,7 @@ Widget build(BuildContext context) {
     );
   }
 
+  //------------------------------------------------- Section Header --------------------------------------------------//
   Widget _buildSectionHeader(String title) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -300,6 +299,7 @@ Widget build(BuildContext context) {
   }
 }
 
+//------------------------------------------------- StatsCard Widget --------------------------------------------------//
 class StatsCard extends StatelessWidget {
   final String title;
   final String value;
@@ -379,6 +379,7 @@ class StatsCard extends StatelessWidget {
   }
 }
 
+//------------------------------------------------- TotalCard Widget --------------------------------------------------//
 class TotalCard extends StatelessWidget {
   final String title;
   final String value;
@@ -466,6 +467,7 @@ class TotalCard extends StatelessWidget {
   }
 }
 
+//------------------------------------------------- LogCard Widget --------------------------------------------------//
 class LogCard extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -522,8 +524,7 @@ class LogCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             title,

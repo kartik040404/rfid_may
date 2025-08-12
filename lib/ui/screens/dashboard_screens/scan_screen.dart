@@ -6,6 +6,7 @@ import '../../../services/pattern_service.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../../utils/size_config.dart';
 
+//------------------------------------------------- ScanScreen Widget --------------------------------------------------//
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
 
@@ -13,8 +14,8 @@ class ScanScreen extends StatefulWidget {
   State<ScanScreen> createState() => _ScanScreenState();
 }
 
+//------------------------------------------------- ScanScreen State --------------------------------------------------//
 class _ScanScreenState extends State<ScanScreen> {
-  // Channel for receiving toggleScan from native
   static const MethodChannel _platform = MethodChannel('rfid_plugin');
 
   final allPatterns = PatternService.patterns.values.toList();
@@ -26,14 +27,15 @@ class _ScanScreenState extends State<ScanScreen> {
   int selectedPower = 30;
   final List<int> powerLevels = List.generate(30, (index) => index + 1);
 
+  //------------------------------------------------- Init State --------------------------------------------------//
   @override
   void initState() {
     super.initState();
-    // listen for physical button toggles
     _platform.setMethodCallHandler(_handleNativeCall);
     initRFID();
   }
 
+  //------------------------------------------------- Handle Native Call --------------------------------------------------//
   Future<void> _handleNativeCall(MethodCall call) async {
     if (call.method == 'toggleScan') {
       if (isScanning) {
@@ -44,6 +46,7 @@ class _ScanScreenState extends State<ScanScreen> {
     }
   }
 
+  //------------------------------------------------- Init RFID --------------------------------------------------//
   Future<void> initRFID() async {
     int power = await RFIDPlugin.getPower();
     if (power != -1) {
@@ -53,6 +56,7 @@ class _ScanScreenState extends State<ScanScreen> {
     }
   }
 
+  //------------------------------------------------- Start Inventory --------------------------------------------------//
   Future<void> startInventory() async {
     setState(() {
       isScanning = true;
@@ -69,6 +73,7 @@ class _ScanScreenState extends State<ScanScreen> {
     });
   }
 
+  //------------------------------------------------- Stop Inventory --------------------------------------------------//
   Future<void> stopInventory() async {
     await RFIDPlugin.stopInventory();
     setState(() {
@@ -77,6 +82,7 @@ class _ScanScreenState extends State<ScanScreen> {
     });
   }
 
+  //------------------------------------------------- Start Scan --------------------------------------------------//
   void startScan() async {
     setState(() {
       isScanning = true;
@@ -100,6 +106,7 @@ class _ScanScreenState extends State<ScanScreen> {
     }
   }
 
+  //------------------------------------------------- Stop Scan --------------------------------------------------//
   void stopScan() {
     if (!isSingleTag) {
       stopInventory();
@@ -116,12 +123,11 @@ class _ScanScreenState extends State<ScanScreen> {
     SizeConfig.init(context); // Initialize SizeConfig
     return Scaffold(
       appBar: const CustomAppBar(title: 'RFID Scanner'),
-
       body: RefreshIndicator(
-         onRefresh: () async {
-    await PatternService.fetchPatterns();
-    setState(() {}); // Update any UI that uses Patterns after refresh
-  },
+        onRefresh: () async {
+          await PatternService.fetchPatterns();
+          setState(() {});
+        },
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -141,13 +147,11 @@ class _ScanScreenState extends State<ScanScreen> {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              //------------------------------------------------- Build Method --------------------------------------------------//
               children: [
-                // Search Bar
                 GestureDetector(
-                  onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const SearchTagPage())),
+                  onTap: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const SearchTagPage())),
                   child: Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 3 * SizeConfig.widthMultiplier,
@@ -171,9 +175,10 @@ class _ScanScreenState extends State<ScanScreen> {
                       children: [
                         Container(
                           padding:
-                          EdgeInsets.all(1 * SizeConfig.widthMultiplier),
+                              EdgeInsets.all(1 * SizeConfig.widthMultiplier),
                           decoration: BoxDecoration(
                             color: Colors.red.withOpacity(0.1),
+                            //------------------------------------------------- Search Bar --------------------------------------------------//
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(Icons.search,
@@ -198,10 +203,8 @@ class _ScanScreenState extends State<ScanScreen> {
                     ),
                   ),
                 ),
-        
+                //------------------------------------------------- Power Control Section --------------------------------------------------//
                 SizedBox(height: 1.5 * SizeConfig.heightMultiplier),
-        
-                // Power Control Section
                 Container(
                   padding: EdgeInsets.all(2.5 * SizeConfig.widthMultiplier),
                   decoration: BoxDecoration(
@@ -224,7 +227,7 @@ class _ScanScreenState extends State<ScanScreen> {
                         children: [
                           Container(
                             padding:
-                            EdgeInsets.all(1 * SizeConfig.widthMultiplier),
+                                EdgeInsets.all(1 * SizeConfig.widthMultiplier),
                             decoration: BoxDecoration(
                               color: Colors.black.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
@@ -256,8 +259,8 @@ class _ScanScreenState extends State<ScanScreen> {
                                 color: Colors.grey[50],
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
-                                    color:
-                                    const Color.fromRGBO(128, 128, 128, 0.3)),
+                                    color: const Color.fromRGBO(
+                                        128, 128, 128, 0.3)),
                               ),
                               child: DropdownButton<int>(
                                 isExpanded: true,
@@ -304,7 +307,7 @@ class _ScanScreenState extends State<ScanScreen> {
                             child: ElevatedButton(
                               onPressed: () async {
                                 final success =
-                                await RFIDPlugin.setPower(selectedPower);
+                                    await RFIDPlugin.setPower(selectedPower);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(success
@@ -315,7 +318,8 @@ class _ScanScreenState extends State<ScanScreen> {
                                         : Colors.red[600],
                                     behavior: SnackBarBehavior.floating,
                                     shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10)),
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
                                   ),
                                 );
                               },
@@ -342,8 +346,7 @@ class _ScanScreenState extends State<ScanScreen> {
                     ],
                   ),
                 ),
-        
-                // Single Tag Toggle
+                //------------------------------------------------- Single Tag Toggle --------------------------------------------------//
                 Container(
                   padding: EdgeInsets.all(2.5 * SizeConfig.widthMultiplier),
                   child: Row(
@@ -379,18 +382,15 @@ class _ScanScreenState extends State<ScanScreen> {
                           activeTrackColor: Color.fromRGBO(255, 0, 0, 0.3),
                           inactiveThumbColor: Colors.grey[400],
                           inactiveTrackColor:
-                          Color.fromRGBO(128, 128, 128, 0.3),
-                          onChanged: (val) =>
-                              setState(() => isSingleTag = val),
+                              Color.fromRGBO(128, 128, 128, 0.3),
+                          onChanged: (val) => setState(() => isSingleTag = val),
                         ),
                       ),
                     ],
                   ),
                 ),
-        
+                //------------------------------------------------- Scan Button --------------------------------------------------//
                 SizedBox(height: 1.5 * SizeConfig.heightMultiplier),
-        
-                // Scan Button
                 Center(
                   child: Container(
                     width: 55 * SizeConfig.widthMultiplier,
@@ -405,8 +405,8 @@ class _ScanScreenState extends State<ScanScreen> {
                       boxShadow: [
                         BoxShadow(
                           color: (isScanning
-                              ? const Color.fromRGBO(255, 0, 0, 1)
-                              : const Color.fromRGBO(0, 0, 0, 1))
+                                  ? const Color.fromRGBO(255, 0, 0, 1)
+                                  : const Color.fromRGBO(0, 0, 0, 1))
                               .withOpacity(0.3),
                           blurRadius: 12,
                           offset: Offset(0, 6),
@@ -415,8 +415,7 @@ class _ScanScreenState extends State<ScanScreen> {
                     ),
                     child: ElevatedButton.icon(
                       icon: Container(
-                        padding:
-                        EdgeInsets.all(1 * SizeConfig.widthMultiplier),
+                        padding: EdgeInsets.all(1 * SizeConfig.widthMultiplier),
                         child: Icon(
                           isScanning ? Icons.stop : Icons.play_arrow,
                           color: Colors.white,
@@ -442,10 +441,8 @@ class _ScanScreenState extends State<ScanScreen> {
                     ),
                   ),
                 ),
-        
+                //------------------------------------------------- Scanned Tags Section --------------------------------------------------//
                 SizedBox(height: 2.5 * SizeConfig.heightMultiplier),
-        
-                // Scanned Tags Section
                 Container(
                   padding: EdgeInsets.all(2.5 * SizeConfig.widthMultiplier),
                   decoration: BoxDecoration(
@@ -468,7 +465,7 @@ class _ScanScreenState extends State<ScanScreen> {
                         children: [
                           Container(
                             padding:
-                            EdgeInsets.all(1 * SizeConfig.widthMultiplier),
+                                EdgeInsets.all(1 * SizeConfig.widthMultiplier),
                             decoration: BoxDecoration(
                               color: Colors.red.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
@@ -512,301 +509,289 @@ class _ScanScreenState extends State<ScanScreen> {
                       SizedBox(height: 1.5 * SizeConfig.heightMultiplier),
                       epcList.isEmpty
                           ? Container(
-                        padding: EdgeInsets.all(
-                            10 * SizeConfig.widthMultiplier),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.nfc_outlined,
-                              size: 15 * SizeConfig.textMultiplier,
-                              color: Colors.grey[400],
-                            ),
-                            SizedBox(
-                                height:
-                                4 * SizeConfig.heightMultiplier),
-                            Text(
-                              "No tags scanned yet",
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize:
-                                2.5 * SizeConfig.textMultiplier,
-                                fontFamily: 'Poppins',
+                              padding: EdgeInsets.all(
+                                  10 * SizeConfig.widthMultiplier),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.nfc_outlined,
+                                    size: 15 * SizeConfig.textMultiplier,
+                                    color: Colors.grey[400],
+                                  ),
+                                  SizedBox(
+                                      height: 4 * SizeConfig.heightMultiplier),
+                                  Text(
+                                    "No tags scanned yet",
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 2.5 * SizeConfig.textMultiplier,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  SizedBox(
+                                      height: 2 * SizeConfig.heightMultiplier),
+                                  Text(
+                                    "Start scanning to see RFID tags here",
+                                    style: TextStyle(
+                                      color: Colors.grey[500],
+                                      fontSize: 2 * SizeConfig.textMultiplier,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            SizedBox(
-                                height:
-                                2 * SizeConfig.heightMultiplier),
-                            Text(
-                              "Start scanning to see RFID tags here",
-                              style: TextStyle(
-                                color: Colors.grey[500],
-                                fontSize:
-                                2 * SizeConfig.textMultiplier,
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
+                            )
                           : ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: epcList.length,
-                        separatorBuilder: (_, __) => Divider(
-                          color: Colors.grey[200],
-                          thickness: 1,
-                          height: 1,
-                        ),
-                        itemBuilder: (context, index) {
-                          final epc = epcList[index];
-                          final pattern =
-                          PatternService.getByTag(epc);
-                          return Container(
-                            padding: EdgeInsets.symmetric(
-                                vertical:
-                                1.2 * SizeConfig.heightMultiplier),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.all(
-                                      1 * SizeConfig
-                                          .widthMultiplier),
-                                  decoration: BoxDecoration(
-                                    color:
-                                    Colors.red.withOpacity(0.1),
-                                    borderRadius:
-                                    BorderRadius.circular(10),
-                                  ),
-                                  child: Icon(
-                                    Icons.nfc,
-                                    color: Colors.red[600],
-                                    size: 2.5 *
-                                        SizeConfig.textMultiplier,
-                                  ),
-                                ),
-                                SizedBox(
-                                    width: 2 *
-                                        SizeConfig
-                                            .widthMultiplier),
-                                Expanded(
-                                  child: pattern != null
-                                      ? GestureDetector(
-                                    onTap: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) =>
-                                            AlertDialog(
-                                              title: Row(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: epcList.length,
+                              separatorBuilder: (_, __) => Divider(
+                                color: Colors.grey[200],
+                                thickness: 1,
+                                height: 1,
+                              ),
+                              itemBuilder: (context, index) {
+                                final epc = epcList[index];
+                                final pattern = PatternService.getByTag(epc);
+                                return Container(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical:
+                                          1.2 * SizeConfig.heightMultiplier),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(
+                                            1 * SizeConfig.widthMultiplier),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red.withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Icon(
+                                          Icons.nfc,
+                                          color: Colors.red[600],
+                                          size: 2.5 * SizeConfig.textMultiplier,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                          width:
+                                              2 * SizeConfig.widthMultiplier),
+                                      Expanded(
+                                        child: pattern != null
+                                            ? GestureDetector(
+                                                onTap: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (context) =>
+                                                        AlertDialog(
+                                                      title: Row(
+                                                        children: [
+                                                          Text(
+                                                            'Tag Details',
+                                                            style: TextStyle(
+                                                              fontFamily:
+                                                                  'Poppins',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color: Colors
+                                                                  .red[600],
+                                                              fontSize: 2.2 *
+                                                                  SizeConfig
+                                                                      .textMultiplier,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      content: Container(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                vertical: 8,
+                                                                horizontal: 4),
+                                                        child: Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              'Name: ${pattern.patternName}',
+                                                              style: const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  fontFamily:
+                                                                      'Poppins'),
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 10),
+                                                            Text(
+                                                              'Code: ${pattern.patternCode}',
+                                                              style: const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  fontFamily:
+                                                                      'Poppins'),
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 10),
+                                                            Text(
+                                                              'Tag ID: $epc',
+                                                              style: const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  fontFamily:
+                                                                      'Poppins'),
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 10),
+                                                            Text(
+                                                              'Supplier: ${pattern.supplierName}',
+                                                              style: const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  fontFamily:
+                                                                      'Poppins'),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          style: TextButton
+                                                              .styleFrom(
+                                                            backgroundColor:
+                                                                Colors.red[50],
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          8),
+                                                            ),
+                                                          ),
+                                                          onPressed: () =>
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop(),
+                                                          child: Text(
+                                                            'Close',
+                                                            style: TextStyle(
+                                                              color: Colors
+                                                                  .red[600],
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontFamily:
+                                                                  'Poppins',
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: Text(
+                                                            pattern.patternName,
+                                                            style: TextStyle(
+                                                              fontFamily:
+                                                                  'Poppins',
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              color: Colors
+                                                                  .black87,
+                                                              fontSize: 2 *
+                                                                  SizeConfig
+                                                                      .textMultiplier,
+                                                            ),
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            maxLines: 2,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    SizedBox(
+                                                        height: 0.5 *
+                                                            SizeConfig
+                                                                .heightMultiplier),
+                                                    Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: Text(
+                                                            'Code: ${pattern.patternCode}',
+                                                            style: TextStyle(
+                                                              fontFamily:
+                                                                  'Poppins',
+                                                              color: Colors
+                                                                  .grey[600],
+                                                              fontSize: 1.5 *
+                                                                  SizeConfig
+                                                                      .textMultiplier,
+                                                            ),
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            maxLines: 1,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
+                                            : Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    'Tag Details',
+                                                    epc,
                                                     style: TextStyle(
-                                                      fontFamily:
-                                                      'Poppins',
+                                                      fontFamily: 'Poppins',
                                                       fontWeight:
-                                                      FontWeight
-                                                          .bold,
-                                                      color: Colors
-                                                          .red[600],
-                                                      fontSize: 2.2 *
+                                                          FontWeight.w500,
+                                                      color: Colors.black87,
+                                                      fontSize: 2 *
+                                                          SizeConfig
+                                                              .textMultiplier,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                      height: 0.5 *
+                                                          SizeConfig
+                                                              .heightMultiplier),
+                                                  Text(
+                                                    'Unknown Tag',
+                                                    style: TextStyle(
+                                                      fontFamily: 'Poppins',
+                                                      color: Colors.grey[600],
+                                                      fontSize: 1.5 *
                                                           SizeConfig
                                                               .textMultiplier,
                                                     ),
                                                   ),
                                                 ],
                                               ),
-                                              content: Container(
-                                                padding:
-                                                const EdgeInsets
-                                                    .symmetric(
-                                                    vertical: 8,
-                                                    horizontal:
-                                                    4),
-                                                child: Column(
-                                                  mainAxisSize:
-                                                  MainAxisSize
-                                                      .min,
-                                                  crossAxisAlignment:
-                                                  CrossAxisAlignment
-                                                      .start,
-                                                  children: [
-                                                    Text(
-                                                      'Name: ${pattern.patternName}',
-                                                      style: const TextStyle(
-                                                          fontWeight:
-                                                          FontWeight
-                                                              .w600,
-                                                          fontFamily:
-                                                          'Poppins'),
-                                                    ),
-                                                    const SizedBox(
-                                                        height: 10),
-                                                    Text(
-                                                      'Code: ${pattern.patternCode}',
-                                                      style: const TextStyle(
-                                                          fontWeight:
-                                                          FontWeight
-                                                              .w600,
-                                                          fontFamily:
-                                                          'Poppins'),
-                                                    ),
-                                                    const SizedBox(
-                                                        height: 10),
-                                                    Text(
-                                                      'Tag ID: $epc',
-                                                      style: const TextStyle(
-                                                          fontWeight:
-                                                          FontWeight
-                                                              .w600,
-                                                          fontFamily:
-                                                          'Poppins'),
-                                                    ),
-                                                    const SizedBox(
-                                                        height: 10),
-                                                    Text(
-                                                      'Supplier: ${pattern.supplierName}',
-                                                      style: const TextStyle(
-                                                          fontWeight:
-                                                          FontWeight
-                                                              .w600,
-                                                          fontFamily:
-                                                          'Poppins'),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  style: TextButton
-                                                      .styleFrom(
-                                                    backgroundColor:
-                                                    Colors.red[
-                                                    50],
-                                                    shape:
-                                                    RoundedRectangleBorder(
-                                                      borderRadius:
-                                                      BorderRadius.circular(
-                                                          8),
-                                                    ),
-                                                  ),
-                                                  onPressed: () =>
-                                                      Navigator.of(
-                                                          context)
-                                                          .pop(),
-                                                  child: Text(
-                                                    'Close',
-                                                    style: TextStyle(
-                                                      color: Colors
-                                                          .red[600],
-                                                      fontWeight:
-                                                      FontWeight
-                                                          .bold,
-                                                      fontFamily:
-                                                      'Poppins',
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                      );
-                                    },
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment
-                                          .start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                pattern
-                                                    .patternName ??
-                                                    '',
-                                                style: TextStyle(
-                                                  fontFamily:
-                                                  'Poppins',
-                                                  fontWeight:
-                                                  FontWeight
-                                                      .w500,
-                                                  color: Colors
-                                                      .black87,
-                                                  fontSize: 2 *
-                                                      SizeConfig
-                                                          .textMultiplier,
-                                                ),
-                                                overflow: TextOverflow
-                                                    .ellipsis,
-                                                maxLines: 2,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(
-                                            height: 0.5 *
-                                                SizeConfig
-                                                    .heightMultiplier),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                'Code: ${pattern.patternCode}',
-                                                style: TextStyle(
-                                                  fontFamily:
-                                                  'Poppins',
-                                                  color: Colors
-                                                      .grey[600],
-                                                  fontSize: 1.5 *
-                                                      SizeConfig
-                                                          .textMultiplier,
-                                                ),
-                                                overflow: TextOverflow
-                                                    .ellipsis,
-                                                maxLines: 1,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                      : Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        epc,
-                                        style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontWeight:
-                                          FontWeight.w500,
-                                          color: Colors.black87,
-                                          fontSize: 2 *
-                                              SizeConfig
-                                                  .textMultiplier,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                          height: 0.5 *
-                                              SizeConfig
-                                                  .heightMultiplier),
-                                      Text(
-                                        'Unknown Tag',
-                                        style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          color: Colors.grey[600],
-                                          fontSize: 1.5 *
-                                              SizeConfig
-                                                  .textMultiplier,
-                                        ),
                                       ),
                                     ],
                                   ),
-                                ),
-                              ],
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
                     ],
                   ),
                 ),
