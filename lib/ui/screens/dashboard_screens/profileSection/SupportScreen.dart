@@ -1,9 +1,12 @@
+//------------------------------------------------- SupportScreen --------------------------------------------------//
 import 'package:flutter/material.dart';
-import '../../widgets/custom_app_bar.dart';
+import '../../../widgets/custom_app_bar.dart';
 
+//------------------------------------------------- SupportScreen Widget --------------------------------------------------//
 class SupportScreen extends StatelessWidget {
   const SupportScreen({super.key});
 
+  //------------------------------------------------- Build Method --------------------------------------------------//
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,11 +14,11 @@ class SupportScreen extends StatelessWidget {
       appBar: const CustomAppBar(title: 'Support'),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Support header
+            //------------------------------------------------- Support Header --------------------------------------------------//
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -26,7 +29,7 @@ class SupportScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  Icon(Icons.support_agent, size: 48, color: Colors.blue[700]),
+                  Icon(Icons.support_agent, size: 45, color: Colors.blue[700]),
                   const SizedBox(height: 12),
                   const Text(
                     'How can we help you?',
@@ -52,7 +55,7 @@ class SupportScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Contact options
+            //------------------------------------------------- Contact Options --------------------------------------------------//
             const Text(
               'Contact Us',
               style: TextStyle(
@@ -68,9 +71,7 @@ class SupportScreen extends StatelessWidget {
               title: 'Email Support',
               subtitle: 'support@zanvargroup.com',
               color: Colors.orange,
-              onTap: () {
-                // TODO: Implement email launch
-              },
+              onTap: () {},
             ),
 
             const SizedBox(height: 12),
@@ -80,14 +81,12 @@ class SupportScreen extends StatelessWidget {
               title: 'Call Support',
               subtitle: '+1 (555) 123-4567',
               color: Colors.green,
-              onTap: () {
-                // TODO: Implement phone call
-              },
+              onTap: () {},
             ),
 
             const SizedBox(height: 24),
 
-            // FAQ Section
+            //------------------------------------------------- FAQ Section --------------------------------------------------//
             const Text(
               'Frequently Asked Questions',
               style: TextStyle(
@@ -100,21 +99,24 @@ class SupportScreen extends StatelessWidget {
 
             FaqItem(
               question: 'How do I reset my password?',
-              answer: 'You can reset your password by clicking on "Forgot Password" on the login screen and following the instructions sent to your email.',
+              answer:
+                  'You can reset your password by clicking on "Forgot Password" on the login screen and following the instructions sent to your email.',
             ),
 
             const SizedBox(height: 12),
 
             FaqItem(
               question: 'How can I update my profile information?',
-              answer: 'Currently, profile updates need to be requested through your department administrator or by contacting support.',
+              answer:
+                  'Currently, profile updates need to be requested through your department administrator or by contacting support.',
             ),
 
             const SizedBox(height: 12),
 
             FaqItem(
               question: 'The app is not working properly. What should I do?',
-              answer: 'First, try restarting the app. If the issue persists, ensure you have the latest version installed. If problems continue, please contact our support team.',
+              answer:
+                  'First, try restarting the app. If the issue persists, ensure you have the latest version installed. If problems continue, please contact our support team.',
             ),
           ],
         ),
@@ -123,6 +125,7 @@ class SupportScreen extends StatelessWidget {
   }
 }
 
+//------------------------------------------------- ContactOption Widget --------------------------------------------------//
 class ContactOption extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -197,6 +200,7 @@ class ContactOption extends StatelessWidget {
   }
 }
 
+//------------------------------------------------- FaqItem Widget --------------------------------------------------//
 class FaqItem extends StatefulWidget {
   final String question;
   final String answer;
@@ -211,6 +215,7 @@ class FaqItem extends StatefulWidget {
   State<FaqItem> createState() => _FaqItemState();
 }
 
+//------------------------------------------------- FaqItem State --------------------------------------------------//
 class _FaqItemState extends State<FaqItem> {
   bool _expanded = false;
 

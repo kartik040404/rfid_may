@@ -1,13 +1,19 @@
+//------------------------------------------------- RFIDService --------------------------------------------------//
 import 'package:flutter/services.dart';
 
+//------------------------------------------------- Class Definition --------------------------------------------------//
 class RFIDService {
+  //------------------------------------------------- Channel --------------------------------------------------//
   static const MethodChannel _channel = MethodChannel('rfid_plugin');
 
+  //------------------------------------------------- Distance Update Callback --------------------------------------------------//
   Function(double)? _onDistanceUpdate;
 
+  //------------------------------------------------- Set Power --------------------------------------------------//
   Future<bool> setPower(int power) async {
     try {
-      final bool result = await _channel.invokeMethod('setPower', {'power': power});
+      final bool result =
+          await _channel.invokeMethod('setPower', {'power': power});
       return result;
     } catch (e) {
       print('Error setting power: $e');
@@ -15,7 +21,7 @@ class RFIDService {
     }
   }
 
-  /// Starts RFID scanning and listens for distance updates
+  //------------------------------------------------- Start Scanning --------------------------------------------------//
   Future<void> startScanning(Function(double) onDistanceUpdate) async {
     _onDistanceUpdate = onDistanceUpdate;
 
@@ -27,7 +33,7 @@ class RFIDService {
     }
   }
 
-  /// Stops RFID scanning
+  //------------------------------------------------- Stop Scanning --------------------------------------------------//
   Future<void> stopScanning() async {
     try {
       await _channel.invokeMethod('stopInventory');
@@ -36,7 +42,7 @@ class RFIDService {
     }
   }
 
-  /// Listens for RFID scan updates (e.g., distance changes)
+  //------------------------------------------------- Listen For Updates --------------------------------------------------//
   void _listenForUpdates() {
     _channel.setMethodCallHandler((MethodCall call) async {
       if (call.method == "onTagRead") {
@@ -46,7 +52,7 @@ class RFIDService {
     });
   }
 
-  /// Sets a custom inventory callback for handling tag reads
+  //------------------------------------------------- Set Inventory Callback --------------------------------------------------//
   Future<void> setInventoryCallback(Function callback) async {
     _channel.setMethodCallHandler((MethodCall call) async {
       if (call.method == "onTagRead") {
@@ -55,7 +61,7 @@ class RFIDService {
     });
   }
 
-  /// Retrieves the current ANT settings
+  //------------------------------------------------- Get ANT --------------------------------------------------//
   Future<List<int>> getANT() async {
     try {
       final List<dynamic> result = await _channel.invokeMethod('getANT');
@@ -66,7 +72,7 @@ class RFIDService {
     }
   }
 
-  /// Sets new ANT values
+  //------------------------------------------------- Set ANT --------------------------------------------------//
   Future<void> setANT(List<int> antValues) async {
     try {
       await _channel.invokeMethod('setANT', {'values': antValues});
@@ -75,5 +81,3 @@ class RFIDService {
     }
   }
 }
-
-

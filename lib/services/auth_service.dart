@@ -2,17 +2,19 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+//------------------ AuthService Class -------------//
 class AuthService {
-  static const String baseUrl = 'http://192.168.1.9:3000'; // Use your server IP address
+  //------------------ Base URL -------------//
+  static const String baseUrl = 'http://192.168.1.9:3000';
 
-  // Check if user is logged in
+  //------------------ Check if user is logged in -------------//
   static Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     return token != null;
   }
 
-  // Get current user data
+  //------------------ Get current user data -------------//
   static Future<Map<String, dynamic>?> getCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -29,14 +31,15 @@ class AuthService {
     };
   }
 
-  // Get auth token
+  //------------------ Get auth token -------------//
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
 
-  // Login
-  static Future<Map<String, dynamic>> login(String employeeId, String password) async {
+  //------------------ Login -------------//
+  static Future<Map<String, dynamic>> login(
+      String employeeId, String password) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/login'),
@@ -50,12 +53,13 @@ class AuthService {
       final responseData = json.decode(response.body);
 
       if (response.statusCode == 200) {
-        // Save user data and token
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', responseData['token']);
         await prefs.setString('userId', responseData['user']['id'].toString());
-        await prefs.setString('employeeId', responseData['user']['employee_id']);
-        await prefs.setString('employeeName', responseData['user']['employee_name']);
+        await prefs.setString(
+            'employeeId', responseData['user']['employee_id']);
+        await prefs.setString(
+            'employeeName', responseData['user']['employee_name']);
 
         return {
           'success': true,
@@ -75,7 +79,7 @@ class AuthService {
     }
   }
 
-  // Logout
+  //------------------ Logout -------------//
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
@@ -84,14 +88,12 @@ class AuthService {
     await prefs.remove('employeeName');
   }
 
-  // Send authenticated request
+  //------------------ Send authenticated request -------------//
   static Future<http.Response> authenticatedRequest(
-      String endpoint,
-      {
-        String method = 'GET',
-        Map<String, dynamic>? body,
-      }
-      ) async {
+    String endpoint, {
+    String method = 'GET',
+    Map<String, dynamic>? body,
+  }) async {
     final token = await getToken();
 
     final headers = {

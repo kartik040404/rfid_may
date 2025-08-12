@@ -1,13 +1,16 @@
+//------------------ Route Imports -------------//
 import 'package:flutter/material.dart';
-import '../ui/screens/dashboard_screens/AboutScreen.dart';
-import '../ui/screens/dashboard_screens/SupportScreen.dart';
+import '../ui/screens/dashboard_screens/profileSection/AboutScreen.dart';
+import '../ui/screens/dashboard_screens/profileSection/SupportScreen.dart';
 import '../ui/screens/onboarding_screens/login_screen.dart';
 import '../ui/screens/dashboard_screens/dashboard.dart';
-import '../ui/screens/scanpattern/scan_screen.dart';
-import '../ui/screens/registerpattern/patternregister.dart';
-import '../ui/screens/dashboard_screens/ProfileScreen.dart';
+import '../ui/screens/dashboard_screens/scan_screen.dart';
+import '../ui/screens/dashboard_screens/patternregister.dart';
+import '../ui/screens/dashboard_screens/profileSection/ProfileScreen.dart';
 
+//------------------ AppRoutes Class -------------//
 class AppRoutes {
+  //------------------ Route Names -------------//
   static const String login = '/login';
   static const String dashboard = '/dashboard';
   static const String scanPattern = '/scanPattern';
@@ -16,11 +19,11 @@ class AppRoutes {
   static const String about = '/about';
   static const String support = '/support';
 
-
+  //------------------ Route Map -------------//
   static Map<String, WidgetBuilder> getRoutes() {
     return {
       login: (context) => const LoginScreen(),
-      dashboard: (context) => const DashboardContent(),
+      dashboard: (context) => const DashboardScreen(),
       scanPattern: (context) => const ScanScreen(),
       registerPattern: (context) => NewRegisterPatternScreen(),
       profile: (context) => const ProfileScreen(),

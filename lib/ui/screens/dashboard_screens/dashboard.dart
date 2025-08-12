@@ -1,38 +1,11 @@
+//------------------------------------------------- DashboardTheme --------------------------------------------------//
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../RFIDPlugin.dart';
 import '../../../services/local_storage_service.dart';
+import '../../../services/pattern_service.dart';
 import '../../../utils/date_format.dart';
-import '../../widgets/BottomNaviagtionBar.dart';
-
-// class MainScreen extends StatefulWidget {
-//    MainScreen({Key? key}) : super(key: key);
-//
-//   @override
-//   State<MainScreen> createState() => _MainScreenState();
-// }
-//
-// class _MainScreenState extends State<MainScreen> {
-//   @override
-//   void initState() {
-//     super.initState();
-//     _initializeRFID();
-//   }
-//
-//   Future<void> _initializeRFID() async {
-//     await RFIDPlugin.initRFID();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return  Scaffold(
-//       body: DashboardContent(), // Change to any other screen you want
-//     );
-//   }
-// }
-
 
 class DashboardTheme {
   static const Color primaryRed = Color(0xFFDC143C);
@@ -72,61 +45,78 @@ class DashboardTheme {
   );
 }
 
-
-
-class DashboardContent extends StatefulWidget {
+//------------------------------------------------- DashboardScreen Widget --------------------------------------------------//
+class DashboardScreen extends StatefulWidget {
   final String userName;
 
-  const DashboardContent({Key? key, this.userName = "User"}) : super(key: key);
+  const DashboardScreen({Key? key, this.userName = "User"}) : super(key: key);
 
   @override
-  State<DashboardContent> createState() => _DashboardContentState();
+  State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardContentState extends State<DashboardContent> {
-  late Future<List<LogCard>> recentScansFuture;
-
+//------------------------------------------------- DashboardScreen State --------------------------------------------------//
+class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
   }
 
   @override
+  //------------------------------------------------- Build Method --------------------------------------------------//
+  @override
   Widget build(BuildContext context) {
+    final allPatterns = PatternService.allPatterns;
+    final totalCount = allPatterns.length;
+    final registeredCount = allPatterns.where((p) => p.rfdId.isNotEmpty).length;
+    final unregisteredCount = totalCount - registeredCount;
+
     return Scaffold(
       backgroundColor: DashboardTheme.lightGrey,
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeaderSection(),
-            _buildStatisticsSection(),
-            const SizedBox(height: 32),
-            _buildRecentRegistrationsSection(),
-            const SizedBox(height: 100),
-          ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await PatternService.fetchPatterns();
+          // Make sure to update the UI after fetching
+          setState(() {});
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeaderSection(),
+              _buildStatisticsSection(
+                totalCount,
+                registeredCount,
+                unregisteredCount,
+              ),
+              const SizedBox(height: 32),
+              _buildRecentRegistrationsSection(),
+              const SizedBox(height: 100),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildHeaderSection() {
+    //------------------------------------------------- Header Section --------------------------------------------------//
     return Container(
-      margin: const EdgeInsets.all(16), // Reduced margin
-      padding: const EdgeInsets.all(20), // Reduced padding
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [DashboardTheme.primaryRed, DashboardTheme.darkRed],
         ),
-        borderRadius: BorderRadius.circular(12), // Smaller radius
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: DashboardTheme.primaryRed.withOpacity(0.2), // Lighter shadow
-            blurRadius: 8, // Smaller blur
-            offset: const Offset(0, 4), // Smaller offset
+            color: DashboardTheme.primaryRed.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -139,9 +129,9 @@ class _DashboardContentState extends State<DashboardContent> {
               children: [
                 Text(
                   "Welcome, ${widget.userName}",
-                  style: DashboardTheme.headerStyle.copyWith(fontSize: 16), // Smaller font
+                  style: DashboardTheme.headerStyle.copyWith(fontSize: 16),
                 ),
-                const SizedBox(height: 4), // Less spacing
+                const SizedBox(height: 4),
                 const Text(
                   "Pattern Management System",
                   style: DashboardTheme.subHeaderStyle,
@@ -155,92 +145,108 @@ class _DashboardContentState extends State<DashboardContent> {
     );
   }
 
-  //-----------------------------------------------------RFID Connection----------------------------------------------//
-
   Widget _buildConnectionStatus() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: Colors.white.withOpacity(0.3)),
-      ),
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.wifi, color: Colors.green, size: 18),
-          SizedBox(width: 8),
-          Text(
-            "RFID Connected",
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: Colors.white.withOpacity(0.3)),
           ),
-        ],
-      ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.wifi, color: Colors.green, size: 18),
+              SizedBox(width: 8),
+              Text(
+                "RFID Connected",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 4),
+        const Padding(
+          padding: EdgeInsets.only(left: 70.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.location_on, color: Colors.white, size: 16),
+              SizedBox(width: 4),
+              Text(
+                "SHIROLI",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildStatisticsSection() {
+  //------------------------------------------------- Statistics Section --------------------------------------------------//
+  Widget _buildStatisticsSection(
+      int totalCount, int registeredCount, int unregisteredCount) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Pattern Statistics", style: DashboardTheme.sectionTitleStyle),
+          Text("Pattern Statistics", style: DashboardTheme.sectionTitleStyle),
           const SizedBox(height: 10),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 14,
-                mainAxisSpacing: 14,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                childAspectRatio: 1.25,
-                children: const [
-                  StatsCard(
-                    title: "Total Patterns",
-                    value: "1,250",
-                    trend: "+12% this month",
-                    icon: Icons.donut_large_outlined,
-                    iconColor: DashboardTheme.primaryRed,
-                  ),
-                  // StatsCard(
-                  //   title: "Available",
-                  //   value: "1,240",
-                  //   trend: "Ready to use",
-                  //   icon: Icons.check_circle_outline,
-                  //   iconColor: Color(0xFF27AE60),
-                  // ),
-                  // StatsCard(
-                  //   title: "Pending",
-                  //   value: "5",
-                  //   trend: "Needs approval",
-                  //   icon: Icons.schedule_outlined,
-                  //   iconColor: Color(0xFFFF6B35),
-                  // ),
-                  StatsCard(
-                    title: "Tagged Items",
-                    value: "832",
-                    trend: "RFID enabled",
-                    icon: Icons.local_offer_outlined,
-                    iconColor: DashboardTheme.darkRed,
-                  ),
-                ],
-              );
-            },
+          Row(
+            children: [
+              Expanded(
+                child: TotalCard(
+                  title: "Total Patterns",
+                  value: totalCount.toString(),
+                  icon: Icons.donut_large_outlined,
+                  iconColor: DashboardTheme.primaryRed,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: StatsCard(
+                  title: "Registered",
+                  value: registeredCount.toString(),
+                  icon: Icons.check_circle_outline,
+                  iconColor: const Color(0xFF27AE60),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: StatsCard(
+                  title: "Unregistered",
+                  value: unregisteredCount.toString(),
+                  icon: Icons.local_offer_outlined,
+                  iconColor: DashboardTheme.darkRed,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-
-  //-------------------------------------------------------Recent registration----------------------------------------------------//
+  //------------------------------------------------- Recent Registrations Section --------------------------------------------------//
   Widget _buildRecentRegistrationsSection() {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: LocalStorageService.getRecentRegistrations(),
@@ -251,22 +257,19 @@ class _DashboardContentState extends State<DashboardContent> {
             child: CircularProgressIndicator(),
           );
         }
-
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Padding(
             padding: EdgeInsets.all(16),
             child: Text("No recent registrations."),
           );
         }
-
         final registrations = snapshot.data!;
-
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionHeader("Recent Registrations", onViewAll: () {}),
+              _buildSectionHeader("Recent Registrations"),
               const SizedBox(height: 12),
               Column(
                 children: registrations.take(3).map((item) {
@@ -285,8 +288,8 @@ class _DashboardContentState extends State<DashboardContent> {
     );
   }
 
-
-  Widget _buildSectionHeader(String title, {VoidCallback? onViewAll}) {
+  //------------------------------------------------- Section Header --------------------------------------------------//
+  Widget _buildSectionHeader(String title) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -296,11 +299,10 @@ class _DashboardContentState extends State<DashboardContent> {
   }
 }
 
-
+//------------------------------------------------- StatsCard Widget --------------------------------------------------//
 class StatsCard extends StatelessWidget {
   final String title;
   final String value;
-  final String trend;
   final IconData icon;
   final Color iconColor;
 
@@ -308,7 +310,6 @@ class StatsCard extends StatelessWidget {
     Key? key,
     required this.title,
     required this.value,
-    required this.trend,
     required this.icon,
     required this.iconColor,
   }) : super(key: key);
@@ -369,19 +370,6 @@ class StatsCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                // Uncomment if you want to show trend info
-                // const SizedBox(height: 4),
-                // Text(
-                //   trend,
-                //   style: TextStyle(
-                //     fontFamily: 'Poppins',
-                //     fontSize: 10,
-                //     color: Colors.grey[500],
-                //     fontWeight: FontWeight.w400,
-                //   ),
-                //   maxLines: 1,
-                //   overflow: TextOverflow.ellipsis,
-                // ),
               ],
             ),
           ),
@@ -391,8 +379,95 @@ class StatsCard extends StatelessWidget {
   }
 }
 
+//------------------------------------------------- TotalCard Widget --------------------------------------------------//
+class TotalCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color iconColor;
 
+  const TotalCard({
+    Key? key,
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.iconColor,
+  }) : super(key: key);
 
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: DashboardTheme.cardBackground,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {},
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(26),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: iconColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: iconColor, size: 30),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: DashboardTheme.textSecondary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        value,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: DashboardTheme.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+//------------------------------------------------- LogCard Widget --------------------------------------------------//
 class LogCard extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -425,12 +500,10 @@ class LogCard extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
-            // Optional: define tap action here
-          },
+          onTap: () {},
           borderRadius: BorderRadius.circular(10),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14.0),
             child: Row(
               children: [
                 Container(
@@ -450,14 +523,28 @@ class LogCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: DashboardTheme.textPrimary,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: DashboardTheme.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            time,
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.redAccent,
+                            ),
+                          ),
+                        ],
                       ),
                       Text(
                         subtitle,
@@ -468,15 +555,6 @@ class LogCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ),
-                ),
-                Text(
-                  time,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey[500],
                   ),
                 ),
               ],

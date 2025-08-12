@@ -1,22 +1,26 @@
+//------------------------------------------------- Imports --------------------------------------------------//
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:testing_aar_file/ui/screens/onboarding_screens/login_screen.dart';
 import 'package:testing_aar_file/ui/screens/onboarding_screens/splashscreen.dart';
 import 'package:testing_aar_file/ui/screens/onboarding_screens/welcome_screen.dart';
-import 'package:testing_aar_file/utils/save_and_dashboard.dart';
 import 'RFIDPlugin.dart';
 import './routes/routes.dart';
-import 'Testing/ADDEntry.dart';
 
-void main() {
+//------------------------------------------------- Main Entry Point --------------------------------------------------//
+void main() async {
+  // await dotenv.load(fileName: ".env");
   runApp(MyApp());
 }
 
+//------------------------------------------------- MyApp Widget --------------------------------------------------//
 class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
+//------------------------------------------------- MyApp State --------------------------------------------------//
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -35,6 +39,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
       RFIDPlugin.releaseRFID();
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

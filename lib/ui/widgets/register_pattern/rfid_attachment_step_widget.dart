@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../utils/size_config.dart';
 
 class RfidAttachmentStepWidget extends StatelessWidget {
   final String status;
@@ -20,6 +21,7 @@ class RfidAttachmentStepWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig.init(context);
     final media = MediaQuery.of(context);
     final isWide = media.size.width > 600;
     Color primaryColor = Colors.red.shade700;
@@ -32,35 +34,38 @@ class RfidAttachmentStepWidget extends StatelessWidget {
           elevation: 4,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
-            padding: EdgeInsets.all(isWide ? 32.0 : 16.0),
+            padding: EdgeInsets.all(isWide ? SizeConfig.blockSizeHorizontal * 6 : SizeConfig.blockSizeHorizontal * 3),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
                   "Attach RFID Tag",
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: SizeConfig.textMultiplier * 2,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: SizeConfig.blockSizeVertical * 2),
                 Text(
                   "Status: $status",
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: SizeConfig.textMultiplier * 1.7,
                     fontWeight: FontWeight.w500,
                     color: status.contains('Failed') || status.contains('Maximum') || status.contains('already added') ? Colors.red.shade700 : primaryColor,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: SizeConfig.blockSizeVertical * 1.2),
                 if (rfidTags.isNotEmpty) ...[
                   Text(
                     "Scanned RFID Tag:",
-                    style: TextStyle(fontWeight: FontWeight.w600, color: primaryColor),
+                    style: TextStyle(fontWeight: FontWeight.w600, color: primaryColor, fontSize: SizeConfig.textMultiplier * 1.5),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: SizeConfig.blockSizeVertical * 0.8),
                   Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                    padding: EdgeInsets.symmetric(vertical: SizeConfig.blockSizeVertical, horizontal: SizeConfig.blockSizeHorizontal * 2),
                     decoration: BoxDecoration(
                       color: primaryColorLight,
                       borderRadius: BorderRadius.circular(8),
@@ -70,7 +75,7 @@ class RfidAttachmentStepWidget extends StatelessWidget {
                         Expanded(
                           child: Text(
                             rfidTags[0],
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                            style: TextStyle(fontSize: SizeConfig.textMultiplier * 1.6, fontWeight: FontWeight.w500),
                           ),
                         ),
                         IconButton(
@@ -81,7 +86,7 @@ class RfidAttachmentStepWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: SizeConfig.blockSizeVertical * 1.2),
                 ],
                 if (rfidTags.isEmpty) ...[
                   ElevatedButton.icon(
@@ -91,12 +96,12 @@ class RfidAttachmentStepWidget extends StatelessWidget {
                     label: Text(isScanning ? 'Scanning...' : 'Scan RFID Tag'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      padding: EdgeInsets.symmetric(vertical: SizeConfig.blockSizeVertical * 1.4),
+                      textStyle: TextStyle(fontSize: SizeConfig.textMultiplier * 1.6, fontWeight: FontWeight.bold),
                     ),
                     onPressed: isScanning ? null : () => onStartInventory(),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: SizeConfig.blockSizeVertical * 1.2),
                 ],
                 if (isScanning && rfidTags.isEmpty) ...[
                   OutlinedButton.icon(
@@ -105,15 +110,15 @@ class RfidAttachmentStepWidget extends StatelessWidget {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.red.shade700,
                       side: BorderSide(color: Colors.red.shade700),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      padding: EdgeInsets.symmetric(vertical: SizeConfig.blockSizeVertical * 1.2),
                     ),
                     onPressed: () => onStopInventory(),
                   ),
                 ],
-SizedBox(height: 100,),
+                SizedBox(height: SizeConfig.blockSizeVertical * 8),
                 Text(
                   "Only one RFID tag can be attached.",
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+                  style: TextStyle(fontSize: SizeConfig.textMultiplier * 1.4, color: Colors.grey.shade700),
                   textAlign: TextAlign.center,
                 ),
               ],

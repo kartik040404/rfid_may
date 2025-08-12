@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../utils/size_config.dart';
 
 class ReviewAndSaveStepWidget extends StatelessWidget {
   final Map<String, String>? selectedPattern;
@@ -14,6 +15,7 @@ class ReviewAndSaveStepWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SizeConfig.init(context);
     Color primaryColor = Colors.red.shade700;
     Color successColor = Colors.green.shade700;
 
@@ -21,10 +23,9 @@ class ReviewAndSaveStepWidget extends StatelessWidget {
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(SizeConfig.blockSizeHorizontal * 4),
         child: Column(
           children: [
-            // Wrap scrollable content in Expanded
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -32,9 +33,12 @@ class ReviewAndSaveStepWidget extends StatelessWidget {
                   children: [
                     Text(
                       "Review & Save",
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold,fontSize: 20),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: SizeConfig.textMultiplier * 2,
+                      ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: SizeConfig.blockSizeVertical * 2),
                     _buildReviewInfo(
                       context,
                       icon: Icons.style_outlined,
@@ -44,11 +48,11 @@ class ReviewAndSaveStepWidget extends StatelessWidget {
                           : "Not selected",
                       iconColor: primaryColor,
                     ),
-                    const SizedBox(height: 14),
+                    SizedBox(height: SizeConfig.blockSizeVertical * 1.2),
                     _buildReviewInfo(
                       context,
                       icon: Icons.qr_code_scanner_outlined,
-                      title: "RFID Tags (${rfidTags.length})",
+                      title: "RFID Tags ",
                       content: rfidTags.isNotEmpty
                           ? rfidTags.map((t) => "• $t").join('\n')
                           : "No tags attached",
@@ -59,20 +63,6 @@ class ReviewAndSaveStepWidget extends StatelessWidget {
                 ),
               ),
             ),
-            // Remove the Save button from here
-            // const SizedBox(height: 16),
-            // ElevatedButton.icon(
-            //   style: ElevatedButton.styleFrom(
-            //     backgroundColor: successColor,
-            //     foregroundColor: Colors.white,
-            //     padding: const EdgeInsets.symmetric(vertical: 12),
-            //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            //     textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            //   ),
-            //   onPressed: () => onSavePattern(),
-            //   icon: const Icon(Icons.save_alt_outlined),
-            //   label: const Text("Save Pattern"),
-            // ),
           ],
         ),
       ),
@@ -88,7 +78,7 @@ class ReviewAndSaveStepWidget extends StatelessWidget {
         bool isMultiline = false,
       }) {
     return Container(
-      padding: const EdgeInsets.all(12.0),
+      padding: EdgeInsets.all(SizeConfig.blockSizeHorizontal * 2.5),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(8),
@@ -97,8 +87,8 @@ class ReviewAndSaveStepWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 28, color: iconColor ?? Theme.of(context).primaryColor),
-          const SizedBox(width: 12),
+          Icon(icon, size: SizeConfig.textMultiplier * 2.2, color: iconColor ?? Theme.of(context).primaryColor),
+          SizedBox(width: SizeConfig.blockSizeHorizontal * 2),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,14 +97,14 @@ class ReviewAndSaveStepWidget extends StatelessWidget {
                   title,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: SizeConfig.textMultiplier * 1.6,
                     color: Colors.grey.shade800,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: SizeConfig.blockSizeVertical * 0.5),
                 Text(
                   content,
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700, height: 1.4),
+                  style: TextStyle(fontSize: SizeConfig.textMultiplier * 1.4, color: Colors.grey.shade700, height: 1.4),
                 ),
               ],
             ),
